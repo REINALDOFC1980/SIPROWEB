@@ -1,0 +1,249 @@
+﻿    @model IEnumerable<SIPROSHARED.Models.ResultGetAitModel>
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2> Notificação de Autuação</h2>
+        
+    </div>
+</div>
+
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-7">
+            <div class="ibox">
+                <div class="ibox-content">
+                @*    <span class="text-muted small float-right">Total de 2 registro</span> *@
+                    <h3><i class="fa fa-paste"></i> Consultar Notificação de Autuação  </h3>
+                    <small>Digite o número do AIT</small>
+                    <div class="input-group">
+                        <input type="text" placeholder=" " class="input form-control" id="Vlo_Busca">
+                        <span class="input-group-append">
+                            <button type="button" class="btn btn btn-primary" id="btmLocalizarAIT"> <i class="fa fa-search"></i> Localizar</button>
+                        </span>
+                    </div>
+                    <div class="clients-list">
+                        <div class="full-height-scroll">                                                     
+                            <div id="div_listaAIT">
+                                @await Html.PartialAsync("_ListaAIT")
+                            </div>                         
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="col-sm-5">
+            <div class="tabs-container">
+
+                <ul class="nav nav-tabs">
+                    <li><a class="nav-link active show" data-toggle="tab" href="#tab-1"> Auto</a></li>
+                    <li><a class="nav-link" data-toggle="tab" href="#tab-2">Condutor</a></li>
+                    <li><a class="nav-link" data-toggle="tab" href="#tab-3">Defesa</a></li>
+                    <li><a class="nav-link" data-toggle="tab" href="#tab-4">JARI</a></li>
+                    <li><a class="nav-link" data-toggle="tab" href="#tab-5">CETRAN</a></li>
+                    <li><a class="nav-link" data-toggle="tab" href="#tab-6">Ressarcimento</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div id="tab-1" class="tab-pane active show">
+                        <div class="panel-body">
+                            <div class="client-detail">
+                                <div class="full-height-scroll">
+                                    <strong>Notificação de Autuação</strong>
+                                    <div class="ibox-content inspinia-timeline">
+                                        <div id="div_detalheAIT">
+                                            @await Html.PartialAsync("_DetalhamentoAIT")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-2" class="tab-pane">
+                        <div class="panel-body">
+                            <div class="client-detail">                       
+                                <div class="full-height-scroll">
+                                    <strong>Processo de Apresentação de Condutor Infrator</strong>
+                                    <div class="ibox-content inspinia-timeline">
+                                        <div id="div_condutor">
+                                            @await Html.PartialAsync("_Condutor")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-3" class="tab-pane">
+                        <div class="panel-body">
+                            <div class="client-detail">                              
+                                <div class="full-height-scroll">
+                                    <strong>Processo de Defesa da Autuação</strong>
+                                    <div class="ibox-content inspinia-timeline">
+                                    <div id="div_defesa">
+                                        @await Html.PartialAsync("_Defesa")
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>  
+
+                    <div id="tab-4" class="tab-pane">
+                        <div class="panel-body">
+                            <div class="client-detail">
+                                <div class="full-height-scroll">
+                                    <strong>Processo JARI</strong>
+                                    <div class="ibox-content inspinia-timeline">
+                                        <div id="div_jari">
+                                            @await Html.PartialAsync("_JARI")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-5" class="tab-pane">
+                        <div class="panel-body">
+                            <div class="client-detail">
+                                <div class="full-height-scroll">
+                                    <strong>Processo CETRAN</strong>
+                                    <div class="ibox-content inspinia-timeline">
+                                        <div id="div_cetran">
+                                            @await Html.PartialAsync("_CETRAN")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-6" class="tab-pane">
+                        <div class="panel-body">
+                            <div class="client-detail">
+                                <div class="full-height-scroll">
+                                    <strong>Processo de Ressarcimento</strong>
+                                    <div class="ibox-content inspinia-timeline">
+                                        <div id="div_ressarcimento">
+                                            @await Html.PartialAsync("_Ressarcimento")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<a class=" floating-btn" href="~/Home/Index">+</a>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+
+
+<!-- blueimp gallery -->
+
+
+<script>
+
+    function TabIndex() {
+        // Remove active class from all tabs
+        document.querySelectorAll('.nav-link').forEach(function (tab) {
+            tab.classList.remove('active', 'show');
+        });
+        document.querySelectorAll('.tab-pane').forEach(function (pane) {
+            pane.classList.remove('active', 'show');
+        });
+
+        // Add active class to tab 1
+        document.querySelector('.nav-link[href="#tab-1"]').classList.add('active', 'show');
+        document.getElementById('tab-1').classList.add('active', 'show');
+    }
+
+    function LocalizarAIT(vlobusca) {
+        $.ajax({
+            url: '@Url.Action("BuscarAIT", "AIT")',
+            datatype: 'html',
+            contentType: "application/html; charset=utf-8",
+            type: "GET",
+            data: { vloBusca: vlobusca },
+            success: function (result) {
+                $('#div_listaAIT').html(result);
+                
+                AbirAIT("");
+
+                TabIndex();
+
+            },
+            error: function (xhr, status, error) {
+                // Lidar com erros, se necessário
+            }
+        });
+    }
+
+    // BUTÃO ESCANEEAR VALIDANDO
+    $('#btmLocalizarAIT').click(function (event) {
+        var vlobusca = $('#Vlo_Busca').val();
+        event.preventDefault();
+        LocalizarAIT(vlobusca);
+    });
+
+
+    $('#Vlo_Busca').on('input', function () {
+        var searchTerm = $(this).val();
+        if (searchTerm === '') {
+            LocalizarAIT(null); // Busca todos os resultados
+        }
+    });
+
+
+    async function AbirAIT(vlobusca, linkElement) {
+        async function fetchAndUpdate(url, elementId) {
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/html; charset=utf-8'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                const result = await response.text();
+                document.getElementById(elementId).innerHTML = result;
+
+            } catch (error) {
+                console.error(`Houve um problema com a requisição fetch para ${elementId}:`, error);
+            }
+        }
+
+        const urls = [
+            { url: '@Url.Action("DetalheAIT", "AIT")?ait=' + encodeURIComponent(vlobusca), elementId: 'div_detalheAIT' },
+            { url: '@Url.Action("DetalheCondutor", "AIT")?ait=' + encodeURIComponent(vlobusca), elementId: 'div_condutor' },
+            { url: '@Url.Action("DetalheDefesa", "AIT")?ait=' + encodeURIComponent(vlobusca), elementId: 'div_defesa' },
+            { url: '@Url.Action("DetalheJARI", "AIT")?ait=' + encodeURIComponent(vlobusca), elementId: 'div_jari' },
+            { url: '@Url.Action("DetalheCETRAN", "AIT")?ait=' + encodeURIComponent(vlobusca), elementId: 'div_cetran' },
+            { url: '@Url.Action("DetalheRessarcimento", "AIT")?ait=' + encodeURIComponent(vlobusca), elementId: 'div_ressarcimento' }
+        ];
+
+        for (const { url, elementId } of urls) {
+            await fetchAndUpdate(url, elementId);
+        }
+
+      
+
+        TabIndex();
+    }
+
+
+
+</script>

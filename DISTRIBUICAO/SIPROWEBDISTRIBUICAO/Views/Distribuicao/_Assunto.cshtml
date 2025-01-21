@@ -1,0 +1,341 @@
+﻿@{
+    var Usuario = ViewBag.Usuario as List<SIPROSHAREDDISTRIBUICAO.Models.ProtocoloDistribuicaoModel>;
+    var ListaProcessos = ViewBag.ListaProcessos as Dictionary<string, List<SIPROSHAREDDISTRIBUICAO.Models.ListaProcessoUsuario>>;
+}
+
+<div class="col-lg-4"> 
+
+    <div class="ibox-content">
+        <h3><i class="fa fa-list-ul"></i> Processos a serem distribuídos</h3>
+        <br />
+
+        @{
+            if (ViewBag.Assunto != null)
+            {
+                <ul class="stat-list">
+                    @foreach (var item in ViewBag.Assunto)
+                    {
+                        <li>
+                            <h3 class="no-margins">@item.PRT_ASSUNTO</h3>
+                            <input type="hidden" id="processoStatus" value="@item.PRT_ASSUNTO" />
+                            <small><strong>Total de Processo:</strong></small>
+                            <div class="stat-percent">
+                                <h3 class="no-margins"><strong><span class="label label-primary">@item.PRT_QTD</span></strong></h3>
+                            </div>
+                            <hr />
+                        </li>
+                    }
+                </ul>
+            }
+        }
+    </div>
+    <br />
+    <div class="ibox-content">
+        <h3><i class="fa fa-retweet"></i> Distribuição de Processos para o Relator </h3>
+        <br />
+        @*   <button type="button" class="btn btn-block btn-outline btn-primary"><i class="fa fa-plus"> </i>  Distribuir processo especifico</button> *@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    <ul class="user-data-container" style="display: flex; justify-content: space-between; list-style-type: none; padding: 10px; border-bottom: 1px solid #ddd;">
+                        <li class="user-info" style="flex: 3;">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#DIS_DESTINO_USUARIO">
+                                <button type="button" class="btn btn-block btn-outline btn-primary">  Distribuir processo especifico <i class="fa fa-angle-double-down"> </i> </button>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+
+
+
+            <div id="DIS_DESTINO_USUARIO" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div class="input-group">
+                        <input type="text" placeholder=" " class="input form-control" id="Vlo_Busca">
+                        <span class="input-group-append">
+                            <button type="button" class="btn btn btn-primary" id="btmLocalizarProtocolo">
+                                <i class="fa fa-search"></i> Localizar
+                            </button>
+                        </span>
+                    </div>
+                    <table class="footable table table-stripped default footable-loaded" data-page-size="8" data-filter="#filter">
+                        <thead>
+                            <tr>
+
+                                <th>Número do Processo</th>
+                                <th>Número da NA</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @{
+                                if (ViewBag.ListaProcessosSetor != null)
+                                {
+
+                                    @foreach (var item in ViewBag.ListaProcessosSetor)
+                                    {
+                                        <tr class="gradeX">
+                                            <td>@item.PRT_NUMERO</td>
+                                            <td>@item.PRT_AIT</td>
+                                            <td>
+                                                <a href="#" class="btn btn-white btn-sm ret_processo" data-id="@item.MOVPRO_ID">
+                                                    <i class="fa fa-mail-forward"></i> Distribuir
+                                                </a>                                             
+                                            </td>
+                                        </tr>
+
+                                    }
+                                }
+                            }
+
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+
+        </div>
+        <br />
+      </div>
+
+</div>
+
+<div class="col-lg-8">
+    <div class="ibox-content">
+        <h3><i class="fa fa-mail-forward"></i> Painel de Distribuição dos Processos  </h3>
+    
+     
+            <div class="panel-group" id="accordion">
+             
+                        @if (Usuario != null)
+                        {
+                 
+                            @foreach (var item in Usuario)
+                            {
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <div class="panel-title">
+                                            <ul class="user-data-container" style="display: flex; justify-content: space-between; list-style-type: none; padding: 10px; border-bottom: 1px solid #ddd;">
+                                                <li class="user-info" style="flex: 3;">
+                                                    <a data-toggle="collapse" data-parent="#accordion" href="#@item.DIS_DESTINO_USUARIO">@item.DIS_NOME_USUARIO <i class="fa fa-angle-double-down"></i></a>
+                                                    <div class="progress progress-mini">
+                                                        <div style="width: @item.DIS_PERCENTUAL%;" class="progress-bar"></div>
+                                                    </div>
+                                                    <small><i class="fa fa-user"></i> @item.DIS_PERFIL | Quantidade de processo em @item.DIS_PERCENTUAL%</small>
+                                                </li>
+                                                <li class="user-processes text-center" style="flex: 1; text-align: center;">
+                                                    <strong>Total de processo</strong>
+                                                    <div>
+                                                        <h4><span class="label label-primary" style="margin-top: 30px" id="qtd_@item.DIS_DESTINO_USUARIO">@item.DIS_QTD</span></h4>
+
+                                                     </div>
+                                           
+                                                </li>
+                                                <li class="user-add text-center" style="flex: 1; text-align: center;">
+                                                    <strong>Adicionar</strong>
+                                                    <div class="input-group bootstrap-touchspin">
+                                                        <button class="btn btn-white bootstrap-touchspin-down" type="button">-</button>
+                                                
+                                                        <input class="form-control text-center user-input" type="text" value="0" id="add_@item.DIS_DESTINO_USUARIO" name="demo1" style="display: inline-block; width: 50px;">
+
+                                                        <button class="btn btn-white bootstrap-touchspin-up" type="button">+</button>
+                                                    </div>
+                                                </li>
+                                                <li class="user-remove text-center" style="flex: 1; text-align: center;">
+                                                    <strong>Retirar</strong>
+                                                    <div class="input-group bootstrap-touchspin">
+                                                        <button class="btn btn-white bootstrap-touchspin-down" type="button">-</button>                                 
+                                                        <input class="form-control text-center user-input" type="text" value="0" id="remove_@item.DIS_DESTINO_USUARIO" name="demo1" style="display: inline-block; width: 50px;">
+                                                        <button class="btn btn-white bootstrap-touchspin-up" type="button">+</button>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    @if (ListaProcessos != null && ListaProcessos.ContainsKey(item.DIS_DESTINO_USUARIO))
+                                    {
+                                        var itens = ListaProcessos[item.DIS_DESTINO_USUARIO];
+
+                                        if (itens != null && itens.Count > 0)
+                                        {
+
+                                            <div id="@item.DIS_DESTINO_USUARIO" class="panel-collapse collapse in">
+                                                <div class="panel-body">
+                                                    <div class="input-group">
+                                                        <input type="text" placeholder=" " class="input form-control" id="Vlo_Busca">
+                                                        <span class="input-group-append">
+                                                            <button type="button" class="btn btn btn-primary" id="btmLocalizarProtocolo">
+                                                                <i class="fa fa-search"></i> Localizar
+                                                            </button>
+                                                        </span>
+                                                    </div>
+                                                    <table class="footable table table-stripped default footable-loaded" data-page-size="8" data-filter="#filter">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>ID</th>
+                                                                <th>Numero do Processo</th>
+                                                                <th>Numero da NA</th>
+                                                                <th>Assunto</th>
+                                                                <th>Usuário</th>
+                                                                <th>Situação</th>
+                                                                <th>Ação</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var processo in itens)
+                                                            {
+                                                    //  <tr class="gradeX" style="@(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "background-color: #f9e79f;" : "")">
+                                                      <tr class="gradeX" style="@(processo.PRT_STATUS == "INSTRUCAO" ? "background-color: #f9e79f;" : processo.PRT_STATUS == "JULGANDO" ? "background-color: #b3ad96;" : "")">
+                                                            <td>@processo.DIS_ID</td>
+                                                            <td>@processo.PRT_NUMERO</td>
+                                                            <td>@processo.PRT_AIT</td>
+                                                            <td>@processo.PRT_ASSUNTO</td>
+                                                            <td>@processo.PRT_USUARIO</td>
+                                                            <td>@processo.PRT_STATUS</td>
+                                                            <td>
+                                                                <a href="#" class="btn btn-white btn-sm @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "" : "retirar-processo")"
+                                                                    data-id="@processo.DIS_ID">
+                                                                    <i class="fa @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "fa-lock" : "fa-minus-square-o")"></i>
+                                                                                  @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "Bloqueado" : "Retirar")
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+
+
+                                                            @* <tr class="gradeX" style="@(processo.PRT_STATUS == "INSTRUCAO" ? "background-color: #f9e79f;" : "")">
+                                           
+                                                                    <td>@processo.DIS_ID</td>
+                                                                    <td>@processo.PRT_NUMERO</td>
+                                                                    <td>@processo.PRT_AIT</td>
+                                                                    <td>@processo.PRT_ASSUNTO</td>
+                                                                    <td>@processo.PRT_USUARIO</td>
+                                                                    <td>@processo.PRT_STATUS</td>
+                                                                    <td>
+                                                                        <a href="#" class="btn btn-white btn-sm @(processo.PRT_STATUS == "INSTRUCAO" ? "" : "retirar-processo")"
+                                                                           data-id="@processo.DIS_ID">
+                                                                            <i class="fa @(processo.PRT_STATUS == "INSTRUCAO" ? "fa-lock" : "fa-minus-square-o")"></i>
+                                                                                         @(processo.PRT_STATUS == "INSTRUCAO" ? "Bloqueado" : "Retirar")
+                                                                        </a>
+                                                                    </td>
+
+                                                                  
+                                                                </tr> *@
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                        }
+                                    }
+                                </div>
+
+                            }
+
+                     
+                        }
+                   
+                <br>
+                <div>
+                    <ul class="user-data-container" style="display: flex; justify-content: space-between; list-style-type: none; padding: 10px; border-bottom: 1px solid #ddd;">
+                        <li class="project-completion" style="flex: 3;">
+                          
+                            <small></small>
+                        </li>
+                        <li class="text-center" style="flex: 1; text-align: center;">
+                          
+                    
+                        </li>
+                        <li class="text-center" style="flex: 1; text-align: center;">
+                       
+                            <div class="input-group bootstrap-touchspin">
+                                <button type="button" class="btn btn-block btn-outline btn-primary" id="getAddBtn">Distribuir</button>
+                            </div>
+                        </li>
+                        <li class="text-center" style="flex: 1; text-align: center;">
+                       
+                            <div class="input-group bootstrap-touchspin">
+                                <button type="button" class="btn btn-block btn-outline btn-danger" id="getRemoverBtn" style="margin-left: 10px;">Retirar</button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+       
+    </div>
+</div>
+
+@*Modal*@
+<div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <div class="modal-dialog">
+        <div class="modal-content animated bounceInRight">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <i class="fa fa-share-square-o modal-icon"></i>
+                <h4 class="modal-title">Distribuicao de Processo</h4>
+                <small class="font-bold">Distribuição de processo, selecione abaixo o usuario e clique em <strong>Encaminhar Processo.</strong></small>
+            </div>
+
+
+            <div class="modal-body">
+
+
+                <form id="form_distribuicao">
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label text-right">Processo:</label>
+                        <div class="col-lg-9"><input type="text" class="form-control" id="PRT_NUMERO" readonly></div>
+                                               <input type="hidden" class="form-control" id="MOVPRO_ID" />
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label text-right">NA:</label>
+                        <div class="col-lg-9"><input type="text" class="form-control" id="PRT_AIT" readonly></div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label text-right">Abertura:</label>
+                        <div class="col-lg-9"><input type="text" class="form-control" id="PRT_DT_ABERTURA" readonly></div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label text-right">Assunto:</label>
+                        <div class="col-lg-9"><input type="text" class="form-control" id="PRT_ASSUNTO" readonly></div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label text-right">Observação:</label>
+                        <div class="col-lg-9"><textarea name="MOVPRO_PARECER_ORIGEM" id="MOVPRO_PARECER_ORIGEM" rows="5" cols="40" class="form-control" placeholder="Digite sua mensagem aqui..."></textarea></div>
+                    </div>   
+                    <hr />
+                    <div class="form-group">
+                        <label>Selecio um usuário de destino</label>
+
+                        <select class="form-control m-b" id="DIS_USUARIO">
+                            @if (Usuario != null)
+                            {
+                                foreach (var item in Usuario)
+                                {
+                                    <option value="@item.DIS_DESTINO_USUARIO">@item.DIS_DESTINO_USUARIO</option>
+                                }
+                            }
+                            else
+                            {
+                                <option disabled>Sem usuários disponíveis</option>
+                            }
+                        </select>
+
+                        </div>
+                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="btnDistribuir">Encaminhar Processo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

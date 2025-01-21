@@ -1,0 +1,148 @@
+﻿
+
+
+<section id="features" class="container services">
+
+    <div class="row">
+        <div class="col-lg-12 text-center">
+            <div class="navy-line"></div>
+            <h2>SITEMA DE ABERTURA DE PROTOCOLO </h2>
+            <p>Agilidade e eficiência na abertura e gestão de protocolos. </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            <h2>Abertura Intuitiva</h2>
+            <p>Nosso sistema simplifica a abertura de protocolos com uma interface intuitiva, garantindo acessibilidade e eficiência para todos os usuários, independentemente de conhecimentos técnicos.</p>
+        </div>
+        <div class="col-sm-3">
+            <h2>Segurança e Proteção</h2>
+            <p>As informações dos protocolos são protegidas por criptografia avançada, garantindo sigilo, integridade e conformidade com as normas de proteção de dados, como a LGPD.</p>
+        </div>
+        <div class="col-sm-3">
+            <h2>Flexibilidade</h2>
+            <p>Personalize fluxos, tipos de protocolo e relatórios conforme suas necessidades, tornando o sistema altamente adaptável e alinhado às demandas do seu negócio.</p>
+        </div>
+        <div class="col-sm-3">
+            <h2>Acessibilidade</h2>
+            <p>O sistema é totalmente responsivo, funcionando perfeitamente em desktops, tablets e smartphones, permitindo acesso prático e gerenciamento remoto a qualquer momento.</p>
+        </div>
+    </div>
+</section>
+
+<section  class="container features">
+    <div class="row">
+        <div class="col-lg-12 text-center">
+            <div class="navy-line"></div>
+            <h2>O que dar fazer com o SIPRO? </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 text-center wow fadeInLeft">
+            <div>
+               <i class="fa fa-address-card-o"></i>
+                <h2>Apresentação de Condutor</h2>
+                <p>Realize a apresentação de condutor de forma rápida, segura e sem complicação, garantindo praticidade e agilidade no gerenciamento de seus processos.</p>
+            </div>
+            <div class="m-t-lg">
+           <i class="fa fa-handshake-o"></i>
+                <h2>Defesa de Autuação</h2>
+                <p>Você pode realizar a defesa de autuação de forma simples e eficiente, assegurando o acompanhamento completo do processo com segurança e transparência em todas as etapas.</p>
+            </div>
+        </div>
+        <div class="col-md-6 text-center  wow zoomIn">
+            <img src="~/img/landing/perspective.png" alt="dashboard" class="img-fluid">
+        </div>
+        <div class="col-md-3 text-center wow fadeInRight">
+            <div>
+         <i class="fa fa-university"></i>
+                <h2>Recurso JARI</h2>
+                <p>você pode interpor recursos à JARI de maneira ágil e segura, garantindo que seu caso seja analisado com toda a transparência e eficiência necessárias.</p>
+            </div>
+            <div class="m-t-lg">
+            <i class="fa fa-money"></i>
+                <h2>Ressarcimento</h2>
+                <p>você pode solicitar o ressarcimento de forma prática e rápida, acompanhando todo o processo com transparência e garantindo uma gestão eficiente dos seus pedidos.</p>
+            </div>
+        </div>
+    </div>
+   
+        <div class="row">
+            <div class="col-lg-12 text-center m-t-lg m-b-lg">
+            <p><strong>&copy; 2025 Company Grupo Recursos</strong><br /> Todos os direitos reservados. Comprometidos com a inovação, segurança e excelência no serviço, atendendo às suas necessidades com confiança e eficiência.</p>
+
+            </div
+        </div>
+    </div>
+</section>
+
+
+<!-- Mainly scripts -->
+<script src="~/js/jquery-3.1.1.min.js"></script>
+<script src="~/js/popper.min.js"></script>
+<script src="~/js/bootstrap.js"></script>
+<script src="~/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+<script src="~/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+
+<!-- Custom and plugin javascript -->
+<script src="~/js/inspinia.js"></script>
+<script src="~/js/plugins/pace/pace.min.js"></script>
+<script src="~/js/plugins/wow/wow.min.js"></script>
+
+
+<script>
+
+    $(document).ready(function () {
+
+        $('body').scrollspy({
+            target: '#navbar',
+            offset: 80
+        });
+
+        // Page scrolling feature
+        $('a.page-scroll').bind('click', function(event) {
+            var link = $(this);
+            $('html, body').stop().animate({
+                scrollTop: $(link.attr('href')).offset().top - 50
+            }, 500);
+            event.preventDefault();
+            $("#navbar").collapse('hide');
+        });
+    });
+
+    var cbpAnimatedHeader = (function() {
+        var docElem = document.documentElement,
+                header = document.querySelector( '.navbar-default' ),
+                didScroll = false,
+                changeHeaderOn = 200;
+        function init() {
+            window.addEventListener( 'scroll', function( event ) {
+                if( !didScroll ) {
+                    didScroll = true;
+                    setTimeout( scrollPage, 250 );
+                }
+            }, false );
+        }
+        function scrollPage() {
+            var sy = scrollY();
+            if ( sy >= changeHeaderOn ) {
+                $(header).addClass('navbar-scroll')
+            }
+            else {
+                $(header).removeClass('navbar-scroll')
+            }
+            didScroll = false;
+        }
+        function scrollY() {
+            return window.pageYOffset || docElem.scrollTop;
+        }
+        init();
+
+    })();
+
+    // Activate WOW.js plugin for animation on scrol
+    new WOW().init();
+
+</script>
+
+

@@ -1,0 +1,1027 @@
+﻿@model SIPROSHARED.Models.ProtocoloModel
+<div class="fh-breadcrumb">
+
+    <div class="full-height">
+        <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: 100%;">
+            <div class="full-height-scroll white-bg border-left" style="overflow: hidden; width: auto; height: 100%;">
+
+                <div class="element-detail-box">
+       
+                    <div class="tab-content">
+
+                        <div id="tab-1" class="tab-pane active show">
+                            <div class="row">
+                            <div class="col-md-8 ">
+                                <div></div>
+                                <div class="float-right">
+                                    <div class="tooltip-demo">
+                                 
+                                     @*    <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="" data-original-title="Mark as important"><i class="fa fa-print"></i></button> *@
+                                            <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Mark as important" id="printButton">
+                                                <i class="fa fa-print"></i>
+                                            </button>
+                                        <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="" data-original-title="Excluir"><i class="fa fa-trash-o"></i> </button>
+                                    </div>
+                                </div>
+
+                                <h2><i class="fa fa-file-text fa-1x"></i><string> Protocolo </string></h2>
+                                <form role="form_atendimento" id="form_atendimento">
+                                    <div class="row">
+                                        <input type="hidden" class="form-control"  value="@Model.PRT_ASSUNTO"           id="PRT_ASSUNTO"           name="PRT_ASSUNTO">              @*Id do Servico*@
+                                        <input type="hidden" class="form-control"  value="@Model.PRT_CPF_SOLICITANTE"   id="PRT_CPF_SOLICITANTE"   name="PRT_CPF_SOLICITANTE">      @*CPF do Solicitante*@
+                                        <input type="hidden" class="form-control"  value="@Model.PRT_TIPO_SOLICITANTE"  id="PRT_TIPO_SOLICITANTE"  name="PRT_TIPO_SOLICITANTE">     @*CPF do Solicitante*@
+                                        <input type="hidden" class="form-control"  value="@Model.PRT_ORIGEM"            id="PRT_ORIGEM"            name="PRT_ORIGEM">               @*PRT_ORIGEM*@
+                                        <input type="hidden" class="form-control"  value="@Model.PRT_ATENDENTE"         id="PRT_ATENDENTE"         name="PRT_ATENDENTE">            @*PRT_ATENDENTE*@
+                                        <input type="hidden" class="form-control"  value="@Model.PRT_OBSERVACAO"        id="PRT_OBSERVACAO"        name="PRT_OBSERVACAO">           @*PRT_OBSERVACAO*@
+                                        <input type="hidden" class="form-control"  value="@Model.PRT_RESTRICAO"         id="PRT_RESTRICAO"         name="PRT_RESTRICAO">            @*PRT_RESTRICAO*@
+
+                                        <div class="form-group col-md-4 has-warning"><label>Serviço</label> <input type="text" class="form-control" value="@Model.PRT_NOME_ASSUNTO" id="PRT_NOME_ASSUNTO" name="PRT_NOME_ASSUNTO" required readonly></div>
+                                        <div class="form-group col-md-4"><label>Nome do solicitante</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_NOME_SOLICITANTE" id="PRT_NOME_SOLICITANTE" name="PRT_NOME_SOLICITANTE" readonly></div>
+                                          
+                                        <div class="form-group col-md-2"><label>Data Postagem</label> <input type="text" class="form-control" data-mask="99/99/9999" placeholder="" id="PRT_DT_POSTAGEM" name="PRT_DT_POSTAGEM" readonly></div>
+                                        <div class="form-group col-md-2"><label>Processo GEP</label> <input type="text" placeholder="" class="form-control" id="Rec_Proc_GEP" name="Rec_Proc_GEP" ></div>
+
+                                        @*  <div class="form-group col-md-2"><label>Data Postagem</label> <input type="text" placeholder="" class="form-control"></div> *@
+
+                                    </div>
+
+                                    <h2> <i class="fa fa-exclamation-triangle fa-1x"></i><string> Infração</string></h2>
+                                    <div class="row">
+
+                                        <div class="form-group col-md-2 has-warning "><label>AIT</label> <input type="text" class="form-control" value="@Model.PRT_AIT" id="PRT_AIT" name="PRT_AIT" required readonly></div>
+                                        <div class="form-group col-md-3"><label>Situacao</label> <input type="text" class="form-control" value="@Model.PRT_AIT_SITUACAO" id="PRT_AIT_SITUACAO" name="PRT_AIT_SITUACAO" required readonly></div>
+                                        <div class="form-group col-md-2 has-warning"><label>Placa</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_PLACA" id="PRT_PLACA" name="PRT_PLACA" required readonly></div>
+                                        <div class="form-group col-md-2"><label>Cometimento</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_DT_COMETIMENTO" id="PRT_DT_COMETIMENTO" name="PRT_DT_COMETIMENTO" required readonly></div>
+                                        <div class="form-group col-md-3"><label>Prazo para abertura</label><input type="text" class="form-control" value="@Model.PRT_DT_PRAZO" id="PRT_DT_PRAZO" name="PRT_DT_PRAZO" required readonly>
+                                        <span class="error-prazo" style="color:chocolate;"></span>
+                                        </div>
+                                    </div>
+
+
+                                    <h2><i class="fa fa-user-circle" aria-hidden="true"></i><string> Proprietário</string></h2>
+                                    <div class="row">
+                                        <div class="form-group col-md-2  has-warning"><label>CPF</label> <input type="text" class="form-control" value="@Model.PRT_CPFCNJ_PROPRIETARIO" id="PRT_CPFCNJ_PROPRIETARIO" name="PRT_CPFCNJ_PROPRIETARIO" required readonly></div>
+                                        <div class="form-group col-md-7">
+                                            <label>Nome do proprietário</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_NOMEPROPRIETARIO" id="PRT_NOMEPROPRIETARIO" name="PRT_NOMEPROPRIETARIO" required readonly>
+                                       
+                                        </div>
+                                       @*  <div class="form-group col-md-3"><label>Endereço</label> <input type="text" class="form-control" value="@Model.PRT_ENDERECO_PROPRIETARIO" id="PRT_ENDERECO_PROPRIETARIO" name="PRT_ENDERECO_PROPRIETARIO" readonly></div> *@
+                                        <div class="form-group col-md-3"><label>Cidade</label> <input type="text" class="form-control" value="@Model.PRT_CIDADE_PROPRIETARIO" id="PRT_CIDADE_PROPRIETARIO" name="PRT_CIDADE_PROPRIETARIO" readonly></div>
+                                    </div>
+
+                            
+                                    @{
+                                    int[] valoresPermitidos = new int[] { 1, 39, 59 };
+
+                                    if (Array.IndexOf(valoresPermitidos, Model.PRT_ASSUNTO) != -1)
+                                    {
+                                                <h2><i class="fa fa-user-circle-o"></i><string> Condutor</string></h2>
+                                                <div class="row" id="Fisico">
+                                                    <div class="form-group col-md-3">
+                                                        <label>CPF do condutor</label>
+                                                        <div class="input-group">
+                                                            <input type="text" class="form-control" id="PRT_CPF_CONDUTOR" name="PRT_CPF_CONDUTOR" data-mask="000.000.000-00" value="@Model.PRT_CPF_CONDUTOR">
+                                                            <span class="input-group-append">
+                                                                <button type="button" class="btn btn-primary" id="btnbuscar_condutor">
+                                                                    <i class="fa fa-search"></i>
+                                                                </button>
+                                                            </span>
+                                                        </div>
+                                                        <span class="error-message" style="color:chocolate;"></span>
+                                                        <span class="error-PRT_TIPO_SOLICITANTE" style="color:chocolate;"></span>
+                                                    </div>
+                                                    <div class="form-group col-md-4"><label>Nome do condutor</label> <input type="text" class="form-control" id="PRT_NOME_CONDUTOR" name="PRT_NOME_CONDUTOR" value="@Model.PRT_NOME_CONDUTOR" required readonly></div>
+                                                    <div class="form-group col-md-3 has-warning"><label>CNH</label> <input type="text" class="form-control" id="PRT_NUMREGISTRO_CNH" name="PRT_NUMREGISTRO_CNH" value="@Model.PRT_NUMREGISTRO_CNH" required readonly></div>
+                                                    <div class="form-group col-md-2 has-warning">
+                                                        <label>Vencimento CHN</label> <input type="text" class="form-control" id="PRT_DT_VALIDADE" name="PRT_DT_VALIDADE" value="@Model.PRT_DT_VALIDADE" required readonly>
+                                                        <span class="error-cnh" style="color:chocolate;"></span>
+                                                    </div>
+                                                </div>
+                                  
+                                                <div class="row" id="Estrangeiro" style="display:none;">
+                                                    <div class="form-group col-md-3">
+                                                        <label>Documento</label>
+                                                        <input type="text" class="form-control" id="PRT_CNH_ESTRANGEIRA" name="PRT_CNH_ESTRANGEIRA" value="@Model.PRT_CNH_ESTRANGEIRA" required maxlength="11">
+                                                    </div>
+                                                    <div class="form-group col-md-7">
+                                                        <label>Nome</label>
+                                                        <input type="text" class="form-control" id="PRT_CNH_ESTRANGEIRA_NOME" name="PRT_CNH_ESTRANGEIRA_NOME" value="@Model.PRT_CNH_ESTRANGEIRA_NOME" required maxlength="30">
+                                                    </div>
+                                                    <div class="form-group col-md-2">
+                                                        <label>País</label>
+                                                        <input type="text" class="form-control" id="PRT_CNH_ESTRANGEIRA_PAIS" name="PRT_CNH_ESTRANGEIRA_PAIS" required maxlength="20">
+                                                    </div>
+                                                </div>
+
+                                    }
+                                    int[] valoresRessarcimento = new int[] { 3 };
+                                    if (Array.IndexOf(valoresRessarcimento, Model.PRT_ASSUNTO) != -1)
+                                        {
+                                                <h2><i class="fa fa-user-circle-o"></i><string> Dados Bancarios</string></h2>
+                                                <div class="row">
+                                                    <div class="form-group col-md-2">
+                                                        <label>CPF do condutor</label>
+                                                        <div class="input-group">
+                                                            <input type="text" class="form-control" id="PRT_RESS_CPF" name="PRT_RESS_CPF" data-mask="000.000.000-00" value="@Model.PRT_RESS_CPF">
+                                                            <span class="input-group-append">
+                                                                <button type="button" class="btn btn-primary" id="btnbuscar_pessoa">
+                                                                    <i class="fa fa-search"></i>
+                                                                </button>
+                                                            </span>
+                                                        </div>
+                                                        <span class="error-message" style="color:chocolate;"></span>
+                                                        <span class="error-PRT_TIPO_SOLICITANTE" style="color:chocolate;"></span>
+                                                    </div>
+                                                    <div class="form-group col-md-3">   <label>Nome</label>          <input type="text" class="form-control" id="PRT_RESS_TITULAR" name="PRT_RESS_TITULAR" value="@Model.PRT_RESS_TITULAR" required maxlength="50"></div>
+                                                    <div class="form-group col-md-1">   <label>Banco</label>         <input type="text" class="form-control" id="PRT_RESS_BANCO" name="PRT_RESS_BANCO" value="@Model.PRT_RESS_BANCO" required maxlength="3"></div>
+                                                    <div class="form-group col-md-1">   <label>Agência</label>       <input type="text" class="form-control" id="PRT_RESS_AGENCIA" name="PRT_RESS_AGENCIA" value="@Model.PRT_RESS_AGENCIA" required maxlength="5"></div>
+                                                    <div class="form-group col-md-2">   <label>Conta</label>         <input type="text" class="form-control" id="PRT_RESS_CONTA" name="PRT_RESS_CONTA" value="@Model.PRT_RESS_CONTA" required maxlength="20"></div>
+                                                    <div class="form-group col-md-2">   <label>Tipo</label>          <input type="text" class="form-control" id="PRT_RESS_TIPO" name="PRT_RESS_TIPO" value="@Model.PRT_RESS_TIPO" required maxlength="50"></div>
+                                                    <div class="form-group col-md-1">   <label>Operacao</label>      <input type="text" class="form-control" id="PRT_RESS_OPERACAO" name="PRT_RESS_OPERACAO" value="@Model.PRT_RESS_OPERACAO" required maxlength="1"></div>
+                                                </div>
+                                        }
+                                    }
+
+                                  
+
+                                    
+                                </form>
+                               
+                                <hr />
+
+
+                                <div class="m-t-lg">
+                                    <p>
+                                       @*<span><i class="fa fa-paperclip"></i> Arquivos anexados </span> *@
+                                       <h4><i class="fa fa-paperclip"></i><string> Arquivos anexados</string></h4>                                            
+                                    </p>
+
+                                    <div class="attachment">
+                                        <div id="div_anexos">
+                                            @await Html.PartialAsync("_Anexos")
+                                        </div>
+
+                                        <div class="clearfix"></div>
+                                        @*
+                                        Fim do laço
+                                        *@
+                                           
+                                     
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class=" col-auto">
+                                    <div class="col-auto">
+                                        <div class="ibox ">
+                                            <div class="ibox-content">
+                                                <h2><string> Dados do Protocolo</string></h2>
+                                                     <span>Origem: <strong>@Model.PRT_NOME_ORIGEM</strong></span>
+                                                    <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="" data-original-title="Mark as important"> <i class="fa fa-edit"></i></button><br />
+                                                    <span>Atendente: <strong>@Model.PRT_ATENDENTE</strong></span><br />
+                                                    <span>Solicitante: <strong>@Model.PRT_TIPO_SOLICITANTE</strong></span>
+                                                    <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="" data-original-title="Mark as important"> <i class="fa fa-edit"></i> </button>                                                                                                                              
+                                                </div>
+                                        </div>
+                                    </div>
+                                        <div class="col-auto">
+                                        <div class="ibox ">
+                                            <div class="ibox-content">
+                                                <h2>Documentos Necessários</h2>
+                                                <i class="fa fa-print"></i>  <small class="text-alert-dark"> Favor colocar os documentos no scaaner na seguinte ordem: </small>
+                                                <ul class="todo-list m-t small-list ui-sortable">
+
+                                                    @{
+                                                    if (ViewBag.Documento != null)
+                                                    {
+
+                                                        foreach (var item in ViewBag.Documento)
+                                                        {
+
+                                                                    <li>
+                                                                        <form id="form_checkbox" name="form_checkbox">
+                                                                        <input type="checkbox" id="Pes_Estrangeiro_@item.Doc_id" name="Pes_Estrangeiro_@item.Doc_id" value="@item.Doc_id" class="documentoCheckbox">
+                                                                        <span class="m-l-xs">@item.Doc_nome</span>
+                                                                        </form>
+
+                                                                    </li>
+
+                                                        }
+                                                    }
+                                                    }
+                                                </ul>
+                                              
+                                                <br />
+                                                <button class="btn btn-primary btn-block" id="btnscanner" ><i class="fa fa-print"></i> Escanear Documentos</button>
+                                                <span class="error-checkbox" style="color:chocolate;"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                            
+                                    <div class="col-auto">
+                                        <div class="ibox ">
+                                            <div class="ibox-content">
+
+                                                <div class="row">
+                                                    <div class="col-sm-5">
+                                                        <h2>Restrição</h2>
+                                                        <div>
+
+                                                            <label><input type="radio" value="1" id="optionsRadios0" name="optionsRadios" checked> Sem restrições</label>
+                                                        </div>
+                                                        <div>
+                                                            <label><input type="radio" value="2" id="optionsRadios1" name="optionsRadios"> Doc. sem autenticidade</label>
+                                                        </div>
+                                                        <div>
+                                                            <label><input type="radio" value="3" id="optionsRadios2" name="optionsRadios"> Jurídico sem condutor</label>
+                                                        </div>
+                                                        <div>
+                                                            <label><input type="radio" value="4" id="optionsRadios3" name="optionsRadios"> Sem doc. do solicitante</label>
+                                                        </div>
+                                                        <div>
+                                                            <label><input type="radio" value="5" id="optionsRadios4" name="optionsRadios"> CNH Estrangeiro</label>
+                                                        </div>
+                                                        <div>
+                                                            <label><input type="radio" value="6" id="optionsRadios5" name="optionsRadios"> Doc. incompleta</label>
+                                                        </div>
+                                                        <div>
+                                                            <label><input type="radio" value="7" id="optionsRadios6" name="optionsRadios"> AIT Penalizado</label>
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-7">
+                                                        <h2>Observação</h2>
+                                                            <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" rows="8" cols="45" class="form-control"></textarea>
+                                                    </div>
+                                                </div>
+                                                <br />
+
+                                                <div id="mensagem1" class="alert alert-danger text-center" style="display: none;">
+                                                    Teste
+                                                </div>
+                               
+                                                <button class="btn btn-success btn-lg btn-block  " data-toggle="tooltip" data-placement="left" id="BtnGerarProtocolo" title="Gerar Processo" disabled> <i class="fa fa-file"> </i>  Gerar Processo </button>
+
+                                                </div>
+                                        </div>
+                                     
+                                    </div>                                  
+                                 </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                     </div>
+
+            </div><div class="slimScrollBar" style="background: rgb(0, 0, 0); width: 7px; position: absolute; top: 0px; opacity: 0.4; display: none; border-radius: 7px; z-index: 99; right: 1px; height: 606.401px;"></div><div class="slimScrollRail" style="width: 7px; height: 100%; position: absolute; top: 0px; display: none; border-radius: 7px; background: rgb(51, 51, 51); opacity: 0.2; z-index: 90; right: 1px;"></div>
+        </div>
+    </div>
+
+
+
+    </div>
+  </div>
+
+@*Model de cadastro de Condutor*@
+<div class="modal inmodal fade" id="Modal2" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header navy-bg">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title"> <i class="fa fa-drivers-license-o" aria-hidden="true"></i> Apresentação Condutor Infrator</h4>
+                <small class="font-bold">Manter cadastro atualizado é importante. Preencha todos os campos do formulário, por favor.</small>
+            </div>
+
+             <div class="modal-body">
+                <p class="text-center h6">
+                    Preencha o formulário com os dados do <strong>Condutor Infrator </strong>
+                </p>                
+            </div> 
+            <div class="alert alert-warning text-center">
+                Este CPF não consta na base de dados do DETRAN. <br />Qualquer alteração nos dados da CNH é de responsabilidade do atendente.
+            </div>
+   
+            <div class="modal-body">
+         
+                <form role="formcondutor" id="formcondutor">
+          @*           <div class="row">
+                        <div class="form-group col-md-12"><label> <input type="checkbox" id="Pes_Estrangeiro" name="Pes_Estrangeiro"> Se for estrangeiro favor marcar!</label></div>
+                    </div> *@
+                    <div class="row">
+                        <input type="hidden" class="form-control" id="PES_ID" name="PES_ID">@*Id do Servico*@
+                        <div class="form-group col-md-4">
+                            <label>CPF</label>
+                            <input type="text" placeholder="" class="form-control" data-mask="000.000.000-00" id="PES_CPF" name="PES_CPF" required>
+                            <span class="error-cpf" style="color:chocolate;"></span>
+                        </div>
+                        <div class="form-group col-md-8">
+                            <label>Nome</label>
+                            <input type="text" placeholder="" class="form-control" id="PES_Nome" name="PES_Nome" required maxlength="50"></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-md-5"><label>CNH</label><input type="text" placeholder="" class="form-control" data-mask="00000000000" id="PES_NumRegistroCNH" name="PES_NumRegistroCNH" required></div>
+                        <div class="form-group col-md-5"><label>Validade CNH</label><input type="text" placeholder="" data-mask="99/99/9999"  class="form-control" id="PES_DT_Validade" name="PES_DT_Validade" required >
+                            <span class="error-cnh" style="color:chocolate;"></span>
+                        </div>
+                        <div class="form-group col-md-2"><label>UF CNH</label><input type="text" placeholder="" class="form-control input-mixed" id="PES_UFCNH" name="PES_UFCNH" required maxlength="2" style="text-transform: uppercase;"></div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6"><label>Email</label><input type="email" placeholder="" class="form-control" id="PES_Email" name="PES_Email"></div>
+                        <div class="form-group col-md-3"><label>Celular</label><input type="text" placeholder="" data-mask="(00)00000-0000" class="form-control" id="PES_Celular" name="PES_Celular" required minlength="14"></div>
+                        <div class="form-group col-md-3"><label>Telefone</label><input type="text" placeholder="" data-mask="(00)00000-0000" class="form-control" id="PES_Telefone" name="PES_Telefone" minlength="14"></div>
+                    </div>
+                    <small>O campo CEP realiza a busca dos dados autoameticamento, basta digitar o CEP que os campos abaixo serão preenchidos</small>
+                    <hr />
+                   
+                    <div class="row">
+                        <div class="form-group col-md-3"><label>Cep</label><input type="text" placeholder="" class="form-control input-zip" data-mask="99.999-999"  id="PES_EndCEP" name="PES_EndCEP" minlength="10" required>
+                            <span class="error-cep" style="color: chocolate;"></span>
+                        </div>
+                    
+                        <div class="form-group col-md-5"><label>Logradouro</label><input type="text" placeholder="" class="form-control" id="PES_EndLogradouro" name="PES_EndLogradouro" required maxlength="50"></div>
+                        <div class="form-group col-md-4"><label>Bairro</label><input type="text" placeholder="" class="form-control input-mixed" id="PES_EndBairro" name="PES_EndBairro" required maxlength="30"></div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-3"><label>Município</label><input type="text" placeholder="" class="form-control" id="PES_Municipio" name="PES_Municipio" required maxlength="20"></div>
+                        <div class="form-group col-md-2"><label>UF</label><input type="text" placeholder="" class="form-control" id="PES_UF" name="PES_UF" required maxlength="2" style="text-transform: uppercase;"></div>
+                        <div class="form-group col-md-2"><label>Número</label><input type="text" placeholder="" class="form-control" id="PES_EndNumero" name="PES_EndNumero" required maxlength="5"></div>
+                        <div class="form-group col-md-5"><label>Complemento</label><input type="text" placeholder="" class="form-control" id="PES_EndComplemento" name="PES_EndComplemento" maxlength="30"></div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-8">
+                        <small>
+                            <i class="fa fa-twitch"></i> Todas as informações cadastradas são de responsabilidade do atendente. Agradecemos sua compreensão e colaboração
+                        </small>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <button type="button" class="btn btn-white" data-dismiss="modal">Fechar</button>
+                        <button type="button" class="btn btn-primary" id="btnconfirmar"> Confirmar </button> 
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<br />
+
+@*Model de Lista de Erros*@
+<div class="modal inmodal" id="ModalErro" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content animated bounceInRight">
+            <div class="modal-header yellow-bg" ">
+               @*  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button> *@
+      
+                <i class="fa fa-exclamation-triangle modal-icon "></i>
+                <h2>@Model.PRT_AIT</h2>
+                <h6 class="font-bold">Existe inconsistência para esse AIT! </h6>
+                @if ((ViewBag.Analise.SituacaoAIT == "NIP" && @Model.PRT_ASSUNTO == 1) || ((ViewBag.Analise.Duplicidade > 0)))
+                {
+                    <h4>Não é permitido realizar a abertura. </h4>
+                }
+          
+            </div>
+            <div class="modal-body">
+
+                <div class="col-auto">
+  
+                    <small>
+                        Você tem notificações!
+                    </small>
+
+                    <ul class="list-group clear-list m-t">
+                        @{
+                         if (ViewBag.Analise != null)                           
+
+                             {        
+                                     @if (ViewBag.Analise.Duplicidade > 0)
+                             {
+                                        <li class="list-group-item fist-item">
+                                        <i class="fa fa-times text-danger"></i> Já existe um processo para esse AIT!
+                                        </li>                                           
+                             }
+                                     @if (ViewBag.Analise.SituacaoAIT == "NIP" && (@Model.PRT_ASSUNTO == 1 
+                                                                        || @Model.PRT_ASSUNTO == 2
+                                                                        || @Model.PRT_ASSUNTO == 39))
+                             {
+                                        <li class="list-group-item fist-item">
+                                        <i class="fa fa-times text-danger"></i> AIT se encontra em fase NIP!   
+                                        </li>
+                             }
+                           
+                                     @if (ViewBag.Analise.SituacaoAIT == "NAI" && @Model.PRT_ASSUNTO == 8 || @Model.PRT_ASSUNTO == 9)
+                             {
+                                        <li class="list-group-item fist-item">
+                                            <i class="fa fa-times text-danger"></i> O AIT está em fase NAI. Não é permitida a abertura de outro processo nos órgãos JARI ou CETRAN até conclusão desta fase.
+                                        </li>
+                             }
+
+                                     @if (ViewBag.Analise.CondutorApresentado == "SIM" && (@Model.PRT_ASSUNTO == 1 || @Model.PRT_ASSUNTO == 39))
+                             {
+                                        <li class="list-group-item fist-item">
+                                            <i class="fa fa-times text-danger"></i> No registro deste Auto de Infração de Trânsito (AIT), 
+                                                                                    já consta o condutor identificado no momento da autuação. 
+                                                                                    Todas as informações necessárias foram devidamente registradas e estão disponíveis para consulta.
+                                        </li>
+
+                             }
+                      
+                         }
+                        }                      
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-dark" id="btnVoltar"> Continuar </button>
+@*                 <button type="button" class="btn btn-white" id="btn"> Não </button> *@
+              
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@* <button class="floating-btn">+</button> *@
+<a class=" floating-btn" href="~/Home/Index">+</a>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+
+<script src="~/js/jquery.min.js"></script>
+<script src="~/js/bootstrap.min.js"></script>
+<script src='~/js/jquery.mask.min.js'></script>
+<script src="~/js/validadorcpf.js"></script>
+<script src="~/js/validadordtcnh.js"></script>
+<script src="~/js/validacaoformcondutor.js"></script>
+<script src="~/js/buscar_cep.js"></script>
+<script src="~/js/iconeerro.js"></script>
+
+<!-- blueimp gallery -->
+<script src="~/js/plugins/blueimp/jquery.blueimp-gallery.min.js"></script>
+
+<script >
+   
+     $(document).ready(function () {
+         
+        var tipoSolicitante = $("#PRT_TIPO_SOLICITANTE").val();
+        var origem = $("#PRT_ORIGEM").val();
+        var duplicidade = '@ViewBag.Analise.Duplicidade';
+        var situacaoAIT = '@ViewBag.Analise.SituacaoAIT';
+        var intepestividade = '@ViewBag.Analise.Intepestividade';
+        var proprietatario = '@ViewBag.Analise.Proprietatario';
+        var CondutorApresentado = '@ViewBag.Analise.CondutorApresentado';
+
+        var condutor = '@ViewBag.Condutor';
+        var codservico = $('#PRT_ASSUNTO').val();
+
+        var inputElement = document.querySelector('#PRT_DT_PRAZO');
+        var radioElement = document.getElementById('optionsRadios6');
+
+        $('#BtnGerarProtocolo').prop('disabled', true);
+        $("#Estrangeiro").hide();
+
+        //verificando se veio do SETAP para bloquear campos
+        if (origem != 48) {
+            $('#PRT_DT_POSTAGEM').prop('readonly', false).prop('required', true).focus();
+            $('#Rec_Proc_GEP').prop('readonly', false);
+        } else {
+            $('#PRT_DT_POSTAGEM').prop('readonly', true).prop('required', false);
+            $('#Rec_Proc_GEP').prop('readonly', true);
+            $('#PRT_CPF_CONDUTOR').focus();
+        }
+
+        //Verifica se é estrangeiro
+        if (tipoSolicitante == "Estrangeiro") {
+            $("#Estrangeiro").show();
+            $("#Fisico").hide();
+            $('#PRT_CNH_ESTRANGEIRA').focus();
+            if (!$('#optionsRadios6').prop('checked')) { 
+                 $('#optionsRadios4').prop('checked', true);
+            }
+        }
+
+        //Notificação em caso de Intepestividade no campo prazo
+        if (intepestividade == "Sim" && ["1", "2", "39", "59"].includes(codservico)) {
+            inputElement.classList.add('text-danger');
+            Addiconeerro(".error-prazo", " Fora do prazo (Intespetivo!).");//add um icone antes da imagem
+            radioElement.checked = true;
+        } else{
+            Removeiconeerro(".error-cnh");
+        }
+
+        //Verificar se existe duplicidade de processo 
+        if (duplicidade > 0) {
+            $('#ModalErro').modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+        }
+
+        //Verificar se o AIT é NIP para os serviço de Apresentação de Condutor
+        if (situacaoAIT == "NIP" && ["1", "2", "39", "59"].includes(codservico)) {
+            $('#ModalErro').modal({
+                backdrop: 'static',
+                keyboard: false
+            });     
+        }
+
+        //Verificar se o AIT é NAI para os serviço de jari
+        if (situacaoAIT == "NAI" && ["8", "9"].includes(codservico)) {
+            $('#ModalErro').modal({
+                backdrop: 'static',
+                keyboard: false
+            });      
+        }
+
+        //verificando se ja houve condutor apresentado
+        if (situacaoAIT == "NAI" && ["1",  "39", "59"].includes(codservico) && (CondutorApresentado == "SIM")) {
+            $('#ModalErro').modal({
+                backdrop: 'static',
+                keyboard: false,
+            });         
+        }
+
+        //Caso seja condutor dispara a função para buscar o condutor e preencher
+        if (condutor == "Sim") {
+            if (situacaoAIT === "NAI" &&
+                duplicidade === "0" && 
+                ["1", "39", "59"].includes(codservico) &&
+                CondutorApresentado != "SIM") {
+                buscarcondutor();
+            }
+   
+        }      
+          
+        //caso exista inscositencia ele voltar para tela inicial
+        $('#btnVoltar').on('click', function () {
+            
+            $('#ModalErro').modal('hide');
+            //Duplicidade
+            if (duplicidade > 0) {
+                window.location.href = '@Url.Action("Index", "Home")';
+            }//Processo NAI
+            else if (situacaoAIT == "NIP" && ["1","2","39", "59"].includes(codservico)) {
+                    window.location.href = '@Url.Action("Index", "Home")';
+            }//processo NIP               
+            else if (situacaoAIT == "NAI" && ["8", "9", "62"].includes(codservico)) {
+                    window.location.href = '@Url.Action("Index", "Home")';
+            } //se existe condutor
+            else if (situacaoAIT == "NAI" && ["1", "39", "59"].includes(codservico) && CondutorApresentado != "") {
+                    window.location.href = '@Url.Action("Index", "Home")';
+            }
+         
+        });        
+      
+        //click do bustão de busca condutor
+        $('#btnbuscar_condutor').on('click', function () {
+            buscarcondutor();
+        });
+
+        //buscando titular da conta
+        $('#btnbuscar_pessoa').on('click', function () {
+            buscarpessoa();
+        });       
+
+        //Exit do campo condutor 
+        $('#PRT_CPF_CONDUTOR').blur(function () {
+            buscarcondutor();
+        });
+
+        //Exit do campo condutor
+        $('#PRT_RESS_CPF').blur(function () {
+            buscarpessoa();
+        });
+
+        //Exit do campo de CEP
+        $('#PES_EndCEP').blur(function () {
+
+            Notiflix.Loading.Standard('Aguarde...');
+         
+            BuscarCep($(this).val());
+
+        });       
+        
+        //Confirmar o condutor
+        $('#btnconfirmar').click(function () {
+            
+            inicializarValidacaoFormulario("#formcondutor");
+
+            if ($("#formcondutor").valid()) {
+
+                var formData = $("#formcondutor").serialize();
+
+                $.ajax({
+                    url: '@Url.Action("CadastrarPessoa", "Pessoa")',
+                    type: 'POST',
+                    data: formData, 
+                    success: function (response) {
+
+                        if (response.error == 'InternalServerError') {
+                            window.location.href = '@Url.Action("InternalServerError", "Home")';
+                        }
+                        else if (response.error == 'BadRequest') {
+                            Notiflix.Notify.Failure(response.retorno);
+                        }
+                        else {
+                            Notiflix.Notify.Success(response.retorno);
+
+                            $('#Modal2').modal('hide');
+
+                            $("#PRT_NOME_CONDUTOR").val($("#PES_Nome").val())
+                            $("#PRT_NUMREGISTRO_CNH").val($("#PES_NumRegistroCNH").val())
+                            $("#PRT_DT_VALIDADE").val($("#PES_DT_Validade").val())
+
+                            if (origem === 2)
+                                $('#PRT_DT_POSTAGEM').focus();                       
+                        }
+
+
+                    },
+                    error: function (xhr, status, error) {
+                       
+                    }
+                });
+            }
+        });
+
+        //GERA O PROCESSO 
+        $('#BtnGerarProtocolo').click(function () {
+
+            //pegando a restrição, mas caso seja 8 não verificar o que está parcado
+            if ($("#PRT_RESTRICAO").val() !="8" )
+            {
+                var radios = document.getElementsByName('optionsRadios');
+                var valorSelecionado = null;
+                for (var i = 0; i < radios.length; i++) {
+                    if (radios[i].checked) {
+                        valorSelecionado = radios[i].value;
+                        break;
+                    }
+                }
+            }       
+
+
+            var observacao = $("#PRT_OBSERVACAO1").val();          
+            $("#PRT_OBSERVACAO").val(observacao);
+
+             $("#PRT_RESTRICAO").val(valorSelecionado)
+             inicializarValidacaoFormulario("#form_atendimento");
+
+
+            //Verifica se o formulário é válido antes de prosseguir
+            if ($("#form_atendimento").valid()) {
+                // Serializa todos os dados do formulário
+                var formData = $("#form_atendimento").serialize();
+
+                $.ajax({
+                    url: '@Url.Action("GerarProtocolo", "Atendimento")',
+                    type: 'POST',
+                    data: formData, // Envie todos os dados do formulário
+                    success: function (response) {
+
+                        if (response.error == 'InternalServerError') {
+                            window.location.href = '@Url.Action("InternalServerError", "Home")'
+                        }else
+                        if (response.errorAPI !== undefined) {                         
+                            return false;
+                        }
+                        else if (response.error == false) {
+                                window.location.href = '@Url.Action("Finalizar_Atendimento", "Atendimento")?protocolo=' + encodeURIComponent(response.protocolo);
+
+                        } else {
+                                // alert(response.message); //add um icone antes da imagem
+                                mensagem1.innerHTML = '<i class="fa fa-twitch"></i> ' + response.message;
+                                mensagem1.style.display = "block";                          
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        // Tratar erros de requisição
+                    }
+                });
+            }
+        });
+
+        //BUTÃO ESCANEEAR VALIDANDO
+        $('#btnscanner').click(function (event) {
+            // Impedir o comportamento padrão do botão
+            event.preventDefault();
+
+            // Verificar se pelo menos um checkbox está marcado
+            if ($('.documentoCheckbox:checked').length === 0) {
+                Addiconeerro(".error-checkbox", " Por favor, selecione pelo menos um documento!");//add um icone antes da imagem
+                return false;
+                    
+            } else {
+
+                // Seleciona todos os checkboxes com a classe 'documentoCheckbox' e verifica se estão desmarcados
+                var desmarcados = [];  
+                $('.documentoCheckbox').each(function () {
+                    if (!$(this).is(':checked')) {                        
+                        desmarcados.push($(this).val());
+                    }
+                });
+                if (desmarcados.length > 0) {
+                    Notiflix.Confirm.Show(
+                        'Documento Pendente!',
+                        'Existe documento que não foi marcado, deseja continuar?',
+                        'Sim',
+                        'Não',
+                        function okCb() {
+                             //marcando a restrição como Documentação Incompleta!
+                            if (!$('#optionsRadios6').prop('checked') && !$('#optionsRadios4').prop('checked')) { //Caso AIT Penalizado não esteja esteja marcado não marcar
+                                 $('#optionsRadios5').prop('checked', true);
+                            }
+
+                            Removeiconeerro(".error-checkbox");
+
+
+
+                            //pegando as imagens
+                            $.ajax({
+                                url: '@Url.Action("AnexarArquivos", "Atendimento")',
+                                datatype: 'html',
+                                contentType: "application/html; charset=utf-8",
+                                type: "GET",
+                                success: function (result) {
+
+                                    $('#BtnGerarProtocolo').prop('disabled', false);
+                                    $('#div_anexos').html(result);
+                                },
+                                error: function (xhr, status, error) {
+                                    // Lidar com erros, se necessário
+                                }
+                            });
+                        },
+                        function cancelCb() {
+                            // alert('If you say so...');
+                        },
+                        {
+                        },
+                    );
+                }else
+                {
+                    Removeiconeerro(".error-checkbox");
+
+                    $.ajax({
+                        url: '@Url.Action("AnexarArquivos", "Atendimento")',
+                        datatype: 'html',
+                        contentType: "application/html; charset=utf-8",
+                        type: "GET",
+                        success: function (result) {
+                            if (!$('#optionsRadios6').prop('checked') && !$('#optionsRadios4').prop('checked')) { //Caso AIT Penalizado não esteja esteja marcado não marcar
+                                $('#optionsRadios0').prop('checked', true);
+                            }                            
+                            $('#BtnGerarProtocolo').prop('disabled', false);
+                            $('#div_anexos').html(result);
+                        },
+                        error: function (xhr, status, error) {
+                            // Lidar com erros, se necessário
+                        }
+                    });
+                }
+                  
+            }
+        });
+
+        function buscarcondutor() {
+
+
+            // Limpa os campos preenchidos após confirmar o formulário do condutor
+            $('#PRT_NOME_CONDUTOR').val('');
+            $('#PRT_NUMREGISTRO_CNH').val('');
+            $('#PRT_DT_VALIDADE').val('');
+
+            var cpf = $('#PRT_CPF_CONDUTOR').val();
+            cpf = cpf.replace(/\D/g, ''); // remove caracteres especiais
+            $("#PES_CPF").val(cpf);
+            $("#PRT_CPF_CONDUTOR").val(cpf);
+
+            var cpf1 = removerZerosExtras($('#PRT_CPF_CONDUTOR').val());
+            var cpf2 = removerZerosExtras($('#PRT_CPFCNJ_PROPRIETARIO').val());
+            var cpf3 = removerZerosExtras($('#PRT_CPF_SOLICITANTE').val());
+
+            // Verifica se o proprietário é o mesmo condutor
+            if (cpf1 === cpf2) {
+                Addiconeerro(".error-message", " O Proprietário não pode ser o condutor!");
+                $('#PRT_CPF_CONDUTOR').focus();
+                return false;
+            } else {
+                Removeiconeerro(".error-message")
+            }
+
+            // Valida o número do CPF
+            if (cpf.length != 11 || !validarCPF(cpf)) {
+                Addiconeerro(".error-message", " CPF inválido!");
+                $('#PRT_CPF_CONDUTOR').focus();
+                return false;
+            } else {
+                Removeiconeerro(".error-message")
+            }
+
+            var divAlerta = document.querySelector('.alert.alert-warning.text-center');
+
+            // Verifica se o condutor é o solicitante e está como portador
+            var ts = $("#PRT_TIPO_SOLICITANTE").val();
+            if ((cpf1 == cpf3) && ts == "Portador") {
+                Addiconeerro(".error-PRT_TIPO_SOLICITANTE", " O Solicitante está como Portador");
+                $('#PRT_CPF_CONDUTOR').focus();
+                return false;
+            } else {
+                Removeiconeerro(".error-PRT_TIPO_SOLICITANTE")
+            }
+
+            Notiflix.Loading.Standard('Aguarde...');
+
+
+            // Busca os dados do condutor
+            $.ajax({
+                url: '@Url.Action("BuscarCondutor", "Atendimento")',
+                type: 'GET',
+                data: { cpf: cpf },
+                success: function (response) {   
+ 
+                    if (response.error == 'InternalServerError') 
+                        window.location.href = '@Url.Action("InternalServerError", "Home")';
+                    
+                    if (response.error == 'BadRequest') {
+                        Notiflix.Notify.Failure(response.message);
+                        Notiflix.Loading.Remove();
+                        return false;
+                    }
+
+
+                    $('#Modal2').modal('show');
+
+                    $('#Modal2').on('shown.bs.modal', function () {
+                        var divAlerta = document.querySelector('.alert.alert-warning.text-center');
+                        divAlerta.style.display = 'block';
+
+                        // Lógica para preenchimento dos campos
+                        if (response.retornodetran == 0 && response.pessoaModel == null) {
+                            // Condição 1
+                            $('#PES_CPF').prop('readonly', true);
+                            $('#PES_Nome').prop('readonly', false);
+                            $('#PES_NumRegistroCNH').prop('readonly', false);
+                            $('#PES_UFCNH').prop('readonly', false);
+                            $('#PES_DT_Validade').prop('readonly', false);
+                            divAlerta.style.display = 'block';
+                            $('#PES_Nome').focus();
+                        } else if (response.retornodetran == 0 && response.pessoaModel != null) {
+                            // Condição 2
+                            $('#PES_CPF').prop('readonly', true);
+                            $('#PES_Nome').prop('readonly', false);
+                            $('#PES_NumRegistroCNH').prop('readonly', false);
+                            $('#PES_UFCNH').prop('readonly', false);
+                            $('#PES_DT_Validade').prop('readonly', false);
+                            divAlerta.style.display = 'block';
+                            $('#PES_Nome').focus();
+                        } else if (response.retornodetran != 0 || response.pessoaModel.pes_CPF != null) {
+                            // Condição 3
+                            $('#PES_CPF').prop('readonly', true);
+                            $('#PES_Nome').prop('readonly', true);
+                            $('#PES_NumRegistroCNH').prop('readonly', true);
+                            $('#PES_UFCNH').prop('readonly', true);
+                            $('#PES_DT_Validade').prop('readonly', true);
+                            $('#PES_Email').focus();
+                            divAlerta.style.display = 'none';
+                        }                 
+     
+
+                        // Preenche os campos com os dados recebidos
+                        if (response.pessoaModel != null) {
+                            $("#PES_ID").val(response.pessoaModel.pes_ID);
+                            $("#PES_Celular").val(response.pessoaModel.pes_Celular);
+                            $("#PES_DT_Validade").val(response.pessoaModel.pes_DT_Validade);
+                            $("#PES_DataCadastro").val(response.pessoaModel.pes_DataCadastro);
+                            $("#PES_Email").val(response.pessoaModel.pes_Email);
+                            $("#PES_EndBairro").val(response.pessoaModel.pes_EndBairro);
+                            $("#PES_EndCEP").val(response.pessoaModel.pes_EndCEP);
+                            $("#PES_EndComplemento").val(response.pessoaModel.pes_EndComplemento);
+                            $("#PES_EndLogradouro").val(response.pessoaModel.pes_EndLogradouro);
+                            $("#PES_EndNumero").val(response.pessoaModel.pes_EndNumero);
+                            $("#PES_Municipio").val(response.pessoaModel.pes_Municipio);
+                            $("#PES_Nome").val(response.pessoaModel.pes_Nome);
+                            $("#PES_NomeFantasia").val(response.pessoaModel.pes_NomeFantasia);
+                            $("#PES_NumRegistroCNH").val(response.pessoaModel.pes_NumRegistroCNH);
+                            $("#PES_RG").val(response.pessoaModel.pes_RG);
+                            $("#PES_Telefone").val(response.pessoaModel.pes_Telefone);
+                            $("#PES_Tipo").val(response.pessoaModel.pes_Tipo);
+                            $("#PES_UF").val(response.pessoaModel.pes_UF);
+                            $("#PES_UFCNH").val(response.pessoaModel.pes_UFCNH);
+                            $("#PES_Pais").val(response.pessoaModel.pes_Pais);
+                        } else
+                        {                            
+                            $('#formcondutor input').val('');
+                            $('#formcondutor textarea').val('');
+                            $("#PES_CPF").val(cpf);
+                        }
+                        // Remove o loading após preenchimento completo
+                        Notiflix.Loading.Remove();
+                    });
+
+                    // Limpa classes de erro e texto ao fechar a modal
+                    $('#Modal2').on('hidden.bs.modal', function (e) {
+                        $(this).find('.error').removeClass('error').text('');
+                    });
+                },
+                error: function (xhr, status, error) {
+                    // Tratar erros de requisição
+                }
+            });
+        }
+
+        function buscarpessoa()
+        {   
+            Notiflix.Loading.Standard('Aguarde...');
+            
+            var cpf = $('#PRT_RESS_CPF').val();
+            cpf = cpf.replace(/\D/g, ''); //tirando os caracteres!
+
+            //## Validando os número do CPF
+            if (cpf.length != 11 || !validarCPF(cpf)) {
+                Addiconeerro(".error-message", " CPF inválido!");//add um icone antes da imagem
+                $('#PRT_RESS_CPF').focus();
+                return false;
+            } else {
+                Removeiconeerro(".error-message")
+            }
+
+            
+
+            //## Buscando os dados do condutor
+            $.ajax({
+                url: '@Url.Action("BuscarCondutor", "Atendimento")',
+                type: 'GET',
+                data: { cpf: cpf },
+                success: function (response) {
+                
+                    //Caso tenha registro prrenche os campos
+                    $(response.pessoaModel).each(function () {
+      
+                        $("#PRT_RESS_TITULAR").val(this.pes_Nome);
+                    });
+                    $('#PRT_RESS_BANCO').focus();
+                    Notiflix.Loading.Remove();
+                },
+                error: function (xhr, status, error) {
+                    // Tratar erros de requisição
+                    Notiflix.Loading.Remove();
+                }
+            });
+        }
+
+        function removerZerosExtras(cpf) {
+            // Verificar se o cpf é uma string
+            if (typeof cpf !== 'string') {
+                return '';
+            }
+            // Remover caracteres não numéricos
+            cpf = cpf.replace(/\D/g, '');
+            // Remover zeros à esquerda
+            cpf = cpf.replace(/^0+/, '');
+            // Remover zeros à direita
+            cpf = cpf.replace(/0+$/, '');
+            return cpf;
+        }          
+
+        document.getElementById('printButton').addEventListener('click', function () {
+            window.location.href = '@Url.Action("imprimirRpt", "atendimento")'; 
+        });
+      
+        const floatingBtn = document.querySelector('.floating-btn');
+        let bottomPosition = 20;
+        let rightPosition = 20;
+
+        document.addEventListener('keydown', function (event) {
+            switch (event.key) {
+            case 'ArrowUp':
+                bottomPosition += 10;
+                floatingBtn.style.bottom = bottomPosition + 'px';
+                break;
+            case 'ArrowDown':
+                bottomPosition -= 10;
+                floatingBtn.style.bottom = bottomPosition + 'px';
+                break;
+            case 'ArrowLeft':
+                rightPosition += 10;
+                floatingBtn.style.right = rightPosition + 'px';
+                break;
+            case 'ArrowRight':
+                rightPosition -= 10;
+                floatingBtn.style.right = rightPosition + 'px';
+                break;
+            }
+        });
+    
+});
+
+</script>

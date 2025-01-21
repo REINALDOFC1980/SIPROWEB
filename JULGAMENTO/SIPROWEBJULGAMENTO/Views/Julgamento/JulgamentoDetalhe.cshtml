@@ -1,0 +1,647 @@
+﻿@model SIPROSHAREDJULGAMENTO.Models.ProtocoloJulgamento_Model
+
+
+
+
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Julgamento do Processo</h2>
+    </div>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+   
+    <div class="row">
+
+        <div class="col-lg-3" >
+            <div class="ibox-content" >
+                <h2><i class="fa fa-paste"></i> Dados do Protocolo </h2>
+                <div class="panel-body">
+
+                    <div class="client-detail">
+                        <div class="full-height-scroll">
+                            <div id="div_detalheAIT">
+                             
+                                <ul class="list-group clear-list">
+                                  
+
+                                    <li class="list-group-item fist-item">
+                                        <span class="float-right label label-success m-b-n-xxs"><strong class="h6">@Model?.PRT_NUMERO</strong></span>
+                                        Protocolo: 
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="float-right"><strong>@Model?.PRT_NOME_ORIGEM </strong></span>
+                                        Origem: 
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="float-right"><strong> @Model?.PRT_NOME_ASSUNTO</strong></span>
+                                        Serviço:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="float-right"><strong>@Model?.PRT_DT_ABERTURA </strong></span>
+                                        Data da Abertura: 
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="float-right"><strong> @Model?.PRT_DT_POSTAGEM</strong></span>
+                                        Data da Postagem: 
+                                    </li>
+                                    <li class="list-group-item">
+                                        <p><small><strong>Dados do Proprietário</strong></small></p>
+                                        <span class="float-right"> <strong>@Model?.PRT_CPFCNJ_PROPRIETARIO</strong></span>
+                                        CPF/CNPJ: 
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="float-right"> <strong>@Model?.PRT_NOMEPROPRIETARIO</strong></span>
+                                        proprietário:
+                                    </li>
+
+                                   @*Buscar via API de Miro*@
+                                    <div id="Div_Notificacao">
+                                        @await Html.PartialAsync("_DadosNotificacao")
+                                    </div>
+                                </ul>
+
+
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+ 
+        <div class="col-lg-6" style="background-color: white;">  
+           
+            <div class="ibox-content">
+
+                <div class="tabs-container">
+                    
+                    <ul class="nav nav-tabs">
+                        <li><a class="nav-link active" data-toggle="tab" href="#tab-0"><i class="fa fa-legal"></i></a></li>
+                        <li><a class="nav-link" data-toggle="tab" href="#tab-1"><i class="fa fa-drivers-license-o"></i></a></li>
+                        <li><a class="nav-link" data-toggle="tab" href="#tab-4"><i class="fa fa-mail-forward"></i></a></li>
+                        <li><a class="nav-link" data-toggle="tab" href="#tab-5"><i class="fa fa-paperclip"></i></a></li>
+                      
+                    </ul>
+
+                    <div class="tab-content">
+                        <div id="tab-0" class="tab-pane active">
+                            <div class="panel-body">
+
+                                <div class="client-detail">
+                                    <div class="full-height-scroll">
+                                        <h2>Parecer do Relator</h2>
+
+                                        <hr />
+                                   
+
+                                        <form role="form" id="form_julgamento">
+                                            <input type="hidden" id="Disjug_Dis_Id" name="Disjug_Dis_Id" value="@Model?.DIS_ID">
+                                            <label><strong>Motivo do voto</strong></label>
+                                            <div class="form-group">
+
+                            
+                                                @{
+                                                    if (ViewBag.ParecerRelator != null)
+                                                    {
+                                                        // Valor salvo no banco de dados
+                                                        var motivoVotoSelecionado = ViewBag.ParecerRelator?.Disjug_Motivo_Voto;                                                  
+
+                                                                <select class="select2_demo_3 form-control" style="width:100%;" id="Disjug_Motivo_Voto" name="Disjug_Motivo_Voto" required>
+                                                                    <option></option>
+                                                                    @{
+                                                            if (ViewBag.MotivoVoto != null)
+                                                            {
+                                                                foreach (var item in ViewBag.MotivoVoto)
+                                                                {
+                                                                    // Cria a opção manualmente com Html.Raw
+                                                                    var isSelected = item.MOT_COD == motivoVotoSelecionado ? "selected" : "";
+                                                                                    @Html.Raw($"<option value='{item.MOT_COD}' {isSelected}>{item.MOT_NOME}</option>")
+                                                                }
+                                                            }
+                                                                    }
+                                                                </select>
+
+                                                    }
+
+                                                }
+                                                <small>  <i class="fa fa-twitch"></i> Digite uma palavra chave para localizar o motivo do voto. O campo possui auto-completar com a lista de motivos disponíveis.</small>
+
+                                            </div>
+
+
+                                            <div class="ibox">
+
+                                                <label><strong>Parecer</strong></label>
+                                                <div id="summernote" class="summernote"></div>
+                                                <span id="erroSummernote" style="color:#cc5965 ; display: none;">Este campo é obrigatório.</span>
+                                            <br> 
+                                                  
+                                                <div class="row">
+                                                   
+                                                    <div class="col-lg-9">
+                                                        <br />
+                                                   @*  @{
+                                                        if (ViewBag.Votacao.Count == 0)
+                                                        { *@
+                                                        <div id="div_memebro">
+                                                        <label><strong>Encaminhar para assinatura</strong></label>
+
+                                                        <select class="select2_demo_2 form-control select2-hidden-accessible" id="Disjug_Membro1" name="Disjug_Membro1" style="width:100%;" multiple tabindex="-1" aria-hidden="true" required>
+                                                            @{
+                                                                if (ViewBag.Membro != null)
+                                                                {
+                                                                    // Obtendo a lista de membros selecionados (IDs ou nomes) do ViewBag.
+                                                                var selectedMembros = ((IEnumerable<dynamic>)ViewBag.Votacao)?.Select(x => (string)x.Disjug_Relator).ToList() ?? new List<string>();
+
+                                                                foreach (var item in ViewBag.Membro)
+                                                                {
+                                                                    // Verifica se o item atual está entre os selecionados para marcar como "selected"
+                                                                    bool isSelected = selectedMembros.Contains(item.SETSUBUSU_USUARIO);
+                                                                    var optionHtml = $"<option value='{item.SETSUBUSU_USUARIO}' {(isSelected ? "selected" : "")}>{item.SETSUBUSU_USUARIO}</option>";
+                                                                   
+                                                                        @Html.Raw(optionHtml)
+                                                                }
+                                                            }
+                                                        }
+                                                        </select>
+
+
+                                                       
+                                                        <br>
+                                                        <small>  <i class="fa fa-twitch"></i> Selecione os dois membros que vão participar do julgamento. O campo possui auto-completar com a lista de usuarios disponíveis.</small>
+                                                   @*     }
+                                                    // }*@
+                                                        </div>
+                                                    </div>
+
+                                                  
+                                                    <div class="col-lg-3">
+                                                        <br />
+                                                      
+                                                        <button type="button" class="btn btn-block btn-sm btn-outline btn-primary" onclick="RealizarJulgamento('D')" >Deferido</button>
+                                                        <button type="button" class="btn btn-block btn-sm btn-outline btn-danger" onclick="RealizarJulgamento('I')">Indeferido</button>
+                                                        <button type="button" class="btn btn-block btn-sm btn-outline btn-dark" onclick="RealizarJulgamento('O')"  >Advertencia</button>
+                                                    </div>
+
+
+                                                </div>
+                                          
+                                                
+
+
+
+
+                                            </div>
+
+
+
+                                        </form>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div id="tab-1" class="tab-pane ">
+                            <div class="panel-body">
+
+                                <div class="client-detail">
+                                   
+                                    <div class="full-height-scroll">
+                                        <h2>Condutor Apresentado</h2>
+                                        <hr />
+                                        <div class="row">
+                                            <div class="col-lg-8">
+                                                <div class="client">
+                                           
+                                                    <h3 class="m-t-none m-b">Dados do Condutor</h3>
+                                                    <br />
+                                                    <br />
+                                                    <ul class="list-group clear-list">
+                                                        <li class="list-group-item fist-item">
+                                                            <span class="float-right"> </span>
+                                                            <span class="float-right label label-success m-b-n-xxs"><strong class="h6">@ViewBag.Condutor?.numeroprocesso </strong></span>
+                                                            Processo:
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            <span class="float-right"><strong>@ViewBag.Condutor?.rec_Trocainf_Nomecond</strong> </span>
+                                                            Nome do Condutor:
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            <span class="float-right"> <strong>@ViewBag.Condutor?.rec_Trocainf_Registro</strong> </span>
+                                                            Registro da CNH:
+                                                        </li>
+                                                        <br />
+                                                        <small><strong>Endereço</strong> </small>
+                                                        <br />
+                                                        <li class="list-group-item">
+                                                            <span class="float-right"> <strong>@ViewBag.Condutor?.rec_TrocaInf_CEP</strong> </span>
+                                                            CEP
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            <span class="float-right"> <strong>@ViewBag.Condutor?.rec_TrocaInf_Endereco</strong> </span>
+                                                            Logradouro
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            <span class="float-right"> <strong>@ViewBag.Condutor?.rec_Trocainf_Bairro</strong> </span>
+                                                            Bairro
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            <span class="float-right"> <strong>@ViewBag.Condutor?.rec_TrocaInf_UF</strong> </span>
+                                                            UF
+                                                        </li>
+                                                    </ul>
+                                                   @*  <hr>
+                                                    <h4>Observação do Agente infrator</h4>
+                                                    <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" value="@ViewBag.Condutor?.rec_TrocaInf_Infracao" rows="2" class="form-control"></textarea> *@
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <div class="ibox">
+                                                    <br />
+                                                    <strong>Fotos do cometimento</strong>
+                                                    <br />
+                                                    <br />
+                                                    <div class="ibox-content product-box">
+                                                        <a href="~/img/p9.jpg" title="Image from Unsplash" data-gallery="">
+                                                            <img src="~/img/p9.jpg" style="width: 100%; height: 100%; object-fit: cover;">
+                                                        </a>
+                                                    </div>
+                                                    <br />
+                                                    <div class="ibox-content product-box">
+                                                        <a href="/img/p10.jpg" title="Image from Unsplash" data-gallery="">
+                                                            <img src="/img/p10.jpg" style="width: 100%; height: 100%; object-fit: cover;">
+                                                        </a>
+
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div id="tab-4" class="tab-pane">
+                            <div class="panel-body">
+
+                                <div class="client-detail">
+                                    <div class="full-height-scroll">
+                                        <h2>Encaminhar processo para instrução</h2>
+
+                                        <hr />
+
+                                        <div class="row">
+                                            <div class="col-sm-12 b-r">
+                                                <h3 class="m-t-none m-b"> Destino desejado</h3>
+                                                
+                                                <form role="form" id="form_instrucao">
+                                                    <input type="hidden" id="INSPRO_Dis_id" name="INSPRO_Dis_id" value="@Model?.DIS_ID">
+                                                    <select class="select2_demo_3 form-control" style="width:100%;" id="INSPRO_Setor_destino" name="INSPRO_Setor_destino" required>
+
+                                                        <option></option>
+                                                        @if(ViewBag.Setor != null)
+                                                        {
+                                                            foreach (var setor in ViewBag.Setor)
+                                                            {
+                                                                <option value="@setor.SETSUB_ID">@setor.SETSUB_NOME</option>
+                                                            }
+                                                        }
+                                                       
+                                                    </select>
+                                                    <p><small> <i class="fa fa-twitch"></i> Selecione o setor para o qual deseja solicitar uma instrução.</small></p>
+
+                                                 
+                                                 
+                                                    <h3 class="m-t-none m-b">Instrução</h3>
+
+                                                    <textarea id="INSPRO_Parecer" name="INSPRO_Parecer" rows="2" class="form-control" required> </textarea>
+                                                    <p><small>  <i class="fa fa-twitch"></i> Por favor, digite a instrução para o setor responsável de forma clara e objetiva, detalhando seu pedido. </small></p>
+                                                                                                       
+                                                    <div>
+                                                        <br />
+                                                        <button class="btn btn-sm btn-primary float-right m-t-n-xs" type="button" id="btn_instrucao"><strong>Encaminhar Processo</strong></button>
+
+                                                    </div>
+                                                    <br />
+                                                 <br />
+                                                    <h4> <i class="fa fa-history"></i> Historico de Instrução</h4>
+                                                    <div class="ibox-content">
+                                                        <div class="feed-activity-list">
+
+                                                            @if (ViewBag.instrucao != null)
+                                                            {
+                                                                foreach (var item in ViewBag.instrucao)
+                                                                {
+                                                                    <div class="feed-element">
+                                                                        <div>
+                                                                            <small class="float-right text-navy">Origem: @item.INSPRO_Setor_origem </small>
+
+                                                                            <div><small><strong>@item.INSPRO_Usuario_origem: </strong></small> @item.INSPRO_Parecer </div>
+                                                                            <small class="float-right text-navy">Destino: @item.INSPRO_Setor_destino</small>
+                                                                            <small class="text-muted"><strong>Enviado:</strong> às @item.INSPRO_DATA_ORIGEM</small>
+                                                                            <br />
+                                                                            @if (!string.IsNullOrEmpty(item.INSPRO_Arquivo))
+                                                                            {
+                                                                                <i class="fa fa-file-pdf-o"></i> <strong>@item.INSPRO_Arquivo</strong>
+                                                                            }
+                                                                        </div>
+                                                                    </div>
+                                                                }
+                                                            }                                                          
+
+                                                        </div>
+                                                    </div>
+
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab-5" class="tab-pane">
+                            <div class="panel-body">
+
+                  
+                                        <h2>Anexo de arquivos</h2>
+                                        <hr />
+                                        <br />                                       
+                                        <p>
+                                        Clique em <strong>Escolher arquivo</strong> para localizar o documento que deja anexar.
+                                        </p>
+                                        <div class="btn-group" style="width:100%;">
+
+                                            <form enctype="multipart/form-data" style="width:100%;" id="form_anexo">
+                                                <input type="hidden" id="PRT_NUMERO" name="PRT_NUMERO" value="@Model?.PRT_NUMERO" />
+                                                <input type="hidden" id="PRT_AIT" name="PRT_AIT" value="@Model?.PRT_AIT" />
+                                                <input type="file" id="arquivos" name="arquivos" style="display: none;" multiple />
+                                                <label title="Upload image file" class="btn btn-primary" for="arquivos" style="width:100%;" id="uploadButton">
+                                                    Click aqui para anexar um arquivo.
+                                                </label>
+                                                <div id="selectedFiles">
+                                                </div>
+                                            </form>
+                                          
+                                      
+                                        </div>
+                                        <br />
+                                        <br />
+                                <div class="client-detail">
+                                    <div class="full-height-scroll">
+                                        <h4>Arquivos anexados</h4>
+                                        <div class="ibox-content">
+                                            <div class="feed-activity-list" >
+
+                                                <div id="div_anexo">
+                                                    @await Html.PartialAsync("_AnexoJulgamento")
+                                                </div>
+                                               
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                       
+                    </div>
+                    
+                </div>
+            </div>            
+
+        </div>
+
+        <div class="col-lg-3">
+            <div class="ibox-content">
+                <h2><i class="fa fa-users"></i> Membros da votação </h2>
+                <div class="panel-body">
+
+                    <div class="client-detail">
+                        <div class="full-height-scroll">
+                            
+                            <div id="Div_Votacao">
+                                @await Html.PartialAsync("_VotacaoMembro")
+                            </div>
+                            <br />                           
+                            <hr />
+                            <br />
+                            <h2><i class="fa fa-exclamation"></i> Observação do SETAP</h2>
+                             <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" rows="8" cols="45" class="form-control"></textarea>
+                            <br />
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    
+    </div>
+   
+</div>
+
+<script src="~/js/jquery-3.1.1.min.js"></script>
+<script src="~/js/jquery.min.js"></script>
+<script src="~/js/bootstrap.min.js"></script>
+<script src='~/js/jquery.mask.min.js'></script>
+
+@* <script src="~/js/validacaoFormPessoa.js"></script> *@
+
+
+
+<script src="~/js/notiflix-aio-2.1.3.min.js"></script>
+
+
+<script>
+
+    $(document).ready(function () {        
+        $('#summernote').summernote();       
+        var motivoVotoSelecionado = '@(ViewBag.ParecerRelator != null ? Html.Raw(ViewBag.ParecerRelator.Disjug_Parecer_Relatorio) : "")';
+     
+        $('#summernote').summernote('code', motivoVotoSelecionado);
+
+        //caso ja tenha descrição do voto deve ficar ocuto
+        if (motivoVotoSelecionado != '') {
+            $('#div_memebro').hide();
+        }
+    });
+
+
+    $('#arquivos').change(function () {
+     
+        // Captura todo o formulário de uma única vez
+        var formData = new FormData($('#form_anexo')[0]);
+
+        // Envia os dados via AJAX
+        $.ajax({
+            url: '@Url.Action("AnexarDocumentos", "Julgamento")',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                // Exibe o retorno do servidor no elemento #Div_Anexo
+                $('#div_anexo').html(result);
+            },
+            error: function (xhr, status, error) {
+                console.log('Erro ao enviar arquivo:', error);
+            }
+        });
+    });
+
+    $('#btn_instrucao').click(function () {
+
+      
+        inicializarValidacaoFormulario("#form_instrucao");
+
+        if ($("#form_instrucao").valid()) {
+
+            var formData = $("#form_instrucao").serialize();
+
+            $.ajax({
+                url: '@Url.Action("EncaminharProcessoInstrucao", "Julgamento")',
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    if (response.erro == false) {
+                        Notiflix.Notify.Success("Instrução enviada com sucesso!");
+                        window.location.href = '@Url.Action("Julgamento", "Julgamento")';
+                    }
+                    else
+                        Notiflix.Notify.Failure("Não foi possível enviar a instrução!");
+                },
+                error: function (xhr, status, error) {
+                    Notiflix.Notify.Success("Erro interno!");
+                }
+            });
+
+
+        }
+    });
+
+    function RealizarJulgamento(resultado) {
+
+        inicializarValidacaoFormulario("#form_julgamento");
+
+        validarSummernote();
+
+        if ($("#form_julgamento").valid()) {
+            // Obtém os valores selecionados do campo Disjug_Membro1
+            var selectedMembers = $("#Disjug_Membro1").val();
+
+            // Verifica se há pelo menos dois membros selecionados
+            if (selectedMembers.length == 2) {
+                // Define name1 e name2 com base nos valores selecionados
+                var name1 = selectedMembers[0];
+                var name2 = selectedMembers[1];
+                var parecerContent = $('#summernote').summernote('code');
+
+                // Serializa o formulário e adiciona os campos separados para name1 e name2
+                var formData = $("#form_julgamento").serializeArray();
+                formData.push({ name: "Disjug_Membro1", value: name1 });
+                formData.push({ name: "Disjug_Membro2", value: name2 });
+                formData.push({ name: "Disjug_Resultado", value: resultado });
+                formData.push({ name: "Disjug_Parecer_Relatorio", value: parecerContent });
+
+                $.ajax({
+                    url: '@Url.Action("InserirVotoRelator", "Julgamento")',
+                    type: 'POST',
+                    data: $.param(formData), // Converte o array para uma string serializada
+                    success: function (response) {
+                        if (response.erro == false) {
+                            Notiflix.Notify.Success("Assinatura realizada com sucesso!");
+                            // Atraso de 2 segundos antes do redirecionamento
+                            setTimeout(function () {
+                                window.location.href = response.url;
+                            }, 3000);
+                        } else {
+                            Notiflix.Notify.Failure(response.retorno);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        Notiflix.Notify.Failure("Erro interno!");
+                    }
+                });
+            } else {
+                Notiflix.Notify.Warning("Selecione dois membros.");
+            }
+        }
+    };
+
+
+    function validarSummernote() {
+        // Obter o conteúdo do Summernote (sem tags HTML)
+        var conteudo = $('#summernote').summernote('isEmpty') ? '' : $('#summernote').summernote('code').trim();
+
+        if (!conteudo) {
+            // Mostrar mensagem de erro
+            $('#erroSummernote').show();
+            return false; // Impede o envio do formulário
+        } else {
+            $('#erroSummernote').hide();
+            return true; // Permite o envio do formulário
+        }
+    }
+
+
+    $(document).on('click', '.retirar-anexo', function (e) {
+       
+        e.preventDefault();
+
+        var data = $(this).data('id'); // Exemplo: "123,456"
+        var parts = data.split(','); // Separa em ["123", "456"]
+        var prodocid = parts[0];
+        var numeroait = parts[1];
+
+
+        Notiflix.Confirm.Show(
+            'Aviso!',
+            'Tem certeza que deseja retirar esse anexo?',
+            'Sim',
+            'Não',
+            async function okCb() {
+                Notiflix.Loading.Standard('Aguarde...');
+                $.ajax({
+                    url: '@Url.Action("ExcluirAnexo", "Julgamento")',
+                    type: 'POST',
+                    data: { prodoc_id: prodocid, ait: numeroait },
+                    success: function (result) {
+                        // Lógica a ser executada em caso de sucesso
+                        if (result.error == true) {
+                            Notiflix.Notify.Failure('Erro.');
+                            return false;
+                        }
+
+                        $('#div_anexo').html(result); // Atualiza a div com a Partial View
+                        Notiflix.Loading.Remove();
+
+                    },
+                    error: function (xhr, status, error) {
+                        // Lógica a ser executada em caso de erro
+                        console.log('Erro ao enviar arquivo:', error);
+                        Notiflix.Loading.Remove();
+                    }
+                });
+            },
+            function cancelCb() {
+                Notiflix.Loading.Remove();
+            },
+            {
+                // Configurações adicionais (opcional)
+            }
+        );
+
+
+
+    });
+  
+</script>

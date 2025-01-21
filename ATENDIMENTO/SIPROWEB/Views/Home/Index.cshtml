@@ -1,0 +1,519 @@
+﻿
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Abertura de Processo</h2>
+        <small>Automaticamento o sistema vai identificar se existe agendamento.</small>
+        @*   <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+        <a href="index.html">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+        <a>App Views</a>
+        </li>
+        <li class="breadcrumb-item active">
+        <strong>Clients</strong>
+        </li>
+        </ol> *@
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row justify-content-center">
+        <!-- Adiciona a classe justify-content-center para centralizar a div col-lg-3 -->
+        <div class="col-lg-4">
+            <br />
+            <br />
+            <br />
+
+            <div class="ibox ">
+                <div class="ibox-title ">
+                    <h2>SIPRO  <small> - Sistema de Protocolo</small></h2>
+                    <h5>Abertura de Processo</h5>
+                   <p> <small>
+                        @* Apenas processo que houve o agendamento no portal. *@
+                        </small>
+                   </p>
+            
+
+
+                </div>
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <p>Digite CPF do solicitante:</p>
+                            <form role="form" id="form">
+                                <div class="form-group">
+                                    <input type="hidden" id="ConfirmarCondutor" />
+                                    <input type="text" placeholder="000.000.000-00" data-mask="999.999.999-99" class="form-control" id="Age_Doc_Solicitante" name="cpf" value="">
+                                </div>
+                                <br>
+                                <div class="form-group">
+                                    <button class="btn btn-sm btn-primary float-right m-t-n-xs" id="btnIniciarAbertura" type="button"><strong>Iniciar abertura</strong></button>
+                                </div>
+                            </form>
+                            
+
+                        </div>
+                    </div>
+                    <br />
+                    <small>
+                        <h4><i class="fa fa-twitch"></i> Orientação</h4>
+                        Todas as informações cadastradas são de responsabilidade do atendente<br />
+                        Após a entrada do CPF, o sistema verificará se há um agendamento.<br />
+                        Caso <strong>não</strong> exista um agendamento, o sistema redirecionará para a tela de cadastro presencial.
+                        <br />
+                        <br />
+                        <h4><i class="fa fa-exclamation-triangle"></i> Importante</h4>
+                        Certifique-se de que todos os dados estão corretos antes de finalizar o cadastro.<br />
+                        Em caso de dúvidas ou problemas, entre em contato com o suporte técnico para assistência.
+                        <hr />
+
+                        <button class="btn btn-outline btn-primary " id="btnAberturaEstrangeiro" type="button"><strong> Abertura Estrangeiro Presencial</strong></button>
+                      
+                    </small>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<div class="modal inmodal" id="Modal1" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <div class="modal-dialog">
+        <div class="modal-content animated bounceInRight">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <i class="fa fa-calendar-o modal-icon"></i>
+                <h4 class="modal-title">PROCESSO AGENDADO</h4>
+                <small class="font-bold">Verifique os detalhes do agendamento existente para seguir com a abertura.</small>
+                
+            </div>
+
+           
+            <div class="modal-body">
+                <br />
+              
+                <form id="form_distribuicao">
+                    <div class="form-group row">
+                        <label class="col-lg-2 col-form-label text-right">Serviço:</label>
+                        <div class="col-lg-10"><input type="text" class="form-control" id="PRT_ASSUNTO" readonly></div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-2 col-form-label text-right">NA:</label>
+                        <div class="col-lg-10"><input type="text" class="form-control" id="PRT_AIT" readonly></div>
+                    </div>
+                
+                   @*  <div class="form-group row">
+                        <label class="col-lg-2 col-form-label text-right">Solicitante:</label>
+                        <div class="col-lg-10"><input type="text" class="form-control" id="PRT_CPF" readonly></div>
+                    </div> *@
+                    <br />
+                    <hr />
+            
+                    <div class="form-group row" >
+                        <br />
+                        <div class="col-lg-12">
+                            <label text-right"> Atenção:</label>
+                        <p class="h6 text-" id="mensagem"></p>
+                        </div>
+                        <br />
+                    </div>                   
+                </form>
+
+               
+                <div class="modal-footer">
+               
+                    <button type="button" class="btn btn-white" id="btnNegarCondutor"> Portador </button>
+                    <button type="button" class="btn btn-dark" id="btnConfimarCondutor"> Confimar Condutor</button>
+                    <button type="button" class="btn btn-dark" id="btnConfimarProprietario"> Continuar </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* Model de cadastro de Usuarios*@ 
+<div class="modal inmodal fade" id="Modal2" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header navy-bg">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title"> <i class="fa fa-drivers-license-o" aria-hidden="true"></i> Cadastro do Solicitante</h4>
+                <small class="font-bold">Manter cadastro atualizado é importante. Preencha todos os campos do formulário, por favor.</small>
+            </div>
+
+            <div class="modal-body">
+                <p class="text-center h6">
+                    Preencha o formulário com os dados do <strong>Solicitante.</strong>
+                </p>
+
+            </div>
+            <div class="alert alert-warning text-center">
+                <i class="fa fa-twitch"></i> CPF não encontrado na base de dados do Protocolo. <br />Verifique se foi digitado corretamente ou realize o cadastro.
+            </div>
+            <div class="modal-body">
+                <form role="formpessoa" id="formpessoa">
+                 @*    <div class="row">
+                        <div class="form-group col-md-12"><label> <input type="checkbox"  id="Pes_Estrangeiro" name="Pes_Estrangeiro"> Se for estrangeiro favor marcar!</label></div>
+                    </div> *@
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <label>CPF</label>
+                            <input type="text" placeholder="" class="form-control cpf" data-mask="000.000.000-00" id="PES_CPF" name="PES_CPF" required>
+                            <span class="error-cpf" style="color:chocolate;"></span>
+                        </div>
+                        <div class="form-group col-md-8">
+                            <label>Nome</label>
+                            <input type="text" placeholder="" class="form-control" id="PES_Nome" name="PES_Nome" required maxlength="50">
+                        </div>
+                    </div>
+                   
+                    <div class="row">
+                        <div class="form-group col-md-5"><label>CNH</label><input type="text" placeholder="" class="form-control" data-mask="00000000000" id="PES_NumRegistroCNH" name="PES_NumRegistroCNH" ></div>
+                        <div class="form-group col-md-5">
+                            <label>Validade CNH</label><input type="text" placeholder="" data-mask="99/99/9999" class="form-control" id="PES_DT_Validade" name="PES_DT_Validade" >
+                            <span class="error-cnh" style="color:chocolate;"></span>
+                        </div>
+                        <div class="form-group col-md-2"><label>UF CNH</label><input type="text" placeholder="" class="form-control input-mixed" id="PES_UFCNH" name="PES_UFCNH" maxlength="2" style="text-transform: uppercase;"></div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6"><label>Email</label><input type="email" placeholder="" class="form-control" id="PES_Email" name="PES_Email"></div>
+                        <div class="form-group col-md-3"><label>Celular</label><input type="text" placeholder="" data-mask="(00)00000-0000" class="form-control" id="PES_Celular" name="PES_Celular" required minlength="14"></div>
+                        <div class="form-group col-md-3"><label>Telefone</label><input type="text" placeholder="" data-mask="(00)00000-0000" class="form-control" id="PES_Telefone" name="PES_Telefone" minlength="14"></div>
+                    </div>
+
+                    <hr />
+                    <div class="row">
+                        <div class="form-group col-md-3">
+                            <label>Cep</label>
+                      @*       <input type="text" placeholder="" class="form-control input-zip" data-mask="99.999-999" id="PES_EndCEP" name="PES_EndCEP" required> <br /> *@
+                            <input type="text" placeholder="" class="form-control input-zip" data-mask="99.999-999" id="PES_EndCEP" name="PES_EndCEP" required>
+                            <span class="error-cep" style="color: chocolate;"></span>
+                        </div>
+
+                        <div class="form-group col-md-5"><label>Logradouro</label><input type="text" placeholder="" class="form-control" id="PES_EndLogradouro" name="PES_EndLogradouro" required maxlength="50"></div>
+                        <div class="form-group col-md-4"><label>Bairro</label><input type="text" placeholder="" class="form-control input-mixed" id="PES_EndBairro" name="PES_EndBairro" required maxlength="30"></div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-3"><label>Município</label><input type="text" placeholder="" class="form-control" id="PES_Municipio" name="PES_Municipio" required maxlength="20"></div>
+                        <div class="form-group col-md-2"><label>UF</label><input type="text" placeholder="" class="form-control" id="PES_UF" name="PES_UF" required maxlength="2" style="text-transform: uppercase;"></div>
+                        <div class="form-group col-md-2"><label>Número</label><input type="text" placeholder="" class="form-control" id="PES_EndNumero" name="PES_EndNumero" required maxlength="5"></div>
+                        <div class="form-group col-md-5"><label>Complemento</label><input type="text" placeholder="" class="form-control" id="PES_EndComplemento" name="PES_EndComplemento" maxlength="30"></div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <small>
+                            <i class="fa fa-twitch"></i> Todas as informações cadastradas são de responsabilidade do atendente. Agradecemos sua compreensão e colaboração.
+                        </small>
+                    </div>
+                    <div class="col-md-4 text-right">                   
+                        <button type="button" class="btn btn-primary btn-block" id="btnCadastrarPessoa"> Confirmar </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/jquery-3.1.1.min.js"></script>
+<script src="~/js/jquery.min.js"></script>
+<script src="~/js/bootstrap.min.js"></script>
+<script src='~/js/jquery.mask.min.js'></script>
+<script src="~/js/validadorcpf.js"></script>
+<script src="~/js/validadordtcnh.js"></script>
+<script src="~/js/validacaoFormPessoa.js"></script>
+<script src="~/js/buscar_cep.js"></script>
+<script src="~/js/IconeErro.js"></script>
+<script src="~/js/valorzeroesquerda.js"></script>
+
+
+<script src="~/js/notiflix-aio-2.1.3.min.js"></script>
+
+       
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+                
+
+        setTimeout(function () {
+            $("#Age_Doc_Solicitante").focus();
+        }, 500);
+        
+        $("#btnNegarCondutor").show();
+        $("#btnConfimarCondutor").show();
+        $("#btnConfimarProprietario").hide();
+
+        // Adiciona evento de keypress ao campo Age_Doc_Solicitante
+        $("#Age_Doc_Solicitante").on('keypress', function (e) {
+            if (e.which === 13) {  
+                e.preventDefault(); 
+                $('#btnIniciarAbertura').click(); 
+            }
+        });
+
+        //abertura estrangeiro
+        $('#btnAberturaEstrangeiro').click(function () {
+           window.location.href = '@Url.Action("AberturaEstrangeiro", "Atendimento")'; 
+        });      
+
+        //Botão de abertura do protocolo  
+        $('#btnIniciarAbertura').click(function () {
+        
+            inicializarValidacaoFormulario("#form");
+      
+            // Verifica se o formulário é válido antes de prosseguir
+            if ($("#form").valid()) {
+                Notiflix.Loading.Standard('Aguarde...');
+                // Se o formulário for válido, você pode prosseguir com a lógica para enviar os dados via AJAX
+                var cpf = $('#Age_Doc_Solicitante').val();
+                
+                cpf = cpf.replace(/\D/g, '');//tirando os caracteres!!
+
+                $.ajax({
+                    url: '@Url.Action("BuscarAgendamento", "Atendimento")',
+                    type: 'GET',
+                    data: { cpf: cpf },
+                    success: function (response) {                     
+
+                        if (response.error == true) { 
+                            console.log('passou aqui 1 ');
+                            window.location.href = '@Url.Action("InternalServerError", "Home")'
+                        }               
+                        
+                        if (response.retorno == 'BadRequest') {
+                            console.log('passou aqui 2 ');
+                            Notiflix.Notify.Failure(response.message);
+                        }
+
+                        if (response.retorno == 'SemDados') {
+
+                            $('#Modal2').modal('show');
+                 
+                            $('#Modal2').on('shown.bs.modal', function () {
+                                $('#formpessoa').find('input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], textarea').val('');
+                                // $('#Pes_Estrangeiro').prop('checked', false);
+                                $('#PES_CPF').focus();
+                                $('#PES_CPF').val(cpf);
+                                $('#PES_CPF').prop('readonly', true);
+
+                                $('#Modal2').on('hidden.bs.modal', function (e) {
+                                    // Limpar mensagens de erro
+                                    $(this).find('.error').removeClass('error').text(''); // Limpar classes de erro e texto
+                                    
+                                });
+                                //caso encontre dados da pessoa no Detran
+                                if (response.pessoaDetran != undefined || response.pessoaDetran != null) {
+                                    $(response.pessoaDetran).each(function () {
+
+                                        $("#PES_Nome").val(this.pes_Nome);
+                                        $("#PES_NumRegistroCNH").val(this.pes_NumRegistroCNH);
+                                        $("#PES_DT_Validade").val(this.pes_DT_Validade);
+                                        $("#PES_UFCNH").val(this.pes_UFCNH);
+
+                                        $('#PES_Nome').prop('readonly', true);
+                                        $('#PES_NumRegistroCNH').prop('readonly', true);
+                                        $('#PES_UFCNH').prop('readonly', true);
+                                        $('#PES_DT_Validade').prop('readonly', true);
+                                        $('#PES_Email').focus();
+
+                                    });
+                                } else {
+                                    $('#PES_Nome').prop('readonly', false);
+                                    $('#PES_NumRegistroCNH').prop('readonly', false);
+                                    $('#PES_UFCNH').prop('readonly', false);
+                                    $('#PES_DT_Validade').prop('readonly', false);
+                                    $('#PES_Nome').focus();
+                                }
+                            });
+
+                        }
+                        if (response.retorno == 'AIT Desconhecido') {
+                            $("#PRT_ASSUNTO").val(response.servico);
+                            $("#PRT_AIT").val(response.ait);
+                            $("#PRT_CPF").val(response.cpf);
+                            $("#mensagem").html("<i class='fa fa-twitch'></i> Existe agendamento para o AIT <strong>" + response.ait + "</strong> no entanto, para esse AIT, não encontramos registro em nossa base de dados ou os dados estão incompletos, o que pode impactar a conclusão do processo.");
+                            $("#btnNegarCondutor").hide();
+                            $("#btnConfimarCondutor").hide();
+                            $("#btnConfimarProprietario").hide();
+                            $('#Modal1').modal('show');
+                        }
+                        else if (response.retorno == 'Desconhecido') {
+                            $("#PRT_ASSUNTO").val(response.servico);
+                            $("#PRT_AIT").val(response.ait);
+                            $("#PRT_CPF").val(response.cpf);
+                            $("#mensagem").html("<i class='fa fa-twitch'></i> O CPF <strong>" + response.cpf + "</strong> que realizou o agendamento não corresponde ao <strong> proprietário </strong> do veículo. Você confirma que este CPF pertence ao <strong>Portador</strong> ou <strong>Condutor</strong> do veículo?");
+                            $("#btnNegarCondutor").show();
+                            $("#btnConfimarCondutor").show();
+                            $("#btnConfimarProprietario").hide();
+                            $('#Modal1').modal('show');                        
+                        }
+                        else if (response.retorno == 'Proprietario') {
+                            $("#PRT_ASSUNTO").val(response.servico);
+                            $("#PRT_AIT").val(response.ait);
+                            $("#PRT_CPF").val(response.cpf);
+                            $("#mensagem").html("<i class='fa fa-twitch'> </i> Consta em nosso sistema que o CPF <strong>" + response.cpf + "</strong> que realizou o agendamento corresponde ao <strong> proprietário </strong> do veículo.");
+                            $("#btnNegarCondutor").hide();
+                            $("#btnConfimarCondutor").hide();
+                            $("#btnConfimarProprietario").show();
+                            $('#Modal1').modal('show');
+                            $("#btnConfimarProprietario").focus();
+                        } //add o if do AIT inexistente
+                        else if (response.retorno == 'SemAgendamento') { //  CPF
+                            console.log('passou aqui 3 ');
+                            window.location.href = '@Url.Action("AberturaAtendimento", "Atendimento")' + '?cpf=' + cpf;
+                        
+                        }
+
+                        Notiflix.Loading.Remove();
+                    },
+                    error: function (xhr, status, error) {
+                        Notiflix.Loading.Remove();
+                    }
+                });
+            }
+        });
+
+        // buscar o CEP
+        // $('#Age_AIT').blur(function () {
+        //     var inputValue = $(this).val(); // Obtém o valor do campo
+        //     var formattedValue = formatValueWithLeadingZeros(inputValue); // Formata o valor
+        //     $(this).val(formattedValue);
+        // });
+       
+        //Confirmar se é Condutor
+        $('#btnConfimarCondutor').click(function () {
+            $('#Modal1').modal('hide');
+            var cpf = $('#Age_Doc_Solicitante').val();
+            cpf = cpf.replace(/\D/g, '');
+            Abrir('@Url.Action("Atendimento", "Atendimento")', cpf, "sim");          
+        });
+    
+        //Negar que é condutor
+        $('#btnNegarCondutor').click(function () {
+            $('#Modal1').modal('hide');
+            var cpf = $('#Age_Doc_Solicitante').val();
+            cpf = cpf.replace(/\D/g, '');
+            Abrir('@Url.Action("Atendimento", "Atendimento")', cpf, "nao");            
+            $('#Age_Doc_Solicitante').focus();
+        });
+
+        //Confirmar o proprietário
+        $('#btnConfimarProprietario').click(function () {
+            $('#Modal1').modal('hide');
+            var cpf = $('#Age_Doc_Solicitante').val();
+            cpf = cpf.replace(/\D/g, '');
+            Abrir('@Url.Action("Atendimento", "Atendimento")', cpf, "nao");
+        });
+
+        //buscar o CEP
+        $('#PES_EndCEP').blur(function () {
+            Notiflix.Loading.Standard('Aguarde...');
+            BuscarCep($(this).val());
+        });
+
+        //Btn de cadastro de Usuario caso não tenha!
+        $('#btnCadastrarPessoa').click(function () {
+
+            ValidacaoFormPessoa("#formpessoa");
+
+            if ($("#formpessoa").valid()) {
+
+                var formData = $("#formpessoa").serialize();
+
+                $.ajax({
+                    url: '@Url.Action("CadastrarPessoa", "Pessoa")',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+
+                        if (response.error == 'InternalServerError') {
+                            window.location.href = '@Url.Action("InternalServerError", "Home")';
+                        }
+                        else if (response.error == 'BadRequest') {
+                            Notiflix.Notify.Failure(response.retorno);
+                        } 
+                        else { 
+                        Notiflix.Notify.Success(response.retorno);
+                            $('#Modal2').modal('hide');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                    Notiflix.Notify.Failure("Erro interno!");
+                    }
+                });
+
+                // $.ajax({
+                //     url: '@Url.Action("CadastrarPessoa", "Pessoa")',
+                //     type: 'POST',
+                //     data: formData,
+                //     success: function (response) {
+
+
+                        // console.log(response.retorno)
+
+                        // $('#Modal2').modal('hide');
+
+                        // if (response.retorno == 'Desconhecido') {
+                        //     $("#modalTitulo").text(" " + response.servico);
+                        //     $("#modalTitulo2").text("AIT: " + response.ait);
+                        //     $("#mensagem").html("<i class='fa fa-twitch'></i> O CPF <strong>" + response.cpf + "</strong> que realizou o agendamento não corresponde ao <strong> proprietário </strong> do veículo. Você confirma que este CPF pertence ao <strong>Portador</strong> ou <strong>Condutor</strong> do veículo?");
+                        //     $("#btnNegarCondutor").show();
+                        //     $("#btnConfimarCondutor").show();
+                        //     $("#btnConfimarProprietario").hide();
+                        //     $('#Modal1').modal('show');                        
+                        // }
+                        // else if (response.retorno == 'Proprietario') {
+                        //     $("#modalTitulo").text(" " + response.servico);
+                        //     $("#modalTitulo2").text("AIT: " + response.ait);
+                        //     $("#mensagem").html("<i class='fa fa-twitch'> </i> Consta em nosso sistema que o CPF <strong>" + response.cpf + "</strong> que realizou o agendamento corresponde ao <strong> proprietário </strong> do veículo");
+                        //     $("#btnNegarCondutor").hide();
+                        //     $("#btnConfimarCondutor").hide();
+                        //     $("#btnConfimarProprietario").show();
+                        //     $('#Modal1').modal('show');
+                        // } //add o if do AIT inexistente
+                        // else if (response.retorno == 'SemAgendamento') { //  CPF 
+                         
+                        //     window.location.href = '@Url.Action("AberturaAtendimento", "Atendimento")' + '?cpf=' + response.cpf;
+                        
+                        // }                        
+                //     },
+                //     error: function (xhr, status, error) {
+
+                //     }
+                // });
+            }
+        });
+
+
+        function Abrir(redirectUrl, cpf,  conduto) {
+            var form = $('<form action="' + redirectUrl + '" method="post">' +
+                         '<input type="hidden" name="cpf" value="' + cpf + '" />' +
+                         '<input type="hidden" name="conduto" value="' + conduto + '" />' +
+                         '</form>');
+
+            $('body').append(form);
+            $(form).submit();
+        }
+
+    });
+
+</script>
+  
+  
+  
+ 

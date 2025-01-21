@@ -1,0 +1,322 @@
+﻿@model SIPROSHAREDINSTRUCAO.Models.InstrucaoProcessosModel
+
+
+
+
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Instrução do Processo</h2>
+    </div>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+   
+    <div class="row">
+
+        <div class="col-lg-3" >
+            <div class="ibox-content" >
+                <h2><i class="fa fa-paste"></i> Dados do Protocolo </h2>
+                <div class="panel-body">
+
+                    <div class="client-detail">
+                        <div class="full-height-scroll">
+                            <div id="div_detalheAIT">
+                             
+                                <ul class="list-group clear-list">                                 
+
+                                    <li class="list-group-item fist-item">
+                                        <span class="float-right label label-success m-b-n-xxs"><strong class="h6">@Model?.PRT_NUMERO</strong></span>
+                                        Protocolo: 
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="float-right"><strong>@Model?.PRT_NOME_ORIGEM </strong></span>
+                                        Origem: 
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="float-right"><strong> @Model?.PRT_NOME_ASSUNTO</strong></span>
+                                        Serviço:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="float-right"><strong>@Model?.PRT_DT_ABERTURA </strong></span>
+                                        Data da Abertura: 
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="float-right"><strong> @Model?.PRT_DT_POSTAGEM</strong></span>
+                                        Data da Postagem: 
+                                    </li>
+                                    <li class="list-group-item">
+                                        <p><small><strong>Dados do Proprietário</strong></small></p>
+                                        <span class="float-right"> <strong>@Model?.PRT_CPFCNJ_PROPRIETARIO</strong></span>
+                                        CPF/CNPJ: 
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="float-right"> <strong>@Model?.PRT_NOMEPROPRIETARIO</strong></span>
+                                        proprietário:
+                                    </li>
+                                    
+                                   @*Buscar via API de Miro*@
+                                     <div id="Div_Notificacao">
+                                        @await Html.PartialAsync("_DadosNotificacao")
+                                    </div>
+                                </ul>
+
+
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+ 
+        <div class="col-lg-9" style="background-color: white;">
+           
+            <div class="row">
+                    <div class="col-lg-8">
+                        <h2> <i class="fa fa-weixin"></i> Instrução </h2>
+
+                        <hr />
+
+                        @if (ViewBag.instrucao != null)
+                        {
+                           
+                                <div class="feed-element">
+                                    <a href="#" class="float-left">
+                                        <img alt="image" class="rounded-circle" src="~/img/a5.jpg">
+                                    </a>
+                                    <div class="media-body">
+                                         Origem: <strong> @ViewBag.instrucao.INSPRO_Setor_origem</strong> <br>
+                                                <small class="text-muted">@ViewBag.instrucao.INSPRO_DATA_ORIGEM</small>
+                                        <div class="well">
+                                                @ViewBag.instrucao.INSPRO_Parecer
+                                        </div>
+                                       
+                                    </div>
+                                </div>
+
+                        }
+
+                    <div class="feed-element">
+                        <a href="#" class="float-left">
+                            <img alt="image" class="rounded-circle" src="~/img/a6.jpg" style="">
+                        </a>
+                        <div class="media-body">
+                        <div class="row ">
+                            <div class="col-sm-12 b-r">
+
+            
+                                <h4 class="m-t-none "> Setor de destino</h4>
+
+                                <form role="form" id="form_instrucao">
+
+                                    <input type="hidden" id="INSPRO_Dis_id" name="INSPRO_Dis_id" value="@Model?.DIS_ID">
+                                    <input type="hidden" id="INSPRO_PRT_NUMERO" name="INSPRO_PRT_NUMERO" value="@Model?.PRT_NUMERO">
+
+                                    <select class="select2_demo_3 form-control" style="width:100%;" id="INSPRO_Setor_destino" name="INSPRO_Setor_destino" required>
+
+                                        <option></option>
+                                        @if (ViewBag.Setor != null)
+                                        {
+                                            foreach (var setor in ViewBag.Setor)
+                                            {
+                                                <option value="@setor.SETSUB_ID">@setor.SETSUB_NOME</option>
+                                            }
+                                        }
+
+                                    </select>
+                                    <p><small> <i class="fa fa-twitch"></i> Selecione o setor para o qual deseja solicitar uma instrução.</small></p>
+
+
+                                    <h4 class="m-t-none">Instrução</h4>
+
+                                    <textarea id="INSPRO_Parecer" name="INSPRO_Parecer" rows="14" class="form-control" required> </textarea>
+                                    <p><small>  <i class="fa fa-twitch"></i> Por favor, digite a instrução para o setor responsável de forma clara e objetiva, detalhando seu pedido. </small></p>
+
+
+
+                                </form>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="client-detail">
+                            <div class="full-height-scroll">
+                                <h2><i class="fa fa-paperclip"></i> Anexo de arquivos</h2>
+                                <hr />
+                                <br />
+                                <p>
+                                    Clique em <strong>Escolher arquivo</strong> para localizar o documento que deja anexar.
+                                </p>
+                                <div class="btn-group" style="width:100%;">
+
+                                    <form enctype="multipart/form-data" style="width:100%;" id="form_anexo">
+                                        <input type="hidden" id="PRT_NUMERO" name="PRT_NUMERO" value="@Model?.PRT_NUMERO" />
+                                        <input type="hidden" id="PRT_AIT" name="PRT_AIT" value="@Model?.PRT_AIT" />
+                                        <input type="file" id="arquivos" name="arquivos" style="display: none;" multiple />
+                                        <label title="Upload image file" class="btn btn-secondary" for="arquivos" style="width:100%;" id="uploadButton">
+                                            Click aqui para anexar um arquivo.
+                                        </label>
+                                        <div id="selectedFiles">
+                                        </div>
+                                    </form>
+
+                                </div>
+                               
+                                <br />
+                                <br />
+                                
+                                <div class="client-detail">
+                                    <div class="full-height-scroll">
+                                        <h4>Arquivos anexados</h4>
+                                        <div class="">
+                                            <div class="feed-activity-list">
+                                                 <div id="div_anexo">
+                                                    @await Html.PartialAsync("_AnexoInstrucao")
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <div>
+
+                                <button class="btn btn-sm btn-primary btn-block float-right m-t-n-xs" type="button" id="btn_instrucao"><strong> Encaminhar Processo <i class="fa fa-angle-double-right"></i> </strong></button>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+                </div>
+           
+        </div>
+        
+    </div>
+   
+</div>
+
+<script src="~/js/jquery-3.1.1.min.js"></script>
+<script src="~/js/jquery.min.js"></script>
+<script src="~/js/bootstrap.min.js"></script>
+<script src='~/js/jquery.mask.min.js'></script>
+<script src="~/js/notiflix-aio-2.1.3.min.js"></script>
+
+
+<script>
+
+    $('#arquivos').change(function () {
+     
+        // Captura todo o formulário de uma única vez
+        var formData = new FormData($('#form_anexo')[0]);
+
+        // Envia os dados via AJAX
+        $.ajax({
+            url: '@Url.Action("UploadAnexo", "Instrucao")',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                // Exibe o retorno do servidor no elemento #Div_Anexo
+                $('#div_anexo').html(result);
+            },
+            error: function (xhr, status, error) {
+                console.log('Erro ao enviar arquivo:', error);
+            }
+        });
+    });
+
+    $('#btn_instrucao').click(function () {
+      
+        inicializarValidacaoFormulario("#form_instrucao");
+
+        if ($("#form_instrucao").valid()) {
+
+            var formData = $("#form_instrucao").serialize();
+            Notiflix.Loading.Standard('Aguarde...');
+
+            $.ajax({
+                url: '@Url.Action("EncaminharInstrucao", "instrucao")',
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    if (response.erro == false) {
+                        Notiflix.Loading.Remove();
+                        Notiflix.Notify.Success("Instrução enviada com sucesso!");
+                        window.location.href = '@Url.Action("Instrucao", "Instrucao")';
+                    }
+                    else { 
+                        Notiflix.Loading.Remove();
+                        Notiflix.Notify.Failure("Não foi possível enviar a instrução!");
+                    }
+                       
+                },
+                error: function (xhr, status, error) {
+                    Notiflix.Loading.Remove();
+                    Notiflix.Notify.Success("Erro interno!");
+                }
+            });
+
+
+        }
+    });
+
+    async function excluirAnexoMVC(_protocolo, _arquivo, elemento) {
+
+        const arquivo = _arquivo;
+        const prefixo = arquivo.split('_')[0];
+
+        console.log(prefixo);
+
+        Notiflix.Confirm.Show(
+            'Aviso!',
+            'Tem certeza que deseja retirar esse anexo?',
+            'Sim',
+            'Não',
+            async function okCb() {
+                Notiflix.Loading.Standard('Aguarde...');
+                try {
+                    $.ajax({
+                        url: '@Url.Action("ExcluirAnexo", "Instrucao")',
+                        type: 'POST',
+                        data: { prtNumero: prefixo, arquivo: _arquivo },
+
+                        success: function (result) {
+
+                            $('#div_anexo').html(result); // Atualiza o conteúdo
+                            Notiflix.Loading.Remove();
+                            Notiflix.Notify.Success("Arquivo excluído com sucesso!");
+                        },
+                        error: function (xhr) {
+                            Notiflix.Loading.Remove();
+                            const errorMessage = xhr.responseText || 'Erro desconhecido';
+                            Notiflix.Notify.Failure(`Erro ao excluir arquivo: ${errorMessage}`);
+                        }
+                    });
+                } catch (error) {
+                    Notiflix.Loading.Remove();
+                    console.error('Erro na exclusão:', error);
+                }
+
+            },
+            function cancelCb() {
+                Notiflix.Loading.Remove();
+            },
+            {
+                // Configurações adicionais (opcional)
+            }
+       );
+
+
+        
+    }
+
+      
+</script>

@@ -1,0 +1,282 @@
+﻿@model List<SIPROSHARED.Models.ProtocoloModel>
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Consultar Protocolo</h2>
+        @*   <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+        <a href="index.html">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+        <a>App Views</a>
+        </li>
+        <li class="breadcrumb-item active">
+        <strong>Clients</strong>
+        </li>
+        </ol> *@
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-7">
+            <div class="ibox">
+                <div class="ibox-content">
+                @*    <span class="text-muted small float-right">Total de 2 registro</span> *@
+                    <h3><i class="fa fa-list-ul"></i>  Lista de Protocolo  </h3>
+                    <small>Buscar por: Processo, AIT e Usuário</small>
+                    <div class="input-group">
+                        <input type="text" placeholder=" " class="input form-control" id="Vlo_Busca">
+                        <span class="input-group-append">
+                            <button type="button" class="btn btn btn-primary" id="btmLocalizarProtocolo"> <i class="fa fa-search"></i> Localizar</button>
+                        </span>
+                    </div>
+                    <div class="clients-list">
+                        <div class="full-height-scroll">                                                     
+                            <div id="div_listaProtocolo">
+                                @await Html.PartialAsync("_ListaProtocolo")
+                            </div>                         
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="col-sm-5">
+            <div class="tabs-container">
+
+                <ul class="nav nav-tabs">
+                    <li><a class="nav-link active show" data-toggle="tab" href="#tab-1"> Processo</a></li>
+                    <li><a class="nav-link" data-toggle="tab" href="#tab-2">Proprietário e Condutor</a></li>
+                    <li><a class="nav-link" data-toggle="tab" href="#tab-3">Bancários</a></li>
+                    <li><a class="nav-link" data-toggle="tab" href="#tab-4">Movimentação</a></li>
+                </ul>
+
+
+                <div class="tab-content">
+                    <div id="tab-1" class="tab-pane active show">
+                        <div class="panel-body">
+                            <div class="client-detail">
+                                <div class="row">
+                                    <div class="col-sm-10">
+                                        <strong>Informações complementares</strong>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button class="btn btn-sm btn-outline btn-primary float-right" onclick="EmitirCopia()" id="btnIniciarAbertura" type="button">
+                                            <i class="fa fa-print"></i> Cópia de Processo
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="full-height-scroll">
+                                    <div id="div_detalheProtocolo">
+                                        @await Html.PartialAsync("_DetalhamentoProtocolo")
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+                    </div>
+
+                    <div id="tab-2" class="tab-pane">
+                        <div class="panel-body">
+                            <div class="client-detail">
+                                <strong>Informações complementares</strong>
+                                <div class="full-height-scroll">
+                                    <div id="div_proprietario_condutor">
+                                        @await Html.PartialAsync("_Proprietario_Condutor")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-3" class="tab-pane">
+                        <div class="panel-body">
+                            <div class="client-detail">
+                                <strong>Informações complementares</strong>
+                                <div class="full-height-scroll">
+                                    <div id="div_dados_bancario">
+                                        @await Html.PartialAsync("_DadosBancario")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>  
+
+                    <div id="tab-4" class="tab-pane">
+                        <div class="panel-body">
+                            <div class="client-detail">
+                                <strong>Histórico de Movimentação</strong>
+                                <div class="full-height-scroll">
+                                    <div class="ibox-content inspinia-timeline">
+                                        <div id="div_movimentacao">
+                                            @await Html.PartialAsync("_Movimentacao")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<a class=" floating-btn" href="~/Home/Index">+</a>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js">
+
+</script>
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+
+
+<!-- blueimp gallery -->
+
+
+<script>
+
+
+    // function EmitirCopia() {
+
+    //     //Add rpt
+    //     var rpt = "Sre_Copia_Movimentacao_Processo.rpt";      
+
+    //     //Add parametros
+    //     var paramtros = [];
+
+
+    //     paramtros.push(document.getElementById('PRT_NUMERO').value);
+    //     paramtros.push("Reinaldo");
+
+    //     // Construir a URL com os parâmetros de consulta
+    //     var url = '@Url.Action("EmitirRPT", "Relatorio")' + '?rpt=' + encodeURIComponent(rpt);
+    //     for (var i = 0; i < paramtros.length; i++) {
+    //         url += '&paramtros[' + i + ']=' + encodeURIComponent(paramtros[i]);
+    //     }
+    //     window.location.href = url;
+    // }
+
+
+    function EmitirCopia() {
+        // Add rpt
+        var rpt = "Sre_Copia_Movimentacao_Processo.rpt";
+
+        // Add parametros
+        var paramtros = [];
+        paramtros.push(document.getElementById('PRT_NUMERO').value);
+        paramtros.push("Reinaldo");
+
+        // Construir a URL com os parâmetros de consulta
+        var url = '@Url.Action("EmitirRPT", "Relatorio")' + '?rpt=' + encodeURIComponent(rpt);
+        paramtros.forEach(function (parametro) {
+            url += '&paramtros=' + encodeURIComponent(parametro);
+        });
+
+        // Redirecionar para a URL
+        window.location.href = url;
+    }
+
+
+    function TabIndex() {
+        // Remove active class from all tabs
+        document.querySelectorAll('.nav-link').forEach(function (tab) {
+            tab.classList.remove('active', 'show');
+        });
+        document.querySelectorAll('.tab-pane').forEach(function (pane) {
+            pane.classList.remove('active', 'show');
+        });
+
+        // Add active class to tab 1
+        document.querySelector('.nav-link[href="#tab-1"]').classList.add('active', 'show');
+        document.getElementById('tab-1').classList.add('active', 'show');
+    }
+
+
+
+    function LocalizarProtocolo(vlobusca) {
+        $.ajax({
+            url: '@Url.Action("BuscarProtocolo", "Atendimento")',
+            datatype: 'html',
+            contentType: "application/html; charset=utf-8",
+            type: "GET",
+            data: { vloBusca: vlobusca },
+            success: function (result) {
+
+                $('#div_listaProtocolo').html(result);
+                AbirProtocolo("");
+
+                TabIndex();
+
+            },
+            error: function (xhr, status, error) {
+                // Lidar com erros, se necessário
+            }
+        });
+
+    }
+
+    // BUTÃO ESCANEEAR VALIDANDO
+    $('#btmLocalizarProtocolo').click(function (event) {
+        var vlobusca = $('#Vlo_Busca').val();
+        event.preventDefault();
+        LocalizarProtocolo(vlobusca);
+    });
+
+    $('#Vlo_Busca').on('input', function () {
+        var searchTerm = $(this).val();
+        if (searchTerm === '') {
+            LocalizarProtocolo(null); // Busca todos os resultados
+        }
+    });
+
+    let lastClickedIcon = null;
+
+    async function AbirProtocolo(vlobusca, linkElement) {
+
+
+        Notiflix.Loading.Standard('Aguarde...');
+     
+        async function fetchAndUpdate(url, elementId) {
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/html; charset=utf-8'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('A responsata da rede não foi boa. ' + response.statusText);
+                }
+
+                const result = await response.text();
+                document.getElementById(elementId).innerHTML = result;
+
+            } catch (error) {
+                console.error(`Houve um problema com a requisição fetch para ${elementId}:`, error);
+            }
+        }
+
+        const urls = [
+            { url: '@Url.Action("DetalheProtocolo", "Atendimento")?protocolo=' + encodeURIComponent(vlobusca), elementId: 'div_detalheProtocolo' },            
+            { url: '@Url.Action("Proprietario_Condutor", "Atendimento")?protocolo=' + encodeURIComponent(vlobusca), elementId: 'div_proprietario_condutor' },
+            { url: '@Url.Action("DadosBancario", "Atendimento")?protocolo=' + encodeURIComponent(vlobusca), elementId: 'div_dados_bancario' },
+            { url: '@Url.Action("MovimentacaoProtocolo", "Atendimento")?protocolo=' + encodeURIComponent(vlobusca), elementId: 'div_movimentacao' }
+        ];
+
+        for (const { url, elementId } of urls) {
+            await fetchAndUpdate(url, elementId);
+        }
+
+        TabIndex();
+        Notiflix.Loading.Remove();
+    }
+
+
+
+</script>

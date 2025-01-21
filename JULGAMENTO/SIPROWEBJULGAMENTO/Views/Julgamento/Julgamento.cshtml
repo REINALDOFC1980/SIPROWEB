@@ -1,0 +1,78 @@
+﻿@model List<SIPROSHARED.Models.ProtocoloModel>
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Julgamento de Processos</h2>
+
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox">
+                <div class="ibox-content">
+                    @*    <span class="text-muted small float-right">Total de 2 registro</span> *@
+                    <h3><i class="fa fa-list-ul"></i>  Lista de Processos para serem jugados </h3>
+                    <small>Buscar por: Processo, AIT e Usuário</small>
+                    <div class="input-group">
+                        <input type="text" placeholder=" " class="input form-control" id="Vlo_Busca">
+                        <span class="input-group-append">
+                            <button type="button" class="btn btn btn-primary" id="btmLocalizarProtocolo"> <i class="fa fa-search"></i> Localizar</button>
+                        </span>
+                    </div>
+                    <div class="clients-list">
+                        <div class="full-height-scroll">
+                            <div id="div_listaProtocolo">
+                                 @await Html.PartialAsync("_ListaProtocolo")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+
+<script>   
+      
+        function LocalizarProtocolo(vlobusca) {
+            $.ajax({
+            url: '@Url.Action("BuscarProtocolo", "Julgamento")',
+                datatype: 'html',
+                contentType: "application/html; charset=utf-8",
+                type: "GET",
+                data: { vlobusca: vlobusca },
+                success: function (result) {
+                    $('#div_listaProtocolo').html(result);
+                },
+                error: function (xhr, status, error) {
+                    // console.error("Erro na busca do protocolo:", error);
+                }
+            });
+        }
+
+
+        $('#btmLocalizarProtocolo').click(function (event) {
+            var vlobusca = $('#Vlo_Busca').val();
+            event.preventDefault();
+            LocalizarProtocolo(vlobusca);
+        });
+
+
+        $('#Vlo_Busca').on('input', function () {
+            var searchTerm = $(this).val();
+            if (searchTerm === '') {
+                LocalizarProtocolo("Todos"); // Busca todos os resultados
+            }
+        });      
+
+
+
+</script>

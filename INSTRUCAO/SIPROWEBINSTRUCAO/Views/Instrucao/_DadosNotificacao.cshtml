@@ -1,0 +1,40 @@
+﻿ @if (ViewBag.Notificacao != null)
+{
+
+     <li class="list-group-item">
+        <p><small><strong>Dados da Notificação da Autuação</strong></small></p>
+        <span class="float-right label label-success m-b-n-xxs"><strong class="h6">@ViewBag.Notificacao.rec_ait_numero</strong></span>
+        NA: 
+    </li> 
+    <li class="list-group-item">
+        <span class="float-right"><strong> @ViewBag.Notificacao.Rec_Veiculo_Placa</strong></span>
+        Placa:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"> <strong>@ViewBag.Notificacao.rec_veiculo_renavan</strong></span>
+        Renavan:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"> <strong>@ViewBag.Notificacao.infracaodata</strong></span>
+        Data Infração:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"> <strong>@ViewBag.Notificacao.infracao</strong></span>
+        Infração:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"> <strong>@ViewBag.Notificacao.defesanai</strong></span>
+        Prazo para Apresentação da Defesa:
+    </li>
+   
+}
+else
+{
+    <br />
+    <br />
+    <br />
+    <p><small><strong>Dados da Notificação da Autuação</strong></small></p>
+    <br />
+    <br />
+    <p>Dados da notificação não encontrados.</p>
+}

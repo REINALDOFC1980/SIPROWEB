@@ -1,0 +1,308 @@
+﻿@model SIPROSHARED.Models.AgendaModel
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2 class="m-b-xxs">Abertura de Processo Presencial</h2>
+        <small>Após a entrada do CPF, o sistema automaticamente verificará se há um agendamento existente para o solicitante.</small>
+        @* 
+        <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+        <a href="index.html">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+        <a>App Views</a>
+        </li>
+        <li class="breadcrumb-item active">
+        <strong>Clients</strong>
+        </li>
+        </ol> *@
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<br />
+<br />
+<br />
+<br />
+
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        
+        
+        <div id="mensagem1" class="alert alert-danger text-center" style="display: none;">
+          
+        </div>
+
+        <div class="ibox ">
+
+            <div class="ibox-title navy-bg">
+
+
+                <div class="text-center">
+                    <h2> <i class="fa fa-twitch"></i> <strong>Não consta agendamento para esse CPF digitado.</strong></h2>
+                    <h5>Abertura de processo presencial</h5>
+                 </div>
+             
+            @*         <small>
+                        <i class="fa fa-twitch"></i> Preencha todos os campos do formulário.
+                    </small> *@
+                
+                <br />
+               
+
+            </div>
+            <form role="form" id="FormAbertura">
+             
+                <div class="ibox-content">
+
+                    <h2><i class="fa fa-user-circle" aria-hidden="true"></i><string> Solicitante</string></h2>
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <label>CPF</label>
+                            <input type="text" id="Age_Doc_Solicitante" name="Age_Doc_Solicitante" class="form-control" value="@Model.Age_Doc_Solicitante" readonly required >
+                        </div>
+                        <div class="col-sm-7">
+                            <label>Nome Completo</label>
+                            <input type="text" id="Age_Nome_Solicitante" name="Age_Nome_Solicitante" class="form-control" value="@Model.Age_Nome_Solicitante" readonly required>
+                        </div>
+                    </div>
+                    <br />
+                    <hr />
+                   
+                    <h2><i class="fa fa-file-text fa-1x"></i><string> Protocolo</string></h2>
+                    <div class="row">
+                        <div class="col-sm-8 b-r">
+                            <div class="form-group">
+                                <label>Digite o número de autuação </label> -      <small>(T000000000)</small>
+                           
+                                <input type="text" id="Age_AIT" name="Age_AIT" class="form-control" required maxlength="10">
+                                <input type="hidden" id="Ass_Nome" name="Ass_Nome" class="form-control">
+                       
+                            </div>
+
+                            <div class="form-group">
+                                <label>Selecione o serviço que deseja realizar a abertura</label> <br />
+
+                                <select class="select2_demo_3 form-control" style="width:100%;" id="Age_Cod_Assunto" name="Age_Cod_Assunto" required>
+                                  
+                                   
+                                    @* <option value="7">ADVERTÊNCIA</option> *@
+                                    @*                    <option value="59">ADVERTÊNCIA COM APRESENTAÇÃO DE CONDUTOR</option> *@
+                                    <option value="1">APRESENTAÇÃO DE CONDUTOR</option>
+                                    <option value="39">APRESENTAÇÃO DE CONDUTOR INFRATOR E DEFESA DA AUTUAÇÃO</option>
+                                    @*   <option value="6">CADIN</option> *@
+                                    <option value="2">DEFESA DA AUTUAÇÃO</option>
+                                    @*         <option value="5">EFEITO SUSPENSIVO</option> *@
+                                    @*        <option value="4">PRESCRIÇÃO</option> *@
+                                    <option value="9">RECURSO CETRAN</option>
+                                    <option value="8">RECURSO JARI</option>
+                                    @*              <option value="62">RECURSO TRANSALVADOR CETRAN</option>
+                                    <option value="61">REQUERIMENTO DE CÓPIA DE PROCESSO</option>
+                                    <option value="60">REQUERIMENTO DIVERSOS</option> *@
+                                    <option value="3">RESSARCIMENTO</option>
+                                </select>
+
+
+                                <br />
+
+                                        
+                            </div>      
+
+                        </div>
+                        <div class="col-sm-4">
+                            <h4>Qual a origem?</h4>
+                            <p class="text-center">
+                                <div><label><input type="radio" checked value="64" id="Age_Cod_Origem" name="Age_Cod_Origem"> Correios </label></div>
+                                <div><label><input type="radio" value="90" id="Age_Cod_Origem" name="Age_Cod_Origem"> Prefeitura Bairro </label></div>
+                                <div><label><input type="radio" value="109" id="Age_Cod_Origem" name="Age_Cod_Origem"> Protocolo Órgão Domicílio/287 </label></div>
+                            </p>
+                        </div>
+
+                    </div>
+                    <hr />
+                    <div class="row">
+
+                        <div class="col-md-9">
+                            <small>
+                                <i class="fa fa-twitch"></i> Todas as informações cadastradas são de responsabilidade do atendente.  
+                                <button type="button" class="btn btn-outline-dark" onclick="window.location.href = '@Url.Action("Index", "Home")'"><i class="fa fa-angle-double-left"></i> Voltar</button>
+                                <!-- Seu botão com a chamada à action -->                   
+                            </small>
+                            <br />
+                            <span class="error-ait" style="color: chocolate;"></span>
+             
+                        </div>
+
+                        <div class="col-md-3 text-right">
+
+      @*                       <button type="button" class="btn btn-white">Voltar</button> *@
+                            <button type="button" class="btn btn-outline-dark btn-block" id="btnconfirmarabertura"> <i class="fa fa-check"></i> Confirmar </button>
+                            
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal inmodal" id="Modal1" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content animated bounceInRight">
+            <div class="modal-header navy-bg">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                <i class="fa fa-user modal-icon"></i>
+                <h4 id="modalTitulo" class="modal-title">CPF: </h4>
+                <small class="font-bold">CPF do solicitante do agendamento</small>
+            </div>
+            <div class="modal-body">
+                <p class="text-center h6" id="mensagem"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-white" id="btnNegarCondutor"> Portador </button>
+                <button type="button" class="btn btn-dark" id="btnConfimarCondutor"> Confimar Condutor</button>
+                <button type="button" class="btn btn-dark" id="btnConfimarProprietario"> Continuar </button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<a class=" floating-btn" href="~/Home/Index">+</a>
+<!-- Select2 JS -->
+
+<script src="~/js/jquery-3.1.1.min.js"></script>
+
+<script src="~/js/valorzeroesquerda.js"></script>
+<script src="~/js/iconeerro.js"></script>
+<script src="~/js/plugins/select2/select2.full.min.js"></script>
+
+
+
+<script>
+
+
+
+    $(document).ready(function () {
+
+ 
+           $('#Age_AIT').focus();
+          
+            $(".select2_demo_1").select2();
+            $(".select2_demo_2").select2();
+            $(".select2_demo_3").select2({
+            placeholder: "",
+                allowClear: true
+            });
+
+        //$('.js-example-basic-single').select2();
+
+        $('#Age_AIT').blur(function () {
+            var formattedValue = formatValueWithLeadingZeros($(this).val());
+            $(this).val(formattedValue);
+        });
+
+
+
+
+
+    //CONFIMAR ABERTURA SEM AGENDAMENTO
+        $('#btnconfirmarabertura').click(function () {
+
+            inicializarValidacaoFormulario("#FormAbertura");
+
+            if ($("#FormAbertura").valid()) {
+
+                var formData = $("#FormAbertura").serialize();
+                     var cpf = $('#Age_Doc_Solicitante').val();
+
+                $.ajax({
+                    url: '@Url.Action("CadastroSemAgendamento", "Atendimento")',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+
+                        var mensagem1 = document.getElementById("mensagem1");
+                      
+                        //pegando os erros da controller
+                        if (response.retorno == "error") {
+                            mensagem1.innerHTML = '<i class="fa fa-twitch"></i> ' + response.errorAPI;
+                            mensagem1.style.display = "block";
+                            return false;                        
+                        } else {
+                         document.getElementById("mensagem1").style.display = "none";
+                        }
+
+                        //Abertura do pop up  
+                        if (response.retorno == 'Desconhecido') {
+                            $("#modalTitulo").text("CPF: " + response.cpf);
+                            $("#mensagem").html("<i class='fa fa-twitch'></i> O CPF digitado do solicitante não corresponde ao <strong>proprietário</strong> do veículo. Você confirma que este CPF pertence ao <strong>Portador</strong> ou <strong>Condutor</strong> do veículo?");
+
+                            $("#btnNegarCondutor").show();
+                            $("#btnConfimarCondutor").show();
+                            $("#btnConfimarProprietario").hide();
+                            $('#Modal1').modal('show');
+                        } 
+                        else if (response.retorno == 'Proprietario') {
+                            $("#modalTitulo").text("CPF: " + response.cpf);
+                            $("#mensagem").html("<i class='fa fa-twitch'> </i> Consta em nosso sistema que o CPF <strong>" + response.cpf + "</strong> do solicitante corresponde ao <strong> proprietário </strong> do veículo");
+                            $("#btnNegarCondutor").hide();
+                            $("#btnConfimarCondutor").hide();
+                            $("#btnConfimarProprietario").show();
+                            $('#Modal1').modal('show');
+
+                        }else {                            
+                            Abrir('@Url.Action("Atendimento", "Atendimento")', cpf, "nao");
+                        } 
+                    },
+                    error: function (xhr, status, error) {
+
+                    }
+                });
+            }
+        });
+
+        //Confirmar se é Condutor
+        $('#btnConfimarCondutor').click(function () {
+            $('#Modal1').modal('hide');
+            var cpf = $('#Age_Doc_Solicitante').val();
+            cpf = cpf.replace(/\D/g, '');
+            Abrir('@Url.Action("Atendimento", "Atendimento")', cpf, "sim")
+
+        });
+
+        //Negar que é condutor e sim portador
+        $('#btnNegarCondutor').click(function () {
+            $('#Modal1').modal('hide');
+            var cpf = $('#Age_Doc_Solicitante').val();
+            cpf = cpf.replace(/\D/g, '');
+            Abrir('@Url.Action("Atendimento", "Atendimento")', cpf, "nao")
+        });
+
+        
+        //Confirmar o proprietário
+        $('#btnConfimarProprietario').click(function () {
+            $('#Modal1').modal('hide');
+            var cpf = $('#Age_Doc_Solicitante').val();
+            cpf = cpf.replace(/\D/g, '');
+            Abrir('@Url.Action("Atendimento", "Atendimento")', cpf, "nao")
+        });
+
+        function Abrir(redirectUrl, cpf, conduto) {
+            var form = $('<form action="' + redirectUrl + '" method="post">' +
+                        '<input type="hidden" name="cpf" value="' + cpf + '" />' +
+                        '<input type="hidden" name="conduto" value="' + conduto + '" />' +
+                        '</form>');
+
+            $('body').append(form);
+            $(form).submit();
+        }
+  
+    });
+
+</script>
+
+

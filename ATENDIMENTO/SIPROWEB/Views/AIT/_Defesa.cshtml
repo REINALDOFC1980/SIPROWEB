@@ -1,0 +1,60 @@
+﻿@model SIPROSHARED.Models.ProtocoloModel
+
+
+@if (Model != null)
+{
+<ul class="list-group clear-list">
+    <li class="list-group-item fist-item">
+        <br />
+        <p><small><strong>Dados do processo:</strong></small></p>
+        <span class="float-right label label-success m-b-n-xxs"><strong class="h6">@Model?.PRT_AIT</strong></span>
+        Autuação:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"><strong> @Model?.PRT_NUMERO </strong></span>
+        Protocolo:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"><strong> @Model?.PRT_DT_ABERTURA </strong></span>
+        Data da abertura:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"><strong> @Model?.PRT_ATENDENTE </strong></span>
+        Atendente:
+    </li>
+  
+    <li class="list-group-item">
+        <br />
+        <p><small><strong>Dados do Julgamento:</strong></small></p>
+        <span class="float-right"><strong> @Model?.PRT_RESULTADO </strong> </span>
+        Resultado:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"><strong> @Model?.PRT_DT_JULGAMENTO </strong></span>
+        Data do Julgamento:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"><strong> @Model?.PRT_DT_PUBLICACAO  </strong></span>
+        Data da Publicação:
+    </li>
+</ul>
+
+}else
+{
+<br />
+<br />
+<br />
+<br />
+<br />
+<h4 class="text-center">Não consta processo para esse NA</h4>
+<br />
+<br />
+@*  <p>You can create an account:</p> *@
+<p class="text-center">
+
+    <a href=""><i class="fa fa-twitch big-icon"></i></a>
+    <br />
+    <br />
+    <small>Até o momento não consta processo para o NA pesquisada.</small>
+</p>
+}

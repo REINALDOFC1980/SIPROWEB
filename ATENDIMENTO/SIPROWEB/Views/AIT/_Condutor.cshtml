@@ -1,0 +1,96 @@
+﻿@model SIPROSHARED.Models.ProtocoloModel
+
+@if(Model != null)
+{
+    @if (!string.IsNullOrEmpty(Model?.PRT_CONDUTOR_APRESENTADO))
+    {
+        <br />
+        <br />
+
+        <br />  
+        <h5 class="text-center">
+            <i class="fa fa-twitch"></i>
+            Informamos que o nome mencionado foi identificado como Condutor Infrator no momento da autuação. <br />
+            Esta notificação refere-se à infração cometida e registrada no sistema. <br />
+            
+        </h5>
+          <br />
+        <br />
+        <br />
+        <br />
+        <h3><small>Nome do Condutor: </small> <span class="float-right"><strong> @Model?.PRT_CONDUTOR_APRESENTADO  </strong></span></h3>
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <p class="text-center">
+            <br />
+            <br />
+            <small>Essa NA não tem permissão para abertura de processo de Apresentação de Condutor Infrator.</small>
+        </p>
+  
+    }else
+    {
+        <ul class="list-group clear-list">
+            <li class="list-group-item fist-item">
+                <br />
+                <p><small><strong>Dados do processo:</strong></small></p>
+                <span class="float-right label label-success m-b-n-xxs"><strong class="h6">@Model?.PRT_AIT</strong></span>
+                Autuação:
+            </li>
+            <li class="list-group-item">
+                <span class="float-right"><strong> @Model?.PRT_NUMERO </strong></span>
+                Protocolo:
+            </li>
+            <li class="list-group-item">
+                <span class="float-right"><strong> @Model?.PRT_DT_ABERTURA </strong></span>
+                Data da abertura:
+            </li>
+            <li class="list-group-item">
+                <span class="float-right"><strong> @Model?.PRT_ATENDENTE </strong></span>
+                Atendente:
+            </li>
+            <li class="list-group-item">
+                <span class="float-right"><strong> @Model?.PRT_NOME_CONDUTOR  </strong></span>
+                Nome do Condutor:
+            </li>
+            <li class="list-group-item">
+                <span class="float-right"><strong> @Model?.PRT_NUMREGISTRO_CNH  </strong></span>
+                CNH:
+            </li>
+            <li class="list-group-item">
+                <br />
+                <p><small><strong>Dados do Detran:</strong></small></p>
+                <span class="float-right"><strong> @Model?.PRT_RETORNO_DETRAN </strong> </span>
+                Retorno do DETRAN:
+            </li>
+
+        </ul>
+        
+    }
+}
+else
+{
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <h4 class="text-center">Não consta processo para esse NA</h4>
+    <br />
+    <br />
+    @*  <p>You can create an account:</p> *@
+    <p class="text-center">
+
+        <a href=""><i class="fa fa-twitch big-icon"></i></a>
+        <br />
+        <br />
+        <small>Até o momento não consta processo para o NA pesquisada.</small>
+    </p>
+
+
+
+}
+
+

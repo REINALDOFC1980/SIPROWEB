@@ -1,0 +1,54 @@
+﻿<div class="table-responsive">
+
+    <table class="table table-striped table-hover">
+
+        <thead>
+            <tr>
+                <th>Protocolo</th>
+                <th>Instrução</th>          
+                <th>AIT</th>
+                <th>Origem</th>
+                <th>Assunto</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        @{
+            if (ViewBag.Protocolo == null)
+            {
+              <tr><td colspan="5"> <i class="fa fa-twitch"></i>  Realize sua busca.</td></tr>             
+            }
+            else if (ViewBag.Protocolo.Count != 0)
+            {
+                @foreach (var item in ViewBag.Protocolo)
+                {
+                    <tr>
+          
+                        <td>@item.PRT_NUMERO</td>
+                        <td>@item.PRT_PARECER</td>       
+                        <td>@item.PRT_AIT</td>
+                        <td>@item.PRT_SETOR_ORIGEM</td>
+                        <td><a href="#" class="client-link">@item.PRT_NOME_ASSUNTO</a></td>                         
+                      
+                        @{
+                           string resultadoClasse = item?.PRT_SITUACAO == "Instrucao" ? "fa fa-edit" : "fa fa-edit";
+                         }
+                        <td>
+                             <a href="@Url.Action("InstrucaoDetalhe", "Instrucao", new { dis_id = item?.DIS_ID })" class="client-link">
+                             <i class="@resultadoClasse"></i> Instruir
+                            </a>
+                        </td>
+
+                    </tr>
+                }
+            }
+            else  @if (ViewBag.Protocolo.Count == 0)
+            {
+               <tr><td colspan="6"> <i class="fa fa-twitch"></i> Nenhum processo disponível.</td></tr>              
+            }
+          
+        }
+        </tbody>
+    </table>
+</div>

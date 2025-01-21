@@ -1,0 +1,30 @@
+﻿@if (ViewBag.Anexo != null && ViewBag.Anexo.Count > 0)
+{
+    @foreach (var arquivo in ViewBag.Anexo)
+    {
+        <div class="feed-element">
+            <div>
+
+                <small class="float-right text-navy">
+                    <a href="#" class="btn btn-outline btn-danger btn-xs retirar-anexo"
+                       onclick="excluirAnexoMVC('@Model?.PRT_NUMERO', '@arquivo', this)">
+                        <i class="fa fa-trash-o"></i>
+                    </a>
+                </small>
+                <i class="fa fa-file-pdf-o"></i> <strong>@arquivo</strong>
+         @*        <div></div>
+                <small class="">@item.PRTDOC_DATA_HORA</small> *@
+               
+            </div>
+        </div>
+    }
+} 
+else
+{
+    <br />
+
+    <div>
+        <div>Não existe arquivos anexados</div>
+    </div>
+
+}
