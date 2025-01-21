@@ -9,9 +9,6 @@ using System.Text.RegularExpressions;
 
 
 
-
-
-
 namespace SIPROAPI.Controllers
 {
     [Route("sipro/atendimento")]
