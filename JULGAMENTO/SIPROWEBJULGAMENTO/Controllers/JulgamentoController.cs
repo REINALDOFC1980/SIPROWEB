@@ -1,14 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-using SIPROSHARED.Models;
-using System.Text.Json.Serialization;
-using System.Text.Json;
-using SIPROSHARED.Filtro;
-using SIPROSHAREDJULGAMENTO.Models;
-using System.Text;
-using System.Net;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Filters;
+using SIPROSHARED.Filtro;
+using SIPROSHARED.Models;
+using SIPROSHAREDJULGAMENTO.Models;
+using System.Net;
+using System.Text;
+using System.Text.Json;
 
 namespace SIPROWEBJULGAMENTO.Controllers
 {

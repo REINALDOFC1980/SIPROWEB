@@ -38,16 +38,13 @@
                                 <img alt="image" class="rounded-circle" src="~/img/Logo_Recursos.png" style="width: 100px; height: 100px;" />
                             </a>
 
-
-
                             <a data-toggle="dropdown" class="dropdown-toggle" href="#">                               
                                 @{
                                    var userNome = Context.Items["UserNome"] as string;          
                                    var userRole = Context.Items["UserRoles"] as string;
                                    if (userNome != null && userNome.Any())
                                    {
-                                       <span class="block m-t-xs font-bold"> @userNome</span>
-                                        // <span class="text-muted text-xs block">Menu <b class="caret"></b></span>
+                                       <span class="block m-t-xs font-bold"> @userNome</span>                                        
                                    }                                   
                                 }
                             </a>
@@ -63,70 +60,80 @@
                         </div>
                     </li>
                     @{
-                        var roles = Context.Items["UserRoles"] as string;
-                 
-                        if (roles == "ATENDIMENTO_1" || roles == "ADM")
-                        {
-                            <li>
-                                <a href="~/Home/Index"><i class="fa fa-plus"></i> <span class="nav-label">Novo Atendimento</span></a>
-                            </li>
-                            <li>
-                                <a href="~/Atendimento/LocalizarProtocolo"><i class="fa fa-list-ul"></i> <span class="nav-label">Consultar Protocolo</span></a>
-                            </li>
-                            <li>
-                                <a href="~/AIT/LocalizarAIT"><i class="fa fa-paste"></i> <span class="nav-label">Histórico AIT</span></a>
-                            </li>
-                            <li>
-                                <a href="~/Pessoa/Pessoa"><i class="fa fa-user"></i> <span class="nav-label">Localizar Pessoa</span></a>
-                            </li>
-                        }
+                    var roles = Context.Items["UserRoles"] as string;
 
-                        if (roles == "DISTRIBUICAO_1" || roles == "ADM")
-                        {
-                            <li>
-                                 <a asp-controller="Distribuicao" asp-action="Distribuicao"><i class="fa fa-exchange"></i> <span class="nav-label">Distribuicao</span></a>
-                            </li>
-                        }
+                    var atendimento = new[] { "ATENDIMENTO_1", "ADM", "ATENDIMENTO_ADM" };
+                    if (atendimento.Contains(roles))
+                    {
+                        <li>
+                            <a href="~/Home/Index"><i class="fa fa-plus"></i> <span class="nav-label">Novo Atendimento</span></a>
+                        </li>
+                        <li>
+                            <a href="~/Atendimento/LocalizarProtocolo"><i class="fa fa-list-ul"></i> <span class="nav-label">Consultar Protocolo</span></a>
+                        </li>
+                        <li>
+                            <a href="~/AIT/LocalizarAIT"><i class="fa fa-paste"></i> <span class="nav-label">Histórico AIT</span></a>
+                        </li>
+                        <li>
+                            <a href="~/Pessoa/Pessoa"><i class="fa fa-user"></i> <span class="nav-label">Localizar Pessoa</span></a>
+                        </li>
+                    }
 
-                        if (roles == "JULGAMENTO_1" || roles == "ADM")
-                        {
-                            <li>
-                            <a href="#"><i class="fa fa-legal"></i> <span class="nav-label">Julgamento</span><span class="fa arrow"></span></a>
-                                <ul class="nav nav-second-level collapse">
-                            
-                                    <li> <a href="~/Julgamento/Julgamento"><i class="fa fa-legal"></i> <span class="nav-label">julgar Processo</span></a></li>
-                                    <li> <a href="~/Julgamento/Assinatura"> <i class="fa fa-edit"></i><span class="nav-label">Assinar Processo</span></a></li>
-                                    <li>
-                                        <a href="#"> <i class="fa fa-file"></i> Relatórios <span class="fa arrow"></span></a>
-                                        <ul class="nav nav-third-level">
-                                            <li>
-                                                <a href="#">Defesa</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">2ª via NA</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">AIT Eletrônico</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">Parecer do Relat</a>
-                                            </li>
-
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                        }
-                        if (roles == "INSTRUCAO_1" || roles == "ADM")
-                        {
-                            <li>
-                                <a asp-controller="Instrucao" asp-action="Instrucao"><i class="fa fa-external-link"></i> <span class="nav-label">Instrução</span></a>
-                            </li>
-                            
-                        }
-
-                    
+                    var distribuicao = new[] { "JULGAMENTO_ADM", "INSTRUCAO_ADM", "ADM" };
+                    if (distribuicao.Contains(roles))
+                    {
+                        <li>
+                             <a asp-controller="Distribuicao" asp-action="Distribuicao"><i class="fa fa-exchange"></i> <span class="nav-label">Distribuicao</span></a>
+                        </li>
+                    }
                    
+                    var julgamento = new[] { "JULGAMENTO_1", "JULGAMENTO_ADM", "ADM" };
+                    if (julgamento.Contains(roles))
+                    {
+                        <li>
+                        <a href="#"><i class="fa fa-legal"></i> <span class="nav-label">Julgamento</span><span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level collapse">
+                        
+                                <li> <a href="~/Julgamento/Julgamento"><i class="fa fa-legal"></i> <span class="nav-label">julgar Processo</span></a></li>
+                                <li> <a href="~/Julgamento/Assinatura"> <i class="fa fa-edit"></i><span class="nav-label">Assinar Processo</span></a></li>
+                                <li>
+                                    <a href="#"> <i class="fa fa-file"></i> Relatórios <span class="fa arrow"></span></a>
+                                    <ul class="nav nav-third-level">
+                                        <li>
+                                            <a href="#">Defesa</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">2ª via NA</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">AIT Eletrônico</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Parecer do Relat</a>
+                                        </li>
+
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                    
+                    var instrucao = new[] { "INSTRUCAO_ADM", "INSTRUCAO_1", "ADM" };
+                    if (instrucao.Contains(roles))                        
+                    {
+                        <li>
+                            <a asp-controller="Instrucao" asp-action="Instrucao"><i class="fa fa-external-link"></i> <span class="nav-label">Instrução</span></a>
+                        </li>
+                        
+                    }   
+                        // var homologacao = new[] { "HOMOLOGACAO_ADM", "HOMOLOGACAO_1", "ADM" };
+                        // if (homologacao.Contains(roles))
+                        // {
+                       <li>
+                            <a asp-controller="Homologacao" asp-action="Homologacao"><i class="fa fa-external-link"></i> <span class="nav-label">Homologação</span></a>
+                       </li>
+
+                       // }
                     }
                 </ul>          
 
@@ -260,7 +267,7 @@
                   
                 </nav>
             </div>
-            @* <div class="row wrapper border-bottom white-bg page-heading">
+           @*  <div class="row wrapper border-bottom white-bg page-heading">
                 <div class="col-sm-4">
                     <h2>This is main title</h2>
                     <ol class="breadcrumb">
@@ -277,8 +284,8 @@
                         <a href="" class="btn btn-primary">This is action area</a>
                     </div>
                 </div>
-            </div> *@
-
+            </div>
+ *@
                
                     @RenderBody()
                

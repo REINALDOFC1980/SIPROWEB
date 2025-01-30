@@ -1,0 +1,38 @@
+﻿<div class="table-responsive">
+
+    <table class="table table-striped table-hover">
+        <tbody>
+        @{
+                if (ViewBag.Protocolo == null)
+            {
+               <tr><td colspan="5"> <i class="fa fa-twitch"></i>  Realize sua busca.</td></tr>
+            }
+                else if (ViewBag.Protocolo.Count != 0)
+            {
+                @foreach (var item in ViewBag.Protocolo)
+                {
+                    <tr>
+                        <td class="contact-type"> <i class="fa fa-car"> </i></td>
+                        <td><a href="#" class="client-link">@item.PRT_NUMERO</a></td>
+                        <td><a href="#" class="client-link">@item.SETSUB_NOME</a></td>
+                        <td><a href="#" class="client-link">@item.PRT_NOME_ASSUNTO</a></td>
+                        <td><a href="#" class="client-link">@item.PRT_AIT</a></td>
+                        <td>@item.PRT_RESULTADO</td>                             
+                        <td>
+
+                                <a href="#" class="client-link" id="link-@item.PRT_NUMERO" onclick="AbirHomologacao('@item.MOVPRO_ID', this)">
+                                    Visualizar <i class="fa fa-eye"></i>
+                           </a>
+                        </td>
+                    </tr>
+                }
+            }
+            else  @if (ViewBag.Protocolo.Count == 0)
+            {
+               <tr><td colspan="5"> <i class="fa fa-twitch"></i> Não foi localizado registro para esse pesquisa.</td></tr>
+            }          
+        }
+        </tbody>
+    </table>
+
+</div>

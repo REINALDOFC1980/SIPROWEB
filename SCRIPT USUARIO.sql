@@ -36,11 +36,14 @@ Usuario: MARCOSFP	  - Presidente
 
  Setor : CDA2 
  Senha : cda2@46#
-Usuario: GRACIAMCS    - Presidente
+Usuario: ROSANEMSB    - Presidente
 		 ADILSONPDS   - Membros
 		 RITAFSE	  - Membros
-		 ROSANEMSB	  - Membros
+		 GRACIAMCS	  - Membros
 		 ADRIANAAB	  - Suplente
+
+
+
 
 ##############
 

@@ -49,6 +49,15 @@ namespace SIPROWEB.Controllers
                     // Salvar o token onde necessário (por exemplo, em cookies ou na sessão)
                     HttpContext.Session.SetString("Token", token);
 
+
+                    //var handler = new JwtSecurityTokenHandler();
+                    //var jwtToken = handler.ReadJwtToken(token);
+                    //var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                    //var AtendRoles = new[] { "ADM", "ATENDIMENTO_ADM" };
+                    //if (AtendRoles.Contains(roleClaim))
+                    //    return RedirectToAction("Index", "Home");
+
                     // Redirecionar para a página autorizada
                     return RedirectToAction("Apresentacao", "Home");
                 }

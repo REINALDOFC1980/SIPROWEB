@@ -507,8 +507,6 @@ namespace SIPROSHARED.Service.Repository
             return protocoloNumero;
         }
 
-
-
         public async Task IntoAnexoFolder(string folderPath, ProtocoloDocImgModel protocoloDoc, IDbConnection connection, IDbTransaction transaction)
         {
            
@@ -601,7 +599,7 @@ namespace SIPROSHARED.Service.Repository
                        ,PRT_CPF_CONDUTOR
                        ,case when c.PES_Nome IS NULL then 'NÃO SE APLICA'  else c.PES_Nome end as PRT_NOME_CONDUTOR
                        ,PRT_NUMREGISTRO_CNH
-                       ,PRT_CNH_VALIDADE
+                       ,PRT_CNH_VALIDADE as PRT_DT_VALIDADE
                        ,UPPER(c.PES_UFCNH) AS PRT_UF_CNH
                        ,PRT_RESTRICAO 
 
@@ -670,7 +668,7 @@ namespace SIPROSHARED.Service.Repository
                        ,PRT_CPF_CONDUTOR
                        ,case when c.PES_Nome IS NULL then 'NÃO SE APLICA'  else c.PES_Nome end as PRT_NOME_CONDUTOR
                        ,PRT_NUMREGISTRO_CNH
-                       ,PRT_CNH_VALIDADE
+                       ,PRT_CNH_VALIDADE as PRT_DT_VALIDADE
                        ,UPPER(c.PES_UFCNH) AS PRT_UF_CNH
                      
 

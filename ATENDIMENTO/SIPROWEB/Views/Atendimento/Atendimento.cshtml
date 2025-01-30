@@ -198,13 +198,13 @@
                                                         foreach (var item in ViewBag.Documento)
                                                         {
 
-                                                                    <li>
-                                                                        <form id="form_checkbox" name="form_checkbox">
-                                                                        <input type="checkbox" id="Pes_Estrangeiro_@item.Doc_id" name="Pes_Estrangeiro_@item.Doc_id" value="@item.Doc_id" class="documentoCheckbox">
-                                                                        <span class="m-l-xs">@item.Doc_nome</span>
-                                                                        </form>
+                                                            <li>
+                                                                <form id="form_checkbox" name="form_checkbox">
+                                                                <input type="checkbox" id="Pes_Estrangeiro_@item.Doc_id" name="Pes_Estrangeiro_@item.Doc_id" value="@item.Doc_id" class="documentoCheckbox">
+                                                                <span class="m-l-xs">@item.Doc_nome</span>
+                                                                </form>
 
-                                                                    </li>
+                                                            </li>
 
                                                         }
                                                     }
@@ -403,35 +403,35 @@
                          if (ViewBag.Analise != null)                           
 
                              {        
-                                     @if (ViewBag.Analise.Duplicidade > 0)
+                             @if (ViewBag.Analise.Duplicidade > 0)
                              {
-                                        <li class="list-group-item fist-item">
-                                        <i class="fa fa-times text-danger"></i> Já existe um processo para esse AIT!
-                                        </li>                                           
+                                <li class="list-group-item fist-item">
+                                <i class="fa fa-times text-danger"></i> Já existe um processo para esse AIT!
+                                </li>                                           
                              }
-                                     @if (ViewBag.Analise.SituacaoAIT == "NIP" && (@Model.PRT_ASSUNTO == 1 
+                             @if (ViewBag.Analise.SituacaoAIT == "NIP" && (@Model.PRT_ASSUNTO == 1 
                                                                         || @Model.PRT_ASSUNTO == 2
                                                                         || @Model.PRT_ASSUNTO == 39))
                              {
-                                        <li class="list-group-item fist-item">
-                                        <i class="fa fa-times text-danger"></i> AIT se encontra em fase NIP!   
-                                        </li>
+                                <li class="list-group-item fist-item">
+                                <i class="fa fa-times text-danger"></i> AIT se encontra em fase NIP!   
+                                </li>
                              }
                            
-                                     @if (ViewBag.Analise.SituacaoAIT == "NAI" && @Model.PRT_ASSUNTO == 8 || @Model.PRT_ASSUNTO == 9)
+                             @if (ViewBag.Analise.SituacaoAIT == "NAI" && @Model.PRT_ASSUNTO == 8 || @Model.PRT_ASSUNTO == 9)
                              {
-                                        <li class="list-group-item fist-item">
-                                            <i class="fa fa-times text-danger"></i> O AIT está em fase NAI. Não é permitida a abertura de outro processo nos órgãos JARI ou CETRAN até conclusão desta fase.
-                                        </li>
+                                <li class="list-group-item fist-item">
+                                    <i class="fa fa-times text-danger"></i> O AIT está em fase NAI. Não é permitida a abertura de outro processo nos órgãos JARI ou CETRAN até conclusão desta fase.
+                                </li>
                              }
 
-                                     @if (ViewBag.Analise.CondutorApresentado == "SIM" && (@Model.PRT_ASSUNTO == 1 || @Model.PRT_ASSUNTO == 39))
+                             @if (ViewBag.Analise.CondutorApresentado == "SIM" && (@Model.PRT_ASSUNTO == 1 || @Model.PRT_ASSUNTO == 39))
                              {
-                                        <li class="list-group-item fist-item">
-                                            <i class="fa fa-times text-danger"></i> No registro deste Auto de Infração de Trânsito (AIT), 
-                                                                                    já consta o condutor identificado no momento da autuação. 
-                                                                                    Todas as informações necessárias foram devidamente registradas e estão disponíveis para consulta.
-                                        </li>
+                                <li class="list-group-item fist-item">
+                                    <i class="fa fa-times text-danger"></i> No registro deste Auto de Infração de Trânsito (AIT), 
+                                                                            já consta o condutor identificado no momento da autuação. 
+                                                                            Todas as informações necessárias foram devidamente registradas e estão disponíveis para consulta.
+                                </li>
 
                              }
                       
@@ -632,7 +632,7 @@
                             Notiflix.Notify.Failure(response.retorno);
                         }
                         else {
-                            Notiflix.Notify.Success(response.retorno);
+                          //  Notiflix.Notify.Success(response.retorno);
 
                             $('#Modal2').modal('hide');
 
@@ -643,8 +643,6 @@
                             if (origem === 2)
                                 $('#PRT_DT_POSTAGEM').focus();                       
                         }
-
-
                     },
                     error: function (xhr, status, error) {
                        

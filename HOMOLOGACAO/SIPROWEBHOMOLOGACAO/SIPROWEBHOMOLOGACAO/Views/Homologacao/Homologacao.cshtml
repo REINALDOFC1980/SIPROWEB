@@ -1,0 +1,187 @@
+﻿@* @model List<SIPROSHAREDHOMOLOGACAO.Models.HomologacaoModel> *@
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Homologação de Processos</h2>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-7">
+            <div class="ibox">
+
+                <div class="ibox-content">
+                    <h3><i class="fa fa-list-ul"></i>  Lista de Processos para serem homologados </h3>
+                    <small>Selecione um setor e o resultado do julgamento.</small>
+
+                    <div class="form-group row">
+
+                        <div class="col-sm-8">
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <select class="select2_demo_3 form-control" style="width:100%;" id="Setor" name="Setor" required>
+
+                                        @if (ViewBag.Setor != null)
+                                        {                                           
+                                            foreach (var setor in ViewBag.Setor)
+                                            {
+                                                <option value="@setor.SETSUB_ID">@setor.SETSUB_NOME</option>
+                                            }
+                                        }
+
+                                    </select>
+                                    <p><small><i class="fa fa-twitch"></i> Selecione o setor para o qual deseja relaizar.</small></p>
+
+                                </div>
+                           
+                                <div class="col-md-5">                     
+                                    <select class="select2_demo_3 form-control" style="width:100%;" id="resultado" name="resultado" required>
+
+                                        <option value="Todos">Todos</option>
+
+                                        <option value="D">Deferido</option>
+                                        <option value="I">Indeferido</option>
+                                        <option value="N">Advertência</option>
+
+                                    </select>
+                                    <p><small> <i class="fa fa-twitch"></i> Selecione o resultado do julgamento.</small></p>
+                                </div>
+                               
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="row">
+
+                                <span class="input-group-append">
+                                    <button type="button" class="btn btn btn-primary" id="btmLocalizarProtocolo"> <i class="fa fa-search"></i> Localizar</button>
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="clients-list">
+                        <div class="full-height-scroll">
+                            <div id="div_listaHomologacao">
+                                @await Html.PartialAsync("_ListaHomologacao")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-5">
+
+            <div class="tabs-container">
+
+                <ul class="nav nav-tabs">
+                    <li><a class="nav-link active show" data-toggle="tab" href="#tab-1"> Processo</a></li>
+                    <li><a class="nav-link" data-toggle="tab" href="#tab-2">Parecer</a></li>
+                </ul>
+
+
+                <div class="tab-content">
+                    <div id="tab-1" class="tab-pane active show">
+                        <div class="panel-body">
+                            <div class="client-detail">
+                                <div class="row">
+                                    <div class="col-sm-10">
+                                        <strong>Informações complementares</strong>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button class="btn btn-sm btn-outline btn-primary float-right" onclick="EmitirCopia()" id="btnIniciarAbertura" type="button">
+                                            <i class="fa fa-print"></i> Cópia de Processo
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="full-height-scroll">
+                                    <div id="div_Homologacao">
+                                        @await Html.PartialAsync("_DetalhamentoProtocolo")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-2" class="tab-pane">
+                        <div class="panel-body">
+                            <div class="client-detail">
+                                <strong>Informações complementares</strong>
+                                <div class="full-height-scroll">
+                                    <div id="div_proprietario_condutor">
+                                    @*     @await Html.PartialAsync("_Proprietario_Condutor") *@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+
+<script>
+
+    function LocalizarProtocolo(Setor, Resultado) {
+        $.ajax({
+            url: '@Url.Action("BuscarProtocolo", "Homologacao")',
+            datatype: 'html',
+            contentType: "application/html; charset=utf-8",
+            type: "GET",
+            data: { setor: Setor, resultado: Resultado }, // Corrigido '=' para ':'
+            success: function (result) {
+                $('#div_listaHomologacao').html(result);
+            },
+            error: function (xhr, status, error) {
+                console.error("Erro na busca do protocolo:", error);
+            }
+        });
+    }
+
+    $('#btmLocalizarProtocolo').click(function (event) {
+        var Setor = $('#Setor').val();
+        var Resultado = $('#resultado').val();
+
+        event.preventDefault();
+        LocalizarProtocolo(Setor, Resultado);
+    });
+
+    $('#Vlo_Busca').on('input', function () {
+        var searchTerm = $(this).val();
+        if (searchTerm === '') {
+            LocalizarProtocolo("Todos"); // Busca todos os resultados
+        }
+    });
+
+
+    function AbirHomologacao(_movpro_id) {
+        $.ajax({
+            url: '@Url.Action("InstrucaoDetalhe", "Homologacao")',
+            datatype: 'html',
+            contentType: "application/html; charset=utf-8",
+            type: "GET",
+            data: { movpro_id: _movpro_id }, // Corrigido '=' para ':'
+            success: function (result) {
+                $('#div_Homologacao').html(result);
+            },
+            error: function (xhr, status, error) {
+                console.error("Erro na busca do protocolo:", error);
+            }
+        });
+    }
+
+
+
+</script>

@@ -412,7 +412,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                         where mp.MOVPRO_ID = tj.DIS_MOV_ID;
 
                         Update Protocolo_Distribuicao
-                        set DIS_DESTINO_STATUS = 'HOMOLOGAR'	
+                        set DIS_DESTINO_STATUS = 'JULGADO'	
                         where DIS_ID = @Disjug_Dis_Id;
 
                         Update Protocolo

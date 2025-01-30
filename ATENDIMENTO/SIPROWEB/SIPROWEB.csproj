@@ -25,6 +25,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\DISTRIBUICAO\SIPROWEBDISTRIBUICAO\SIPROWEBDISTRIBUICAO.csproj" />
+	  <ProjectReference Include="..\..\HOMOLOGACAO\SIPROWEBHOMOLOGACAO\SIPROWEBHOMOLOGACAO\SIPROWEBHOMOLOGACAO.csproj" />
 	  <ProjectReference Include="..\..\INSTRUCAO\SIPROWEBINSTRUCAO\SIPROWEBINSTRUCAO.csproj" />
 	  <ProjectReference Include="..\..\JULGAMENTO\SIPROWEBJULGAMENTO\SIPROWEBJULGAMENTO.csproj" />
 	  <ProjectReference Include="..\SIPROSHARED\SIPROSHARED.csproj" />

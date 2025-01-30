@@ -3,7 +3,7 @@
   "profiles": {
     "SIPROAPI": {
       "commandName": "Project",
-      "launchBrowser": false,
+      "launchBrowser": falseqw,
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

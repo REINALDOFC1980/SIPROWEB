@@ -36,6 +36,7 @@ namespace SIPROAPI.Controllers
             _baseApiUrl = configuration.GetValue<string>("SipApiUrl");
             _logger = logger;
 
+
         }
 
 
@@ -90,8 +91,7 @@ namespace SIPROAPI.Controllers
         [HttpGet]
         [Route("getprotocoloall")]
         public async Task<IActionResult> GetProtocoloAll([FromQuery(Name = "vloBusca")] string vloBusca)
-        {
-            
+        {            
             var resultado = await _atendimentoService.BuscarProtocoloAll(Uri.UnescapeDataString(vloBusca));
 
             if (resultado.Count == 0)

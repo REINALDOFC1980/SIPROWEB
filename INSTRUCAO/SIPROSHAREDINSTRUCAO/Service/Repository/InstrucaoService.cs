@@ -1,15 +1,9 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using SIPROSHARED.DbContext;
-using SIPROSHARED.Models;
 using SIPROSHAREDINSTRUCAO.Models;
 using SIPROSHAREDINSTRUCAO.Service.IRepository;
 using System.Data;
-using System.Data.Common;
-using System.Drawing;
-using System.Net.Http;
-using System.Transactions;
 
 namespace SIPROSHAREDINSTRUCAO.Service.Repository
 {
@@ -238,7 +232,6 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
             }
         }
 
-
         public async Task<List<Anexo_Model>> BuscarAnexo(string usuario, string ait)
         {
             {
@@ -272,7 +265,6 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
             }
         }
 
-
         public async Task ExcluirAnexo(int prtdoc_id)
         {
            
@@ -290,7 +282,6 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
             }
             
         }
-
 
         //refatorar para simplificar os parametros!!!!!
         public async Task SalvarAnexo(string folderPath, string usuario, int dis_id, IDbConnection connection, IDbTransaction transaction)

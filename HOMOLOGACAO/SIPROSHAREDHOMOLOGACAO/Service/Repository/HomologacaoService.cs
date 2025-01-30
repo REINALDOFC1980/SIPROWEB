@@ -1,0 +1,169 @@
+﻿using Dapper;
+using SIPROSHARED.DbContext;
+using SIPROSHAREDHOMOLOGACAO.Models;
+using SIPROSHAREDHOMOLOGACAO.Service.IRepository;
+using System.Data;
+
+namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
+{
+    public class HomologacaoService : IHomologacaoService
+    {
+
+        private readonly DapperContext _context;
+
+        public HomologacaoService(DapperContext context)
+        {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
+
+        public async Task<List<HomologacaoModel>> LocalizarHomolgacao(int setor, string resultado)
+        {      
+            var query = @"
+				 select Movpro_id,
+	                    SETSUB_NOME,
+                        PRT_NUMERO,
+                        PRT_AIT,
+                        ASS_NOME as PRT_NOME_ASSUNTO,
+                        dbo.GetResultadoDefesa( PRT_RESULTADO ) as PRT_RESULTADO
+                   From Protocolo inner join Movimentacao_Processo on (prt_numero = MOVPRO_PRT_NUMERO)
+                                  inner join Assunto on (PRT_ASSUNTO = ASS_ID)  
+					              inner join SetorSub on(SETSUB_ID = MOVPRO_SETOR_ORIGEM)
+		          Where MOVPRO_SETOR_ORIGEM = @setor
+		            and MOVPRO_STATUS = 'HOMOLOGAR'
+		            and PRT_RESULTADO like Case when @resultado = 'Todos' then '%' else @resultado end
+ 			";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parametros = new { resultado, setor };
+                var processos = await connection.QueryAsync<HomologacaoModel>(query, parametros);
+
+                return processos.ToList();
+            }
+        }
+
+        public async Task<HomologacaoModel> GetHomologacao(int movpro_id)
+        {
+            var query = @"				 
+                 select MOVPRO_ID,
+                        SETSUB_NOME,
+                        PRT_NUMERO,
+                        PRT_AIT,
+		                Convert(varchar(10),CASE WHEN PRT_DT_POSTAGEM IS NULL THEN PRT_DT_ABERTURA ELSE PRT_DT_POSTAGEM END,103) as PRT_DT_ABERTURA,
+                        ASS_NOME as PRT_NOME_ASSUNTO,
+                        dbo.GetResultadoDefesa( PRT_RESULTADO ) as PRT_RESULTADO,
+                        PRT_OBSERVACAO
+                  FROM  Protocolo inner join Movimentacao_Processo on(prt_numero = MOVPRO_PRT_NUMERO)
+			                      inner join Assunto on (PRT_ASSUNTO = ASS_ID)  
+                                  inner join SetorSub on(SETSUB_ID = MOVPRO_SETOR_ORIGEM)
+		          WHERE Movpro_id = @movpro_id
+		            and MOVPRO_STATUS = 'HOMOLOGAR'";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parametros = new { movpro_id };
+                var processo = await connection.QueryFirstOrDefaultAsync<HomologacaoModel>(query, parametros);
+
+                return processo;
+            }
+        }
+
+        public async Task<List<Anexo_Model>> BuscarAnexo(string usuario, string ait)
+        {
+            {
+
+                var query = @"
+
+	                 Declare @Setor int
+
+				   Set @Setor = (Select top 1 
+                                 SETSUBUSU_SETSUB_ID 
+					         from SetorSubXUsuario 
+					        where SETSUBUSU_USUARIO = @usuario )
+
+			                select PRTDOC_ID,
+				                   PRTDOC_PRT_NUMERO,
+			                       PRTDOC_OBSERVACAO,
+				                   PRTDOC_PRT_AIT,
+				                   Convert(varchar(10),PRTDOC_DATA_HORA,103) as PRTDOC_DATA_HORA 
+			                  from Protocolo_Documento_Imagem 
+                             where PRTDOC_PRT_SETOR = @Setor and PRTDOC_PRT_AIT = @ait ";
+
+
+                using (var connection = _context.CreateConnection())
+                {
+                    var parametros = new { usuario, ait };
+                    var command = await connection.QueryAsync<Anexo_Model>(query, parametros);
+                    return command.ToList();
+                }
+
+
+            }
+        }
+
+        public async Task<List<SetorModel>> BuscarSetor()
+        {
+            try
+            {
+                var query = @" SELECT 
+                               SETSUB_ID, 
+                               UPPER(SETSUB_NOME) AS SETSUB_NOME 
+                          FROM SetorSub  
+                         WHERE SETSUB_Ativo = 1  
+                         ORDER BY SETSUB_NOME ";
+
+                using (var connection = _context.CreateConnection())
+                {
+                    var command = await connection.QueryAsync<SetorModel>(query);
+                    return command.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            
+
+        }
+
+        public async Task RealizarHomologacao(HomologacaoModel homologacaoModel, IDbConnection connection, IDbTransaction transaction)
+        {
+            var dbParametro = new DynamicParameters();
+            dbParametro.Add("@MOVPRO_ID", 0);
+            dbParametro.Add("@USUARIOORIGEM","");
+            dbParametro.Add("@MOVPRO_PARECER_ORIGEM", "");
+            dbParametro.Add("@@PRT_NUMERO", homologacaoModel.PRT_NUMERO);           
+
+
+            var query = @"
+	             UPDATE Movimentacao_Processo
+	                Set MOVPRO_STATUS = 'HOLOMOLOGADO->PUBLICAR'
+	              WHERE MOVPRO_ID = @MOVPRO_ID
+
+                 insert into Movimentacao_Processo
+                 Select MOVPRO_PRT_NUMERO, 
+                        MOVPRO_SETOR_DESTINO as SETORORIGEM,
+                        @USUARIOORIGEM,
+                        Getdate(),
+                        @MOVPRO_PARECER_ORIGEM,
+                        'Processo homologado e encaminhado para publicação.',
+                        00 as SETORDESTINO,
+	                    'PUBLICAR',
+		                null,   
+		                null
+                   from Movimentacao_Processo where MOVPRO_ID = @MOVPRO_ID
+
+                 update Protocolo  
+                    set PRT_HOMOLOGADOR = @Homologador,  
+                        PRT_DT_HOMOLOGACAO = GETDATE(),  
+                        PRT_ACAO = 'PUBLICAR'  
+                  Where PRT_NUMERO = @PRT_NUMERO  
+
+
+                ";
+             await connection.ExecuteAsync(query, dbParametro, transaction);
+     
+        }
+    }
+}

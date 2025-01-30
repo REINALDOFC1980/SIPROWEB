@@ -13,7 +13,6 @@ builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 
-
 // Configuração da sessão
 builder.Services.AddSession(options =>
 {

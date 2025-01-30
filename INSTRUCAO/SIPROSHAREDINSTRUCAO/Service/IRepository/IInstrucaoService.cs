@@ -14,17 +14,12 @@ namespace SIPROSHAREDINSTRUCAO.Service.IRepository
 
         Task UploadAnexo(List<IFormFile> arquivos, string protocolo);
 
-
         Task<List<SetorModel>> BuscarSetor();
 
         Task<InstrucaoModel> BuscarMovimentacaoInstrucao(int dis_id);
 
 
-
-
-
         Task EncaminharIntrucao(InstrucaoModel instrucaoProcesso, IDbConnection connection, IDbTransaction transaction);
-
 
         Task<List<Anexo_Model>> BuscarAnexo(string usuario, string ait);
 
