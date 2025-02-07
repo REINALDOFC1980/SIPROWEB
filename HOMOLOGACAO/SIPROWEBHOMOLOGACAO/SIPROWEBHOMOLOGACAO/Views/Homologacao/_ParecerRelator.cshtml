@@ -1,0 +1,88 @@
+﻿@{
+if (ViewBag.Parecer != null)
+    {
+    <ul class="list-group clear-list">
+        <li class="list-group-item fist-item">
+            <span class="float-right label label-success"><strong class="h6">@ViewBag.Parecer.MovPro_Prt_Numero</strong></span>
+            <input type="hidden" class="form-control" value="@ViewBag.Parecer.MovPro_Prt_Numero" id="PRT_NUMERO" name="PRT_NUMERO">
+            Processo:
+        </li>
+    </ul>
+    }
+}
+
+<div class="full-height-scroll">
+
+        <div id="Div_Votacao">
+            @{
+                if (ViewBag.Votacao == null)
+                {
+                    // <div>Aguardando Votacao</div>
+                }
+                else 
+                if (ViewBag.Votacao.Count != 0)
+                {
+                       <h2>Lista de relator</h2>
+                    @foreach (var item in ViewBag.Votacao)
+                    {
+
+                        <div class="feed-activity-list">
+
+                            <div class="feed-element">
+                                <a class="float-left" href="profile.html">
+                                    <img alt="image" class="rounded-circle" src="~/img/user3.png">
+
+                                </a>
+                                <div class="media-body ">
+                                    <small class="float-right">@item?.Disjul_tipo</small>
+                                    <strong>@item?.Disjug_Relator</strong> <br>
+
+                                    @{
+                                        string resultadoClasse = item?.Disjug_Resultado == "DEFERIDO" ? "text-success" :
+                                        item?.Disjug_Resultado == "INDEFERIDO" ? "text-danger" :
+                                        item?.Disjug_Resultado == "AGUARDANDO..." ? "text-black" : "text-muted";
+                                    }
+
+                                    <small class="text-muted">
+                                        Votação: <strong class="@resultadoClasse">@item?.Disjug_Resultado</strong> |  @item?.Disjug_Resultado_Data
+                                    </small>
+
+                                </div>
+                            </div>
+
+                        </div>
+                 
+                    }
+             
+                }
+
+
+            }
+
+        </div>
+
+
+
+@{
+    if (ViewBag.Parecer != null)
+    {
+
+
+            <div>
+                <h2>Parecer do Relatorio do Processo:</h2>
+                <textarea id="Disjug_Parecer_Relatorio" name="Disjug_Parecer_Relatorio" rows="7" cols="60" class="form-control">@ViewBag.Parecer.Disjug_Parecer_Relatorio</textarea>
+
+            </div>
+
+            <hr />
+            <a class="btn btn-primary btn-rounded btn-block" href="#"><i class="fa fa-thumbs-up"></i> Homologar processo</a>
+            <br />
+            <a class="btn btn-light btn-rounded btn-block" href="#"><i class="fa fa-reply"></i> Devolver para correção</a>
+
+
+
+    }
+  
+}
+
+</div>

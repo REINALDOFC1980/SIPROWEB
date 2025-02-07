@@ -34,10 +34,10 @@ namespace SIPROAPIINSTRUCAO.Controllers
 
         [HttpGet]
         [Route("localizar-instrucao/{usuario}/{vlobusca}")]
-        public async Task<IActionResult> LocalizarInstrucao(string resultado, string vlobusca)
+        public async Task<IActionResult> LocalizarInstrucao(string usuario, string vlobusca)
         {
 
-            var processo = await _instrucao.LocalizarInstrucao(resultado, vlobusca);
+            var processo = await _instrucao.LocalizarInstrucao(usuario, vlobusca);
 
             if (processo.Count == 0)
                 return NoContent();

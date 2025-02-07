@@ -1,5 +1,4 @@
-﻿@* @model List<SIPROSHAREDHOMOLOGACAO.Models.HomologacaoModel> *@
-
+﻿
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <h2>Homologação de Processos</h2>
@@ -34,7 +33,7 @@
                                         }
 
                                     </select>
-                                    <p><small><i class="fa fa-twitch"></i> Selecione o setor para o qual deseja relaizar.</small></p>
+                                   @*  <p><small><i class="fa fa-twitch"></i> Selecione o setor para o qual deseja relaizar.</small></p> *@
 
                                 </div>
                            
@@ -48,7 +47,7 @@
                                         <option value="N">Advertência</option>
 
                                     </select>
-                                    <p><small> <i class="fa fa-twitch"></i> Selecione o resultado do julgamento.</small></p>
+                       @*              <p><small> <i class="fa fa-twitch"></i> Selecione o resultado do julgamento.</small></p> *@
                                 </div>
                                
                             </div>
@@ -80,13 +79,29 @@
             <div class="tabs-container">
 
                 <ul class="nav nav-tabs">
-                    <li><a class="nav-link active show" data-toggle="tab" href="#tab-1"> Processo</a></li>
-                    <li><a class="nav-link" data-toggle="tab" href="#tab-2">Parecer</a></li>
+                    <li><a class="nav-link active show" data-toggle="tab" href="#tab-1">Dados do Julgamento </a></li>
+                    <li><a class="nav-link" data-toggle="tab" href="#tab-2">Dados do Processo</a></li>
+                    <li><a class="nav-link" data-toggle="tab" href="#tab-3"> Dados da Notificação</a></li>
                 </ul>
 
+      
 
                 <div class="tab-content">
-                    <div id="tab-1" class="tab-pane active show">
+                        <div id="tab-1" class="tab-pane active show"> 
+                        <div class="panel-body">
+                            <div class="client-detail">
+                                <strong>Dados do julgamento</strong>
+                                <div class="full-height-scroll">
+                                    <div id="div_ParecerRelator">
+                                          @await Html.PartialAsync("_ParecerRelator")
+                                    </div>
+                                
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-2" class="tab-pane">
                         <div class="panel-body">
                             <div class="client-detail">
                                 <div class="row">
@@ -108,23 +123,28 @@
                         </div>
                     </div>
 
-                    <div id="tab-2" class="tab-pane">
+
+                    <div id="tab-3" class="tab-pane">
                         <div class="panel-body">
                             <div class="client-detail">
-                                <strong>Informações complementares</strong>
+                                <strong>Dados da Notificação de Autuação</strong>
                                 <div class="full-height-scroll">
-                                    <div id="div_proprietario_condutor">
-                                    @*     @await Html.PartialAsync("_Proprietario_Condutor") *@
+                                    <div id="div_notificacao">
+                                        @await Html.PartialAsync("_DetalhamentoAIT")
+                                     
                                     </div>
-                                </div>
+                                </div>                                
                             </div>
                         </div>
                     </div>
+
+
+                  
+
+                    
+
                 </div>
             </div>
-
-
-
         </div>
     </div>
 </div>
@@ -165,22 +185,49 @@
         }
     });
 
+    async function fetchAndUpdate(url, elementId) {
+        try {
+            console.log(`Fetching: ${url}`);
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'text/html; charset=utf-8'
+                }
+            });
 
-    function AbirHomologacao(_movpro_id) {
-        $.ajax({
-            url: '@Url.Action("InstrucaoDetalhe", "Homologacao")',
-            datatype: 'html',
-            contentType: "application/html; charset=utf-8",
-            type: "GET",
-            data: { movpro_id: _movpro_id }, // Corrigido '=' para ':'
-            success: function (result) {
-                $('#div_Homologacao').html(result);
-            },
-            error: function (xhr, status, error) {
-                console.error("Erro na busca do protocolo:", error);
+            if (!response.ok) {
+                throw new Error('Erro na requisição: ' + response.statusText);
             }
-        });
+
+            const result = await response.text();
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = result;
+            } else {
+                console.warn(`Elemento com ID "${elementId}" não encontrado.`);
+            }
+
+        } catch (error) {
+            console.error(`Erro ao buscar e atualizar ${elementId}:`, error);
+        }
     }
+
+
+    async function AbrirHomologacao(_movpro_id, _prt_numero, _ait) {
+        console.log(_movpro_id);
+        console.log(_prt_numero);
+        
+        const urls = [
+            { url: '@Url.Action("HomologacaoDetalhe", "Homologacao")' + '?movpro_id=' + encodeURIComponent(_movpro_id), elementId: 'div_Homologacao' },
+            { url: '@Url.Action("BuscarParecer", "Homologacao")' + '?prt_numero=' + encodeURIComponent(_prt_numero), elementId: 'div_ParecerRelator' },
+            { url: '@Url.Action("DetalheAIT", "Homologacao")' + '?ait=' + encodeURIComponent(_ait), elementId: 'div_notificacao' }
+        ];
+        await Promise.all(urls.map(({ url, elementId }) => fetchAndUpdate(url, elementId)));
+
+
+    }
+
+    
 
 
 

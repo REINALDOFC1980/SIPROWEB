@@ -566,6 +566,8 @@ namespace SIPROSHARED.Service.Repository
             
         }
 
+
+
         public async Task<ProtocoloModel> BuscarProtocolo(string PRT_NUMERO)
         {
             
@@ -624,6 +626,7 @@ namespace SIPROSHARED.Service.Repository
 										Left join Pessoa as S on(PRT_CPF_SOLICITANTE = S.PES_CPF)										
 									    Left join Pessoa as C on(PRT_CPF_CONDUTOR = C.PES_CPF)
 	                         	 WHERE Prt_Numero = @PRT_NUMERO
+                                order by PRT_DT_CADASTRO
                         
                              ";
 
@@ -694,7 +697,7 @@ namespace SIPROSHARED.Service.Repository
 								  left join Pessoa as S on(PRT_CPF_SOLICITANTE = S.PES_CPF)										
 							      left join Pessoa as C on(PRT_CPF_CONDUTOR = C.PES_CPF)
 	                         	 WHERE (Prt_Numero  = @vloBusca or Prt_AIT = @vloBusca  )
-                                ORDER BY PRT_DT_CADASTRO DESC
+                                 order by PRT_DT_CADASTRO
                              ";
 
                 using (var connection = _context.CreateConnection())

@@ -67,5 +67,45 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
         }
 
 
+        [HttpGet]
+        [Route("buscar-votacao/{processo}")]
+        public async Task<IActionResult> BuscarVotacao(string processo)
+        {
+            var result = await _homologacaoService.BuscarVotacao(processo);
+
+            if (result == null)
+                return NoContent();
+
+            return Ok(result);
+
+        }
+
+
+
+        [HttpGet]
+        [Route("buscar-parecer/{processo}")]
+        public async Task<IActionResult> BuscarParece(string processo)
+        {
+            try
+            {
+                var result = await _homologacaoService.BuscarParecer(processo);
+
+                if (result == null)
+                    return NoContent();
+
+                return Ok(result);
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+          
+
+        }
+
+
     }
 }

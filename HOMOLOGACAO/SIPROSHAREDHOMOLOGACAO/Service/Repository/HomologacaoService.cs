@@ -127,6 +127,38 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
         }
 
+        public async Task<List<JulgamentoModel>> BuscarVotacao(string processo)
+        {
+            try
+            {
+                var query = @"  select 
+		                            DISJUG_RELATOR,
+                                    FORMAT(DISJUG_RESULTADO_DATA, 'dd/MM/yyyy HH:mm') AS DISJUG_RESULTADO_DATA,
+		                            Case when DISJUG_RESULTADO = 'I' then 'INDEFERIDO'
+		                            when DISJUG_RESULTADO IN('D','O') then 'DEFERIDO' 
+		                            ELSE 'AGUARDANDO...' END AS DISJUG_RESULTADO,
+		                            Case when DISJUG_PARECER_RELATORIO is null then 'MEMBRO' else 'PRESIDENTE' END AS DISJUG_TIPO
+                              from  Protocolo_Distribuicao_Julgamento 
+                                    inner join Protocolo_Distribuicao on(DISJUG_DIS_ID = DIS_ID)
+	                                inner join Movimentacao_Processo on (DIS_MOV_ID = MOVPRO_ID) 
+                              WHERE replace(movpro_prt_numero,'/','') = @processo";
+
+
+                using (var connection = _context.CreateConnection())
+                {
+                    var parametros = new { processo };
+                    var command = await connection.QueryAsync<JulgamentoModel>(query, parametros);
+                    return command.ToList();
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public async Task RealizarHomologacao(HomologacaoModel homologacaoModel, IDbConnection connection, IDbTransaction transaction)
         {
             var dbParametro = new DynamicParameters();
@@ -165,5 +197,36 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
              await connection.ExecuteAsync(query, dbParametro, transaction);
      
         }
+
+        public async Task<JulgamentoModel> BuscarParecer(string processo)
+        {
+            try
+            {
+                var query = @"  select top 1 
+                                       MovPro_Prt_Numero,
+                                       Disjug_Parecer_Relatorio
+                                  from Protocolo_Distribuicao_Julgamento 
+                            inner join Protocolo_Distribuicao on(DISJUG_DIS_ID = DIS_ID)
+	                        inner join Movimentacao_Processo on (DIS_MOV_ID = MOVPRO_ID) 
+                                 where Replace(movpro_prt_numero,'/','') = @processo
+	                               and Disjug_Parecer_Relatorio is not null";
+
+
+                using (var connection = _context.CreateConnection())
+                {
+                    var parametros = new { processo };
+                    var command = await connection.QueryFirstOrDefaultAsync<JulgamentoModel>(query, parametros);
+                    return command;
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }
+
+

@@ -1,0 +1,39 @@
+﻿@{
+    if (ViewBag.Votacao == null)
+    {
+        <div>Aguardando Votacao</div>
+    } 
+    else if (ViewBag.Votacao.Count != 0)
+    {
+        @foreach (var item in ViewBag.Votacao)
+        {
+
+            <div class="feed-activity-list">
+
+                <div class="feed-element">
+                    <a class="float-left" href="profile.html">
+                        <img alt="image" class="rounded-circle" src="~/img/user3.png">
+                        
+                    </a>
+                    <div class="media-body ">
+                        <small class="float-right">@item?.Disjul_tipo</small>
+                        <strong>@item?.Disjug_Relator</strong> <br>
+                
+                        @{
+                            string resultadoClasse = item?.Disjug_Resultado == "DEFERIDO" ? "text-success" :
+                                                     item?.Disjug_Resultado == "INDEFERIDO" ? "text-danger" :
+                                                     item?.Disjug_Resultado == "AGUARDANDO..." ? "text-black" : "text-muted";
+                        }
+
+                        <small class="text-muted">
+                            Votação: <strong class="@resultadoClasse">@item?.Disjug_Resultado</strong> |  @item?.Disjug_Resultado_Data
+                        </small>
+                        </div>
+                </div>
+
+            </div>
+        }
+    }
+    
+
+}

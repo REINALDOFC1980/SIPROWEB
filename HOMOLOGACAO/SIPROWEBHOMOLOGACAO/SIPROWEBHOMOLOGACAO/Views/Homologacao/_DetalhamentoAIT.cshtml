@@ -1,0 +1,85 @@
+﻿@model SIPROSHARED.Models.ResultGetAitModel
+@* @if (Model != null)
+{ *@
+<ul class="list-group clear-list">
+
+    <li class="list-group-item fist-item">
+
+
+        <h2>Dados da NA:</h2>
+        <span class="float-right label label-success m-b-n-xxs"><strong class="h6">@Model?.rec_ait_numero</strong></span>
+        Autuação:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"><strong> @Model?.proprietario</strong></span>
+        Proprietário:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"><strong> @Model?.Rec_Veiculo_Placa</strong></span>
+        Placa:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"><strong> @Model?.rec_marca_descricao</strong></span>
+        Marca/Modelo:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"><strong> @Model?.rec_veiculo_renavan</strong></span>
+        Renavan:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"> </span>
+        Infração: <small><strong>@Model?.infracao - @Model?.infracaodescricao</strong></small>
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"><strong> @Model?.situacao</strong></span>
+        Situacao:
+    </li>  
+    <li class="list-group-item">
+        <span class="float-right"> </span>
+        Local: <small><strong> @Model?.localinfracao</strong></small>
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"> <strong>@Model?.rec_veiculo_municipio</strong></span>
+        Municipio:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"> <strong>@Model?.condutorInfratorNome</strong></span>
+        Condutor apresentado no ato do cometimemto:
+    </li>
+
+
+    
+    <li class="list-group-item">
+  
+        <p><small><strong>Prazos da Notificação</strong></small></p>
+        <span class="float-right"> <strong>@Model?.infracaodata</strong></span>
+        Cometimento:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"> <strong>@Model?.defesanai</strong></span>
+        Prazo para Apresentação do Condutor e Defesa de Autuação:
+    </li>
+
+</ul>
+@* 
+}
+else
+{
+<br />
+<br />
+<br />
+<br />
+<br />
+<h4 class="text-center">Não consta processo para esse NA</h4> 
+<br />
+<br />
+
+<p class="text-center">
+
+    <a href=""><i class="fa fa-twitch big-icon"></i></a>
+    <br />
+    <br />
+    <small>Realize uma pesquisa e click no resultato na opção visualizar para exibir as informações.</small>
+</p>
+} *@
+

@@ -1,15 +1,13 @@
-
 {
   "profiles": {
     "SIPROAPI": {
       "commandName": "Project",
-      "launchBrowser": falseqw,
+      "launchBrowser": false,
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:7180;http://localhost:5229"
+      "applicationUrl": "https://localhost:7180"
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -20,7 +18,6 @@
       }
     }
   },
-
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
@@ -29,7 +26,5 @@
       "applicationUrl": "http://localhost:36853",
       "sslPort": 44309
     }
-
   }
 }
-

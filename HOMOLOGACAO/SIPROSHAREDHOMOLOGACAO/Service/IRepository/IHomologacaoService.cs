@@ -17,8 +17,16 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.IRepository
 
         Task<List<SetorModel>> BuscarSetor();
 
+        Task<List<JulgamentoModel>> BuscarVotacao(string processo);
+
+        Task<JulgamentoModel> BuscarParecer(string processo);
+
         Task<List<Anexo_Model>> BuscarAnexo(string usuario, string ait);
 
         Task RealizarHomologacao(HomologacaoModel homologacaoModel, IDbConnection connection, IDbTransaction transaction);
     }
 }
+
+
+
+

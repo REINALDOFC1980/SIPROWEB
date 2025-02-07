@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Views\Homologacao\_ParecerRelator.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="Views\Homologacao.cshtml" />
   </ItemGroup>
 

@@ -19,9 +19,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 
 builder.Services.AddSingleton<DapperContext>();
+builder.Services.AddSingleton<IPessoaService, PessoaService>();
 builder.Services.AddSingleton<IAtendimentoService, AtendimentoService>();
 builder.Services.AddSingleton<IAutenticacaoService, AutenticacaoService>();
-builder.Services.AddSingleton<IPessoaService, PessoaService>();
+
 builder.Services.AddMvc(options => options.Filters.Add(typeof(ExceptionFilter)));
 builder.Services.AddHttpClient<Detran>();
 
