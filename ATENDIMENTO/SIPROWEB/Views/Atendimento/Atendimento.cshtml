@@ -299,7 +299,7 @@
                 </p>                
             </div> 
             <div class="alert alert-warning text-center">
-                Este CPF não consta na base de dados do DETRAN. <br /> Qualquer alteração nos dados da CNH é de responsabilidade do atendente.
+                Este CPF não consta na base de dados do DETRAN. <br /> Qualquer alteração nos dados da CNH é de responsabilidade do atendente. <br /> Prencha todos os dados e clique em salvar.
                 
             </div>
    
@@ -442,10 +442,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-dark" id="btnVoltar"> Continuar </button>
-@*                 <button type="button" class="btn btn-white" id="btn"> Não </button> *@
-              
-
+                <button type="button" class="btn btn-dark" id="btnVoltar"> Continuar </button>          
             </div>
         </div>
     </div>
@@ -463,7 +460,7 @@
 <script src="~/js/validadorcpf.js"></script>
 <script src="~/js/validadordtcnh.js"></script>
 <script src="~/js/validacaoformcondutor.js"></script>
-<script src="~/js/buscar_cep.js"></script>
+<script src="~/js/BuscarCep.js"></script>
 <script src="~/js/iconeerro.js"></script>
 
 <!-- blueimp gallery -->
@@ -958,7 +955,7 @@
 
             //## Buscando os dados do condutor
             $.ajax({
-                url: '@Url.Action("BuscarCondutor", "Atendimento")',
+                url: '@Url.Action("GetPessoa", "Pessoa")',
                 type: 'GET',
                 data: { cpf: cpf },
                 success: function (response) {

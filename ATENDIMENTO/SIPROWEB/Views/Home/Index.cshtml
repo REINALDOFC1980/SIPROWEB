@@ -237,7 +237,7 @@
 <script src="~/js/validadorcpf.js"></script>
 <script src="~/js/validadordtcnh.js"></script>
 <script src="~/js/validacaoFormPessoa.js"></script>
-<script src="~/js/buscar_cep.js"></script>
+<script src="~/js/BuscarCep.js"></script>
 <script src="~/js/IconeErro.js"></script>
 <script src="~/js/valorzeroesquerda.js"></script>
 
@@ -457,45 +457,7 @@
                     }
                 });
 
-                // $.ajax({
-                //     url: '@Url.Action("CadastrarPessoa", "Pessoa")',
-                //     type: 'POST',
-                //     data: formData,
-                //     success: function (response) {
-
-
-                        // console.log(response.retorno)
-
-                        // $('#Modal2').modal('hide');
-
-                        // if (response.retorno == 'Desconhecido') {
-                        //     $("#modalTitulo").text(" " + response.servico);
-                        //     $("#modalTitulo2").text("AIT: " + response.ait);
-                        //     $("#mensagem").html("<i class='fa fa-twitch'></i> O CPF <strong>" + response.cpf + "</strong> que realizou o agendamento não corresponde ao <strong> proprietário </strong> do veículo. Você confirma que este CPF pertence ao <strong>Portador</strong> ou <strong>Condutor</strong> do veículo?");
-                        //     $("#btnNegarCondutor").show();
-                        //     $("#btnConfimarCondutor").show();
-                        //     $("#btnConfimarProprietario").hide();
-                        //     $('#Modal1').modal('show');                        
-                        // }
-                        // else if (response.retorno == 'Proprietario') {
-                        //     $("#modalTitulo").text(" " + response.servico);
-                        //     $("#modalTitulo2").text("AIT: " + response.ait);
-                        //     $("#mensagem").html("<i class='fa fa-twitch'> </i> Consta em nosso sistema que o CPF <strong>" + response.cpf + "</strong> que realizou o agendamento corresponde ao <strong> proprietário </strong> do veículo");
-                        //     $("#btnNegarCondutor").hide();
-                        //     $("#btnConfimarCondutor").hide();
-                        //     $("#btnConfimarProprietario").show();
-                        //     $('#Modal1').modal('show');
-                        // } //add o if do AIT inexistente
-                        // else if (response.retorno == 'SemAgendamento') { //  CPF 
-                         
-                        //     window.location.href = '@Url.Action("AberturaAtendimento", "Atendimento")' + '?cpf=' + response.cpf;
-                        
-                        // }                        
-                //     },
-                //     error: function (xhr, status, error) {
-
-                //     }
-                // });
+               
             }
         });
 

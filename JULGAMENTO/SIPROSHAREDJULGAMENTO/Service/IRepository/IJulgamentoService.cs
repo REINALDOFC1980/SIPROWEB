@@ -37,6 +37,8 @@ namespace SIPROSHAREDJULGAMENTO.Service.IRepository
 
         Task<List<Anexo_Model>> BuscarAnexo(string usuario, string ait);
 
+        Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero);
+
         Task ExcluirAnexo(int prtdoc_id);
 
         Task<List<InstrucaoProcessoModel>> BuscarHistoricoInstrucao(string vlobusca);

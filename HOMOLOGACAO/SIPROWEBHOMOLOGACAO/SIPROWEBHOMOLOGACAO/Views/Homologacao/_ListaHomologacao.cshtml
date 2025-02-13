@@ -13,20 +13,20 @@
                 {
                     @foreach (var item in ViewBag.Protocolo)
                     {
-                        <tr>
+                        <tr onclick="handleRowClick('@item.MOVPRO_ID', '@item.PRT_NUMERO', '@item.PRT_AIT')">
                             <td class="contact-type" style="padding: 10px;"> <i class="fa fa-car"></i></td>
                             <td style="padding: 10px;"><a href="#" class="client-link">@item.PRT_NUMERO</a></td>
                             <td style="padding: 10px;"><a href="#" class="client-link">@item.SETSUB_NOME</a></td>
                             <td style="padding: 10px;"><a href="#" class="client-link">@item.PRT_NOME_ASSUNTO</a></td>
                             <td style="padding: 10px;"><a href="#" class="client-link">@item.PRT_AIT</a></td>
-                            <td style="padding: 10px;">@item.PRT_RESULTADO</td>
-                            <td style="padding: 10px;">
-                                <a href="#" class="client-link" id="link-@item.PRT_NUMERO"
-                                   onclick="AbrirHomologacao('@item.MOVPRO_ID', '@item.PRT_NUMERO', '@item.PRT_AIT')">
-                                    Visualizar <i class="fa fa-eye"></i>
+                            <td style="padding: 10px;"><a href="#" class="client-link">@item.PRT_RESULTADO</td>
+                            <td style="padding: 10px;"><a href="#" class="client-link"> Visualizar <i class="fa fa-eye"></i>
                                 </a>
                             </td>
                         </tr>
+
+                        
+
                     }
                 }
                 else if (ViewBag.Protocolo.Count == 0)
@@ -51,7 +51,13 @@
             document.querySelectorAll(".table tr").forEach(el => el.style.border = "none");
 
             // Adiciona borda no <td> clicado
-            this.style.border = "2px solid #198754";
+            this.style.border = "2px solid #dea32f";
         });
     });
+
+
+    function handleRowClick(movproId, prtNumero, prtAit) {
+        AbrirHomologacao(movproId, prtNumero, prtAit);
+    }
+
 </script>

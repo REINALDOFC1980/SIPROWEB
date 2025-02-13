@@ -432,7 +432,7 @@ namespace SIPROWEB.Controllers
                 apiUrl = $"{_baseApiUrl}pessoa/getpessoadetram/{cpf}";
                 response = await _httpClient.GetAsync(apiUrl);            
 
-                if (response.IsSuccessStatusCode)
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
                     retornodetran = 1;                  
                   

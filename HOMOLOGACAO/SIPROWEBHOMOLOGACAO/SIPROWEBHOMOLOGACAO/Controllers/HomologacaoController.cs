@@ -31,6 +31,11 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
             base.OnActionExecuting(context);
         }
 
+        public static string RemoveHtmlTags(string input)
+        {
+            return Regex.Replace(input, "<.*?>", "").Replace("&nbsp;", "").Trim();
+        }
+
         public async Task<IActionResult> HomologacaoAsync()
         {
             ViewBag.Setor = await BuscarSetor();
@@ -48,6 +53,19 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
             else
                 return new List<SetorModel>();
         }
+
+        //[HttpGet]
+        //public async Task<List<string>> ObterImagens(string protocolo)
+        //{
+        //    var pasta = protocolo.Replace("/", "");
+        //    var apiUrl = $"{_baseApiUrl}homologacao/listar-imagens?protocolo={Uri.EscapeDataString(pasta)}";
+        //    var response = await _httpClient.GetAsync(apiUrl);
+
+        //    if (response.StatusCode == HttpStatusCode.OK)
+        //        return await response.Content.ReadFromJsonAsync<List<string>>();
+        //    else
+        //        return new List<string>(); // Retorna uma lista vazia em caso de erro
+        //}
 
         [HttpGet]
         public async Task<List<JulgamentoModel>> BuscarVotacao(string Protocolo)
@@ -69,12 +87,6 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
                 throw;
             }
             
-        }
-
-
-        public static string RemoveHtmlTags(string input)
-        {
-            return Regex.Replace(input, "<.*?>", "").Replace("&nbsp;", "").Trim();
         }
 
 
@@ -118,7 +130,7 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
                 if (response.StatusCode == HttpStatusCode.OK)
                 { 
                     ViewBag.Parecer = await response.Content.ReadFromJsonAsync<JulgamentoModel>();
-                    ViewBag.Votacao = await BuscarVotacao(prt_numero.Replace("/", ""));
+                    ViewBag.Votacao = await BuscarVotacao(prt_numero.Replace("/", ""));                   
 
                 }
                 else
@@ -151,8 +163,7 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
             {
                 var Protocolo = await response.Content.ReadFromJsonAsync<HomologacaoModel>();
 
-       
-
+      
                 return PartialView("_DetalhamentoProtocolo", Protocolo);
             }
 
@@ -190,6 +201,31 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
 
         }
 
+
+        [HttpGet]
+        public async Task<PartialViewResult> BuscarAnexoBanco(string prt_numero)
+        {
+            //buscando os documentos necessários
+            var protocolo = prt_numero.Replace("/", "");
+            var apiUrl = $"{_baseApiUrl}homologacao/buscar-anexo-banco/{protocolo}";
+          
+            var response = await _httpClient.GetAsync(apiUrl);
+            ViewBag.Anexos = new List<AnexoModel>();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    return PartialView("_ErrorPartialView");
+            }
+
+            if (response.StatusCode == HttpStatusCode.OK)//
+            {
+                var anexos = await response.Content.ReadFromJsonAsync<List<AnexoModel>>();
+                ViewBag.Anexos = anexos;
+            }
+
+            return PartialView("_Anexos");
+        }
 
     }
 }

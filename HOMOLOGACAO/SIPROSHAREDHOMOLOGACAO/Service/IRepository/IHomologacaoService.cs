@@ -1,4 +1,5 @@
 ﻿
+using SIPROSHARED.Models;
 using SIPROSHAREDHOMOLOGACAO.Models;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,9 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.IRepository
 
         Task<JulgamentoModel> BuscarParecer(string processo);
 
-        Task<List<Anexo_Model>> BuscarAnexo(string usuario, string ait);
+        Task<List<Anexo_Model>> BuscarAnexo( string ait);
+
+        Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero);        
 
         Task RealizarHomologacao(HomologacaoModel homologacaoModel, IDbConnection connection, IDbTransaction transaction);
     }

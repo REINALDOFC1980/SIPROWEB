@@ -82,6 +82,7 @@
                     <li><a class="nav-link active show" data-toggle="tab" href="#tab-1">Dados do Julgamento </a></li>
                     <li><a class="nav-link" data-toggle="tab" href="#tab-2">Dados do Processo</a></li>
                     <li><a class="nav-link" data-toggle="tab" href="#tab-3"> Dados da Notificação</a></li>
+                    <li><a class="nav-link" data-toggle="tab" href="#tab-4"> Anexos</a></li>
                 </ul>
 
       
@@ -138,6 +139,21 @@
                         </div>
                     </div>
 
+                    <div id="tab-4" class="tab-pane">
+                        <div class="panel-body">
+                            <div class="client-detail">
+
+                                <strong>Lista de anexo do processo</strong>
+                                <div class="full-height-scroll">
+                                    <div id="div_anexo">
+                                        @await Html.PartialAsync("_Anexos")
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                   
 
@@ -151,8 +167,17 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
-
+<!-- blueimp gallery -->
+<script src="~/js/plugins/blueimp/jquery.blueimp-gallery.min.js"></script>
 <script>
+
+    // document.getElementById("Setor").addEventListener("change", function () {
+
+    //         alert("Você selecionou: " + this.options[this.selectedIndex].text);
+        
+    // });
+
+
 
     function LocalizarProtocolo(Setor, Resultado) {
         $.ajax({
@@ -214,13 +239,12 @@
 
 
     async function AbrirHomologacao(_movpro_id, _prt_numero, _ait) {
-        console.log(_movpro_id);
-        console.log(_prt_numero);
         
         const urls = [
             { url: '@Url.Action("HomologacaoDetalhe", "Homologacao")' + '?movpro_id=' + encodeURIComponent(_movpro_id), elementId: 'div_Homologacao' },
             { url: '@Url.Action("BuscarParecer", "Homologacao")' + '?prt_numero=' + encodeURIComponent(_prt_numero), elementId: 'div_ParecerRelator' },
-            { url: '@Url.Action("DetalheAIT", "Homologacao")' + '?ait=' + encodeURIComponent(_ait), elementId: 'div_notificacao' }
+            { url: '@Url.Action("DetalheAIT", "Homologacao")' + '?ait=' + encodeURIComponent(_ait), elementId: 'div_notificacao' },
+            { url: '@Url.Action("BuscarAnexoBanco", "Homologacao")' + '?prt_numero=' + encodeURIComponent(_prt_numero), elementId: 'div_anexo' }
         ];
         await Promise.all(urls.map(({ url, elementId }) => fetchAndUpdate(url, elementId)));
 

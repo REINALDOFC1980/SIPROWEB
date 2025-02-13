@@ -15,5 +15,6 @@ namespace SIPROSHAREDJULGAMENTO.Models
         public string? PRTDOC_DATA_HORA { get; set; }
 
     }
+ 
 }
                                                                                          

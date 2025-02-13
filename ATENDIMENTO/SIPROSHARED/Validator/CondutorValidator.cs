@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace SIPROSHARED.Validator
 {
-    public class PessoaValidator : AbstractValidator<PessoaModel>
+    public class CondutorValidator : AbstractValidator<PessoaModel>
     {
 
-         public PessoaValidator()
+         public CondutorValidator()
          {
 
             RuleFor(user => user.pes_CPF)
@@ -61,20 +61,20 @@ namespace SIPROSHARED.Validator
                 .Matches(@"^[A-Z]{2}$").WithMessage("A UF deve conter apenas letras maiúsculas.")
                 .Must(uf => ufsValidas.Contains(uf)).WithMessage("A UF informada é inválida.");
 
-            //RuleFor(user => user.pes_UFCNH)
-            //    .NotEmpty().WithMessage("A UF da CNH é obrigatória.")
-            //    .Length(2).WithMessage("A UF da CNH deve ter exatamente 2 caracteres.")
-            //    .Matches(@"^[A-Z]{2}$").WithMessage("A UF da CNH deve conter apenas letras maiúsculas.")
-            //    .Must(uf => ufsValidas.Contains(uf)).WithMessage("A UF da CNH informada é inválida.");
+            RuleFor(user => user.pes_UFCNH)
+                .NotEmpty().WithMessage("A UF da CNH é obrigatória.")
+                .Length(2).WithMessage("A UF da CNH deve ter exatamente 2 caracteres.")
+                .Matches(@"^[A-Z]{2}$").WithMessage("A UF da CNH deve conter apenas letras maiúsculas.")
+                .Must(uf => ufsValidas.Contains(uf)).WithMessage("A UF da CNH informada é inválida.");
 
-            //RuleFor(user => user.pes_NumRegistroCNH)
-            //    .NotEmpty().WithMessage("O número do registro é obrigatório.")
-            //    .Length(11).WithMessage("O número do registro deve ter exatamente 11 caracteres.")
-            //    .Matches("^[0-9]{11}$").WithMessage("O número do registro deve conter apenas números.");
+            RuleFor(user => user.pes_NumRegistroCNH)
+                .NotEmpty().WithMessage("O número do registro é obrigatório.")
+                .Length(11).WithMessage("O número do registro deve ter exatamente 11 caracteres.")
+                .Matches("^[0-9]{11}$").WithMessage("O número do registro deve conter apenas números.");
 
-            //RuleFor(user => user.pes_DT_Validade)
-            //    .NotEmpty().WithMessage("A data de validade da CNH é obrigatória.")
-            //    .Matches(@"^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\d{4}$").WithMessage("A data de validade da CNH deve estar no formato dd/MM/yyyy.");
+            RuleFor(user => user.pes_DT_Validade)
+                .NotEmpty().WithMessage("A data de validade da CNH é obrigatória.")
+                .Matches(@"^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\d{4}$").WithMessage("A data de validade da CNH deve estar no formato dd/MM/yyyy.");
 
             RuleFor(user => user.pes_Email)
                 .NotEmpty().WithMessage("O E-mail é obrigatório.")

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SIPROSHARED.DbContext;
 using SIPROSHAREDHOMOLOGACAO.Service.IRepository;
 using SIPROSHAREDHOMOLOGACAO.Service.Repository;
+using SIRPOEXCEPTIONS.ExceptionBase;
 
 namespace SIPROAPIHOMOLOGACAO.Controllers
 {
@@ -106,6 +107,37 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
 
         }
 
+
+
+        [HttpGet]
+        [Route("buscar-anexo/{ait}")]
+        public async Task<IActionResult> BuscarAnexo( string ait)
+        {
+
+            var anexos = await _homologacaoService.BuscarAnexo(ait);
+
+            if (anexos == null)
+                return NoContent();
+
+            return Ok(anexos);
+
+        }
+
+
+        [HttpGet]
+        [Route("buscar-anexo-banco/{prt_numero}")]
+        public async Task<IActionResult> BuscarAnexosBanco(string prt_numero)
+        {
+
+            var anexos = await _homologacaoService.BuscarAnexosBanco(prt_numero);
+
+            if (anexos == null)
+            {
+                return NoContent();
+            }
+            return Ok(anexos);
+
+        }
 
     }
 }

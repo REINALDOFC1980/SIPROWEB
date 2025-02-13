@@ -217,6 +217,23 @@ namespace SIPROAPIJULGAMENTO.Controllers
         }
 
 
+
+        [HttpGet]
+        [Route("buscar-anexo-banco/{prt_numero}")]
+        public async Task<IActionResult> BuscarAnexosBanco(string prt_numero)
+        {
+
+            var anexos = await _julgamento.BuscarAnexosBanco(prt_numero);
+
+            if (anexos == null)
+            {
+                return NoContent();
+            }
+            return Ok(anexos);
+
+        }
+
+
         [HttpPost]
         [Route("excluir-anexo/{prtdoc_id}")]
         public async Task<IActionResult> ExcluirAnexo(int prtdoc_id)

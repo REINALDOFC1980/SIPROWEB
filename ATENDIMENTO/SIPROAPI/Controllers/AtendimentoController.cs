@@ -146,7 +146,6 @@ namespace SIPROAPI.Controllers
                     // Atribuir o número do protocolo ao modelo
                     protocoloModel.PRT_NUMERO = PRT_NUMERO;
 
-
                     ProtocoloDocImgModel protocoloDocImg = new ProtocoloDocImgModel();
                     protocoloDocImg.PRTDOC_PRT_NUMERO = protocoloModel.PRT_NUMERO;
                     protocoloDocImg.PRTDOC_PRT_AIT = protocoloModel.PRT_AIT;
@@ -171,8 +170,7 @@ namespace SIPROAPI.Controllers
                         {
                             var errorResponses = JsonConvert.DeserializeObject<List<ErrorResponse>>(content);
                             var errorMessage = errorResponses?.FirstOrDefault()?.Message;
-                            throw new ErrorOnValidationException(new List<string> { errorMessage });
-                         
+                            throw new ErrorOnValidationException(new List<string> { errorMessage });                         
                         }
                         else
                         {

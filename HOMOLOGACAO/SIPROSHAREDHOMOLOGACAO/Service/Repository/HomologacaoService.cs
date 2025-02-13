@@ -1,7 +1,9 @@
 ﻿using Dapper;
 using SIPROSHARED.DbContext;
+using SIPROSHARED.Models;
 using SIPROSHAREDHOMOLOGACAO.Models;
 using SIPROSHAREDHOMOLOGACAO.Service.IRepository;
+using SIRPOEXCEPTIONS.ExceptionBase;
 using System.Data;
 
 namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
@@ -17,7 +19,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
         }
 
         public async Task<List<HomologacaoModel>> LocalizarHomolgacao(int setor, string resultado)
-        {      
+        {
             var query = @"
 				 select Movpro_id,
 	                    SETSUB_NOME,
@@ -68,18 +70,12 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
             }
         }
 
-        public async Task<List<Anexo_Model>> BuscarAnexo(string usuario, string ait)
+        public async Task<List<Anexo_Model>> BuscarAnexo(string ait)
         {
             {
 
                 var query = @"
 
-	                 Declare @Setor int
-
-				   Set @Setor = (Select top 1 
-                                 SETSUBUSU_SETSUB_ID 
-					         from SetorSubXUsuario 
-					        where SETSUBUSU_USUARIO = @usuario )
 
 			                select PRTDOC_ID,
 				                   PRTDOC_PRT_NUMERO,
@@ -87,12 +83,12 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 				                   PRTDOC_PRT_AIT,
 				                   Convert(varchar(10),PRTDOC_DATA_HORA,103) as PRTDOC_DATA_HORA 
 			                  from Protocolo_Documento_Imagem 
-                             where PRTDOC_PRT_SETOR = @Setor and PRTDOC_PRT_AIT = @ait ";
+                             where PRTDOC_PRT_AIT = @ait ";
 
 
                 using (var connection = _context.CreateConnection())
                 {
-                    var parametros = new { usuario, ait };
+                    var parametros = new { ait };
                     var command = await connection.QueryAsync<Anexo_Model>(query, parametros);
                     return command.ToList();
                 }
@@ -123,7 +119,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                 throw;
             }
 
-            
+
 
         }
 
@@ -163,9 +159,9 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
         {
             var dbParametro = new DynamicParameters();
             dbParametro.Add("@MOVPRO_ID", 0);
-            dbParametro.Add("@USUARIOORIGEM","");
+            dbParametro.Add("@USUARIOORIGEM", "");
             dbParametro.Add("@MOVPRO_PARECER_ORIGEM", "");
-            dbParametro.Add("@@PRT_NUMERO", homologacaoModel.PRT_NUMERO);           
+            dbParametro.Add("@@PRT_NUMERO", homologacaoModel.PRT_NUMERO);
 
 
             var query = @"
@@ -194,8 +190,8 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
 
                 ";
-             await connection.ExecuteAsync(query, dbParametro, transaction);
-     
+            await connection.ExecuteAsync(query, dbParametro, transaction);
+
         }
 
         public async Task<JulgamentoModel> BuscarParecer(string processo)
@@ -225,6 +221,66 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
                 throw;
             }
+        }
+
+        public async Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero)
+        {
+            try
+            {
+                List<AnexoModel> anexoModel = new List<AnexoModel>();
+
+                using (var connection = _context.CreateConnection())
+                {
+                    // Agora, você pode recuperar as imagens da tabela temporária
+                    string selectQuery = @"    SELECT PRTDOC_ID,
+                                           PRTDOC_PRT_NUMERO,
+                                           PRTDOC_OBSERVACAO,
+                                           PRTDOC_IMAGEM
+                                    FROM Protocolo_Documento_Imagem 
+                                    WHERE REPLACE(PRTDOC_PRT_NUMERO, '/', '') = @prt_numero";
+
+                    using (var selectCommand = connection.CreateCommand())
+                    {
+                        connection.Open();
+
+                        selectCommand.CommandText = selectQuery;
+                        var param = selectCommand.CreateParameter();
+                        param.ParameterName = "@prt_numero";
+                        param.Value = prt_numero;
+                        selectCommand.Parameters.Add(param);
+
+                        // Executa a consulta SELECT
+                        using (var reader = selectCommand.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var imagemBytes = (byte[])reader["PRTDOC_IMAGEM"];
+                                var imagemBase64 = Convert.ToBase64String(imagemBytes);
+                                var nomeArquivo = reader["PRTDOC_OBSERVACAO"].ToString();
+
+                                // Cria uma nova instância de AnexoModel
+                                var anexo = new AnexoModel
+                                {
+                                    nome = nomeArquivo,
+                                    caminhosrc = $"<img src='data:image/jpeg;base64,{imagemBase64}' alt='Imagem' style=\"width: 100%; height: 150px;\">",
+                                    caminhohref = $"data:image/jpeg;base64,{imagemBase64}"
+                                };
+                                // Adiciona o objeto AnexoModel à lista
+                                anexoModel.Add(anexo);
+                            }
+                        }
+                    }
+
+                    return anexoModel;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
+           
         }
     }
 }

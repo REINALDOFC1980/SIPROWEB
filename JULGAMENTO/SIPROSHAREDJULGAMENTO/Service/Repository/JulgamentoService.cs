@@ -604,6 +604,66 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             }
         }
 
+        public async Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero)
+        {
+            try
+            {
+                List<AnexoModel> anexoModel = new List<AnexoModel>();
+
+                using (var connection = _context.CreateConnection())
+                {
+                    // Agora, você pode recuperar as imagens da tabela temporária
+                    string selectQuery = @"    SELECT PRTDOC_ID,
+                                           PRTDOC_PRT_NUMERO,
+                                           PRTDOC_OBSERVACAO,
+                                           PRTDOC_IMAGEM
+                                    FROM Protocolo_Documento_Imagem 
+                                    WHERE REPLACE(PRTDOC_PRT_NUMERO, '/', '') = @prt_numero";
+
+                    using (var selectCommand = connection.CreateCommand())
+                    {
+                        connection.Open();
+
+                        selectCommand.CommandText = selectQuery;
+                        var param = selectCommand.CreateParameter();
+                        param.ParameterName = "@prt_numero";
+                        param.Value = prt_numero;
+                        selectCommand.Parameters.Add(param);
+
+                        // Executa a consulta SELECT
+                        using (var reader = selectCommand.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var imagemBytes = (byte[])reader["PRTDOC_IMAGEM"];
+                                var imagemBase64 = Convert.ToBase64String(imagemBytes);
+                                var nomeArquivo = reader["PRTDOC_OBSERVACAO"].ToString();
+
+                                // Cria uma nova instância de AnexoModel
+                                var anexo = new AnexoModel
+                                {
+                                    nome = nomeArquivo,
+                                    caminhosrc = $"<img src='data:image/jpeg;base64,{imagemBase64}' alt='Imagem' style=\"width: 100%; height: 150px;\">",
+                                    caminhohref = $"data:image/jpeg;base64,{imagemBase64}"
+                                };
+                                // Adiciona o objeto AnexoModel à lista
+                                anexoModel.Add(anexo);
+                            }
+                        }
+                    }
+
+                    return anexoModel;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
+
+        }
+
         public async Task ExcluirAnexo(int prtdoc_id)
         {
            

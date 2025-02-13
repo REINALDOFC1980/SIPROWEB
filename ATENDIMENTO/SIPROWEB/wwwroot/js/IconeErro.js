@@ -3,6 +3,7 @@
     var errorMessageElement = document.querySelector(classe);
     var existingIcon = errorMessageElement.previousElementSibling;
 
+
     if (!existingIcon || !existingIcon.classList.contains('error-icon')) {
         // Caso não exista um ícone de erro, crie um novo
         var iconElement = document.createElement('i');
@@ -16,10 +17,13 @@
 
         // Adicione uma classe ao campo para indicar que o ícone de erro foi adicionado
         errorMessageElement.classList.add('error-field');
+ 
     } else {
         // Se o ícone de erro já existe, apenas atualize a mensagem de erro
         $(classe).text(mensagem);
     }
+
+
 }
 
 function Removeiconeerro(classe) {

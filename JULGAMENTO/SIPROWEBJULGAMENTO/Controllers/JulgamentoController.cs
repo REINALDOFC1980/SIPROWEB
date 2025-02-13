@@ -4,6 +4,7 @@ using SIPROSHARED.Filtro;
 using SIPROSHARED.Models;
 using SIPROSHAREDJULGAMENTO.Models;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -121,7 +122,7 @@ namespace SIPROWEBJULGAMENTO.Controllers
                 ViewBag.ParecerRelator = await BuscarParecerRelator(Protocolo.DIS_ID);
                 ViewBag.Votacao = await BuscarVotacao(Protocolo.DIS_ID);
                 ViewBag.instrucao = await BuscarInstrucao(Protocolo.PRT_NUMERO);
-                ViewBag.Anexo = await  BuscarAnexo(userMatrix, Protocolo.PRT_AIT);
+                ViewBag.Anexos = await BuscarAnexoBanco( Protocolo.PRT_NUMERO);
 
                 return View(Protocolo);
             }
@@ -334,69 +335,96 @@ namespace SIPROWEBJULGAMENTO.Controllers
                 return new List<ResultGetAitModel>();
         }
 
-        public async Task<IActionResult> AnexarDocumentos (List<IFormFile> arquivos, ProtocoloModel protocolo)
+        public async Task<IActionResult> AnexarDocumentos(List<IFormFile> arquivos, ProtocoloModel protocolo)
         {
-
-            ViewBag.Anexo = new List<Anexo_Model>();
-
-            var apiUrl = $"{_baseApiUrl}julgamento/inserir-anexo";           
-
-            protocolo.PRT_ATENDENTE = userMatrix;
-
-            // Cria o conteúdo do formulário multipart
-            var content = new MultipartFormDataContent();
-
-            // Adiciona os arquivos ao conteúdo
-            foreach (var arquivo in arquivos)
+            try
             {
-                var fileContent = new StreamContent(arquivo.OpenReadStream());
-                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(arquivo.ContentType);
-                content.Add(fileContent, "arquivos", arquivo.FileName);
-            }
+                ViewBag.Anexo = new List<Anexo_Model>();
 
-            var protocoloJson = JsonSerializer.Serialize(protocolo);
-            content.Add(new StringContent(protocoloJson, Encoding.UTF8, "application/json"), "protocoloJson");
-    
-            var response = await _httpClient.PostAsync(apiUrl, content);
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                var result = await response.Content.ReadFromJsonAsync<ProtocoloModel>();              
-                ViewBag.Anexo = await BuscarAnexo(userMatrix,protocolo.PRT_AIT);
-                return PartialView("_AnexoJulgamento");
-            }
+                var apiUrl = $"{_baseApiUrl}julgamento/inserir-anexo";
 
-            //Exibe o erro com detalhes da resposta!!!!! 
-            var errorDetails = await response.Content.ReadAsStringAsync();
-            return PartialView("_ErrorPartialView");
-        }
-        
+                protocolo.PRT_ATENDENTE = userMatrix;
 
-        public async Task<List<Anexo_Model>> BuscarAnexo (string? usuario, string? ait)
-        {
-            string apiUrl = $"{_baseApiUrl}julgamento/buscar-anexo/{usuario}/{ait}";
-            var response = await _httpClient.GetAsync(apiUrl);
+                // Cria o conteúdo do formulário multipart
+                var content = new MultipartFormDataContent();
 
-            if (response.StatusCode == HttpStatusCode.OK)
-                return await response.Content.ReadFromJsonAsync<List<Anexo_Model>>();
-            else
-                return new List<Anexo_Model>();         
+                // Adiciona os arquivos ao conteúdo
+                foreach (var arquivo in arquivos)
+                {
+                    var fileContent = new StreamContent(arquivo.OpenReadStream());
+                    fileContent.Headers.ContentType = new MediaTypeHeaderValue(arquivo.ContentType);
+                    content.Add(fileContent, "arquivos", arquivo.FileName);
+                }
 
-        }
+                var protocoloJson = JsonSerializer.Serialize(protocolo);
+                content.Add(new StringContent(protocoloJson, Encoding.UTF8, "application/json"), "protocoloJson");
 
-        public async Task<IActionResult> ExcluirAnexo(int prodoc_id,  string? ait)
-        {
-            ViewBag.Anexo = new List<Anexo_Model>();
+                var response = await _httpClient.PostAsync(apiUrl, content);
 
-            var usuariomatrix = userMatrix;
-            var apiUrl = $"{_baseApiUrl}julgamento/excluir-anexo/{prodoc_id}";
-            var response = await _httpClient.PostAsJsonAsync(apiUrl, prodoc_id);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    await response.Content.ReadAsStringAsync();
 
-            if (!response.IsSuccessStatusCode)
+                    ViewBag.Anexo = await BuscarAnexoBanco(protocolo.PRT_NUMERO);
+                    return PartialView("_AnexoJulgamento");
+                }
+
+                //Exibe o erro com detalhes da resposta!!!!! 
+                var errorDetails = await response.Content.ReadAsStringAsync();
                 return PartialView("_ErrorPartialView");
+            }
+            catch (Exception ex)
+            {
 
-                ViewBag.Anexo = await BuscarAnexo(usuariomatrix, ait);
-               return PartialView("_AnexoJulgamento");
+                throw;
+            }
+
+
         }
+
+
+        //public async Task<List<Anexo_Model>> BuscarAnexo (string? usuario, string? ait)
+        //{
+        //    string apiUrl = $"{_baseApiUrl}julgamento/buscar-anexo/{usuario}/{ait}";
+        //    var response = await _httpClient.GetAsync(apiUrl);
+
+        //    if (response.StatusCode == HttpStatusCode.OK)
+        //        return await response.Content.ReadFromJsonAsync<List<Anexo_Model>>();
+        //    else
+        //        return new List<Anexo_Model>();         
+
+        //}
+
+        [HttpGet]
+        public async Task<List<AnexoModel>> BuscarAnexoBanco(string prt_numero)
+        {
+            //buscando os documentos necessários
+            var protocolo = prt_numero.Replace("/", "");
+            var apiUrl = $"{_baseApiUrl}julgamento/buscar-anexo-banco/{protocolo}";
+
+            var response = await _httpClient.GetAsync(apiUrl);
+                    
+            if (response.StatusCode == HttpStatusCode.OK)//
+                return await response.Content.ReadFromJsonAsync<List<AnexoModel>>();
+
+            return new List<AnexoModel>();
+
+        }
+
+        //public async Task<IActionResult> ExcluirAnexo(int prodoc_id,  string? ait)
+        //{
+        //    ViewBag.Anexo = new List<Anexo_Model>();
+
+        //    var usuariomatrix = userMatrix;
+        //    var apiUrl = $"{_baseApiUrl}julgamento/excluir-anexo/{prodoc_id}";
+        //    var response = await _httpClient.PostAsJsonAsync(apiUrl, prodoc_id);
+
+        //    if (!response.IsSuccessStatusCode)
+        //        return PartialView("_ErrorPartialView");
+
+        //        ViewBag.Anexo = await BuscarAnexoBanco(usuariomatrix, ait);
+        //       return PartialView("_AnexoJulgamento");
+        //}
 
         public async Task<List<InstrucaoProcessoModel>> BuscarInstrucao(string? vlobusca)
         {
