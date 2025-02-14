@@ -6,6 +6,7 @@ using SIPROSHAREDINSTRUCAO.Models;
 using SIPROSHAREDINSTRUCAO.Service.IRepository;
 using SIRPOEXCEPTIONS.ExceptionBase;
 using System.Net.Http;
+using System.Text.Json;
 
 namespace SIPROAPIINSTRUCAO.Controllers
 {
@@ -105,8 +106,7 @@ namespace SIPROAPIINSTRUCAO.Controllers
                     try
                     {       
                         await _instrucao.EncaminharIntrucao(instrucao, connection, transaction);
-                        
-                        await _instrucao.SalvarAnexo(pasta, instrucao.INSPRO_Usuario_origem, instrucao.INSPRO_Dis_id, connection, transaction);
+                                             
 
                         transaction.Commit();
 
@@ -122,15 +122,21 @@ namespace SIPROAPIINSTRUCAO.Controllers
             }          
         }
 
-        //anexo
-        [HttpPost("upload")]
-        public async Task<IActionResult> UploadFiles([FromForm] List<IFormFile> arquivos, [FromForm] string protocolo)
+      
+
+        [HttpPost]
+        [Route("inserir-anexo")]
+        public async Task<IActionResult> InserirAnexo([FromForm] List<IFormFile> arquivos, [FromForm] string protocoloJson)
         {
-            await _instrucao.UploadAnexo(arquivos, protocolo);
+
+            var protocolo = JsonSerializer.Deserialize<ProtocoloModel>(protocoloJson);
+            await _instrucao.IntoAnexo(arquivos, protocolo);
+
             return Ok();
+
         }
-     
-        
+
+
         [HttpGet("listar-imagens")]
         public IActionResult ListarImagens(string protocolo)
         {
@@ -147,19 +153,32 @@ namespace SIPROAPIINSTRUCAO.Controllers
         }
 
 
-        [HttpDelete("excluir-imagem/{protocolo}/{arquivo}")]
-        public IActionResult ExcluirImagem(string protocolo, string arquivo)
+
+        [HttpGet]
+        [Route("buscar-anexo-banco/{prt_numero}")]
+        public async Task<IActionResult> BuscarAnexosBanco(string prt_numero)
         {
-            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", protocolo);
-            var filePath = Path.Combine(folderPath, arquivo);
 
-            if (!System.IO.File.Exists(folderPath))
-                throw new ErrorOnValidationException(new List<string> { "Arquivo do protocolo não encontrada." });
+            var anexos = await _instrucao.BuscarAnexosBanco(prt_numero);
 
-           
-            System.IO.File.Delete(filePath);
+            if (anexos == null)
+            {
+                return NoContent();
+            }
+            return Ok(anexos);
+
+        }
+
+
+
+        [HttpPost]
+        [Route("excluir-anexo/{prtdoc_id}")]
+        public async Task<IActionResult> ExcluirAnexo(int prtdoc_id)
+        {
+
+            await _instrucao.ExcluirAnexo(prtdoc_id);
             return Ok();
-             
+
         }
 
 

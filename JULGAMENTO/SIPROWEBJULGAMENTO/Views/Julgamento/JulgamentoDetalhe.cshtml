@@ -267,14 +267,14 @@
                                                     <br />
                                                     <br />
                                                     <div class="ibox-content product-box">
-                                                        <a href="~/img/p9.jpg" title="Image from Unsplash" data-gallery="">
-                                                            <img src="~/img/p9.jpg" style="width: 100%; height: 100%; object-fit: cover;">
+                                                        <a href="~/img/semimg.png" title="Image from Unsplash" data-gallery="">
+                                                            <img src="~/img/semimg.png" style="width: 100%; height: 100%; object-fit: cover;">
                                                         </a>
                                                     </div>
                                                     <br />
                                                     <div class="ibox-content product-box">
-                                                        <a href="/img/p10.jpg" title="Image from Unsplash" data-gallery="">
-                                                            <img src="/img/p10.jpg" style="width: 100%; height: 100%; object-fit: cover;">
+                                                        <a href="/img/semimg.png" title="Image from Unsplash" data-gallery="">
+                                                            <img src="/img/semimg.png" style="width: 100%; height: 100%; object-fit: cover;">
                                                         </a>
 
                                                     </div>
@@ -370,8 +370,8 @@
                         </div>
                         <div id="tab-5" class="tab-pane">
                             <div class="panel-body">
-
-                  
+                                <div class="client-detail">
+                                    <div class="full-height-scroll">
                                         <h2>Anexo de arquivos</h2>
                                         <hr />
                                         <br />                                       
@@ -395,10 +395,10 @@
                                         </div>
                                         <br />
                                         <br />
-                                <div class="client-detail">
+                       
 
                                     <strong>Lista de anexo do processo</strong>
-                                    <div class="full-height-scroll">
+                                    
                                         <div id="div_anexo">
                                             @await Html.PartialAsync("_AnexoJulgamento")
 
@@ -446,7 +446,8 @@
                             <hr />
                             <br />
                             <h2><i class="fa fa-exclamation"></i> Observação do SETAP</h2>
-                             <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" rows="8" cols="45" class="form-control"></textarea>
+                            <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" rows="8" cols="45" class="form-control" readonly>@Model?.PRT_OBSERVACAO</textarea>
+
                             <br />
 
                         </div>
@@ -605,18 +606,19 @@
 
 
     $(document).on('click', '.retirar-anexo', function (e) {
+
        
         e.preventDefault();
 
         var data = $(this).data('id'); // Exemplo: "123,456"
         var parts = data.split(','); // Separa em ["123", "456"]
         var prodocid = parts[0];
-        var numeroait = parts[1];
-
+        var prtnumero = parts[1];
+       
 
         Notiflix.Confirm.Show(
             'Aviso!',
-            'Tem certeza que deseja retirar esse anexo?',
+            'Tem certeza que deseja retirar esse anexo?', 
             'Sim',
             'Não',
             async function okCb() {
@@ -624,7 +626,7 @@
                 $.ajax({
                     url: '@Url.Action("ExcluirAnexo", "Julgamento")',
                     type: 'POST',
-                    data: { prodoc_id: prodocid, ait: numeroait },
+                    data: { prodoc_id: prodocid, prt_numero: prtnumero },
                     success: function (result) {
                         // Lógica a ser executada em caso de sucesso
                         if (result.error == true) {

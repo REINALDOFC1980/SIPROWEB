@@ -12,7 +12,8 @@ namespace SIPROSHAREDINSTRUCAO.Service.IRepository
 
         Task<List<InstrucaoProcessosModel>> LocalizarInstrucao(string usuario, string vlobusca);
 
-        Task UploadAnexo(List<IFormFile> arquivos, string protocolo);
+        //Task UploadAnexo(List<IFormFile> arquivos, string protocolo);
+        Task IntoAnexo(List<IFormFile> arquivos, ProtocoloModel protocolo);
 
         Task<List<SetorModel>> BuscarSetor();
 
@@ -23,9 +24,9 @@ namespace SIPROSHAREDINSTRUCAO.Service.IRepository
 
         Task<List<Anexo_Model>> BuscarAnexo(string usuario, string ait);
 
+        Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero);
         Task ExcluirAnexo(int prtdoc_id);
 
-        Task SalvarAnexo(string folderPath, string usuario, int mov_id, IDbConnection connection, IDbTransaction transaction);
 
 
 

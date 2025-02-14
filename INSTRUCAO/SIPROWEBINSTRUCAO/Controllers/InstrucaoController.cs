@@ -6,6 +6,8 @@ using SIPROSHAREDINSTRUCAO.Models;
 using System.IO;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 
 namespace SIPROWEBINSTRUCAO.Controllers
 {
@@ -70,7 +72,7 @@ namespace SIPROWEBINSTRUCAO.Controllers
                 ViewBag.Notificacao = await BuscarNotificacao(Protocolo.PRT_AIT);
                 ViewBag.Setor = await BuscarSetor();
                 ViewBag.instrucao = await MovimentacaoInstrucao(dis_id);
-                ViewBag.Anexo = await ObterImagens(Protocolo.PRT_NUMERO);              
+                ViewBag.Anexos = await BuscarAnexoBanco(Protocolo.PRT_NUMERO);              
 
                 return View(Protocolo);
             }
@@ -115,7 +117,6 @@ namespace SIPROWEBINSTRUCAO.Controllers
                 return new InstrucaoModel();
         }
 
-
         [HttpPost]
         public async Task<IActionResult> EncaminharInstrucao(InstrucaoModel instrucao)
         {
@@ -136,98 +137,84 @@ namespace SIPROWEBINSTRUCAO.Controllers
 
         }
 
-        
-        //anexos
-        [HttpPost]
-        public async Task<IActionResult> UploadAnexo(List<IFormFile> arquivos, ProtocoloModel protocolo)
+       
+        public async Task<IActionResult> AnexarDocumentos(List<IFormFile> arquivos, ProtocoloModel protocolo)
         {
-            //if (arquivos == null || arquivos.Count == 0 || protocolo == null || string.IsNullOrEmpty(protocolo.PRT_NUMERO))
-            //{
-            //    return BadRequest("Arquivos ou protocolo inválido.");
-            //}
-
-
-
-            var apiUrl = $"{_baseApiUrl}instrucao/upload";
-
-            using (var formContent = new MultipartFormDataContent())
+            try
             {
-                // Adicionar os arquivos ao formulário
+                ViewBag.Anexo = new List<Anexo_Model>();
+
+                var apiUrl = $"{_baseApiUrl}instrucao/inserir-anexo";
+
+                protocolo.PRT_ATENDENTE = userMatrix;
+
+                // Cria o conteúdo do formulário multipart
+                var content = new MultipartFormDataContent();
+
+                // Adiciona os arquivos ao conteúdo
                 foreach (var arquivo in arquivos)
                 {
-                    if (arquivo.Length > 0)
-                    {
-                        var fileContent = new StreamContent(arquivo.OpenReadStream());
-                        fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(arquivo.ContentType);
-                        formContent.Add(fileContent, "arquivos", arquivo.FileName);
-                    }
+                    var fileContent = new StreamContent(arquivo.OpenReadStream());
+                    fileContent.Headers.ContentType = new MediaTypeHeaderValue(arquivo.ContentType);
+                    content.Add(fileContent, "arquivos", arquivo.FileName);
                 }
 
-                var pasta = protocolo.PRT_NUMERO.Replace("/", "");
+                var protocoloJson = JsonSerializer.Serialize(protocolo);
+                content.Add(new StringContent(protocoloJson, Encoding.UTF8, "application/json"), "protocoloJson");
 
-                // Adiciona o valor sanitizado ao formulário
-                formContent.Add(new StringContent(pasta), "protocolo");
-
-
-                // Enviar a requisição POST para a API
-                var response = await _httpClient.PostAsync(apiUrl, formContent);
-
-                if (response.StatusCode == HttpStatusCode.InternalServerError)
-                    return RedirectToAction("InternalServerError", "Home");
+                var response = await _httpClient.PostAsync(apiUrl, content);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var result = await response.Content.ReadAsStringAsync();
+                    await response.Content.ReadAsStringAsync();
 
-                    ViewBag.Anexo = await ObterImagens(pasta);
-
+                    ViewBag.Anexos = await BuscarAnexoBanco(protocolo.PRT_NUMERO);
                     return PartialView("_AnexoInstrucao");
-                   
                 }
-                else
-                {
-                    var errorMessage = await response.Content.ReadAsStringAsync();
-                    return RedirectToAction("InternalServerError", "Home");
-                }
+
+                //Exibe o erro com detalhes da resposta!!!!! 
+                var errorDetails = await response.Content.ReadAsStringAsync();
+                return PartialView("_ErrorPartialView");
             }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
+
         }
 
         [HttpGet]
-        public async Task<List<string>> ObterImagens(string protocolo)
+        public async Task<List<AnexoModel>> BuscarAnexoBanco(string prt_numero)
         {
-            var pasta = protocolo.Replace("/", "");
-            var apiUrl = $"{_baseApiUrl}instrucao/listar-imagens?protocolo={Uri.EscapeDataString(pasta)}";
+            //buscando os documentos necessários
+            var protocolo = prt_numero.Replace("/", "");
+            var apiUrl = $"{_baseApiUrl}instrucao/buscar-anexo-banco/{protocolo}";
+
             var response = await _httpClient.GetAsync(apiUrl);
 
-            if (response.StatusCode == HttpStatusCode.OK)
-                return await response.Content.ReadFromJsonAsync<List<string>>();
-            else
-                return new List<string>(); // Retorna uma lista vazia em caso de erro
+            if (response.StatusCode == HttpStatusCode.OK)//
+                return await response.Content.ReadFromJsonAsync<List<AnexoModel>>();
+
+            return new List<AnexoModel>();
+
         }
 
-        public async Task<IActionResult> ExcluirAnexo(string? prtNumero, string? arquivo)
+        public async Task<IActionResult> ExcluirAnexo(int prodoc_id, string? prt_numero)
         {
-            var pasta = prtNumero.Replace("/", "");
-      
-            var apiUrl = $"{_baseApiUrl}instrucao/excluir-imagem/{Uri.EscapeDataString(pasta)}/{Uri.EscapeDataString(arquivo)}";
-           
-            var response = await _httpClient.DeleteAsync(apiUrl);
+            ViewBag.Anexo = new List<Anexo_Model>();
 
-            if (response.StatusCode == HttpStatusCode.InternalServerError)
-                return RedirectToAction("InternalServerError", "Home");
+            var usuariomatrix = userMatrix;
+            var apiUrl = $"{_baseApiUrl}instrucao/excluir-anexo/{prodoc_id}";
+            var response = await _httpClient.PostAsJsonAsync(apiUrl, prodoc_id);
 
-            if (response.StatusCode == HttpStatusCode.OK)                           
-            {
-                ViewBag.Anexo = await ObterImagens(pasta);
-                return PartialView("_AnexoInstrucao");
-            }
-            else
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                return RedirectToAction("InternalServerError", "Home");
-            }          
-            
-        } 
+            if (!response.IsSuccessStatusCode)
+                return PartialView("_ErrorPartialView");
+
+            ViewBag.Anexos = await BuscarAnexoBanco(prt_numero);
+            return PartialView("_AnexoInstrucao");
+        }
     }
 
 

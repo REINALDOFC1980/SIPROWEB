@@ -1,30 +1,62 @@
-﻿@if (ViewBag.Anexo != null && ViewBag.Anexo.Count > 0)
-{
-    @foreach (var arquivo in ViewBag.Anexo)
+﻿@{
+    if (ViewBag.Anexos != null)
     {
-        <div class="feed-element">
-            <div>
+        foreach (var imagemHtml in ViewBag.Anexos)
+        {
+            <div class="file-box">
+                <div class="file">
 
-                <small class="float-right text-navy">
-                    <a href="#" class="btn btn-outline btn-danger btn-xs retirar-anexo"
-                       onclick="excluirAnexoMVC('@Model?.PRT_NUMERO', '@arquivo', this)">
-                        <i class="fa fa-trash-o"></i>
+                    <a href="@Html.Raw(imagemHtml.caminhohref)" title="Comprovante do Condutor" data-gallery="">
+                        <span class="corner"></span>
+                        <div class="icon">
+                            @Html.Raw(imagemHtml.caminhosrc)
+                        </div>
+                        <div class="file-name">
+                            <small>@imagemHtml.nome</small>
+                            <br>
+
+                        </div>
                     </a>
-                </small>
-                <i class="fa fa-file-pdf-o"></i> <strong>@arquivo</strong>
-         @*        <div></div>
-                <small class="">@item.PRTDOC_DATA_HORA</small> *@
-               
+                    <div class="text-center">
+                        <a href="" class="text-danger retirar-anexo" data-id="@imagemHtml.prtdoc_id,@imagemHtml.prt_numero">
+                            <i class="fa fa-trash text-danger"></i>
+                            <small class="text-danger">Apagar anexo</small>
+                        </a>
+                        <br>
+                    </div>
+
+
+                </div>
             </div>
+
+        }
+    }
+    else
+    {
+
+        <div class="col-sm-12 text-center">
+
+            <p class="text-center">
+                <a href=""><i class="fa fa-paperclip big-icon text-black-50"></i></a>
+                <h5>Área de anexos do protocolo!</h5>
+                <small>Todos os anexos serão armazenados nesta área. Para visualizá-los, basta clicar na imagem desejada.</small>
+            </p>
         </div>
     }
-} 
-else
-{
-    <br />
+}
 
-    <div>
-        <div>Não existe arquivos anexados</div>
+
+<div class="lightBoxGallery">
+
+    <!-- The Gallery as lightbox dialog, should be a child element of the document body -->
+    <div id="blueimp-gallery" class="blueimp-gallery">
+        <div class="slides"></div>
+        <h3 class="title"></h3>
+        <a class="prev">‹</a>
+        <a class="next">›</a>
+        <a class="close">×</a>
+        <a class="play-pause"></a>
+        <ol class="indicator"></ol>
     </div>
 
-}
+</div>

@@ -103,6 +103,7 @@ namespace SIPROWEBJULGAMENTO.Controllers
         [HttpGet]
         public async Task<IActionResult> JulgamentoDetalhe(string vlobusca)
         {
+
             string apiUrl = $"{_baseApiUrl}julgamento/localizar-processo/{userMatrix}/{vlobusca}";            
             var response = await _httpClient.GetAsync(apiUrl);
 
@@ -365,7 +366,7 @@ namespace SIPROWEBJULGAMENTO.Controllers
                 {
                     await response.Content.ReadAsStringAsync();
 
-                    ViewBag.Anexo = await BuscarAnexoBanco(protocolo.PRT_NUMERO);
+                    ViewBag.Anexos = await BuscarAnexoBanco(protocolo.PRT_NUMERO);
                     return PartialView("_AnexoJulgamento");
                 }
 
@@ -383,19 +384,7 @@ namespace SIPROWEBJULGAMENTO.Controllers
         }
 
 
-        //public async Task<List<Anexo_Model>> BuscarAnexo (string? usuario, string? ait)
-        //{
-        //    string apiUrl = $"{_baseApiUrl}julgamento/buscar-anexo/{usuario}/{ait}";
-        //    var response = await _httpClient.GetAsync(apiUrl);
-
-        //    if (response.StatusCode == HttpStatusCode.OK)
-        //        return await response.Content.ReadFromJsonAsync<List<Anexo_Model>>();
-        //    else
-        //        return new List<Anexo_Model>();         
-
-        //}
-
-        [HttpGet]
+       [HttpGet]
         public async Task<List<AnexoModel>> BuscarAnexoBanco(string prt_numero)
         {
             //buscando os documentos necessários
@@ -411,20 +400,20 @@ namespace SIPROWEBJULGAMENTO.Controllers
 
         }
 
-        //public async Task<IActionResult> ExcluirAnexo(int prodoc_id,  string? ait)
-        //{
-        //    ViewBag.Anexo = new List<Anexo_Model>();
+        public async Task<IActionResult> ExcluirAnexo(int prodoc_id, string? prt_numero)
+        {
+            ViewBag.Anexo = new List<Anexo_Model>();
 
-        //    var usuariomatrix = userMatrix;
-        //    var apiUrl = $"{_baseApiUrl}julgamento/excluir-anexo/{prodoc_id}";
-        //    var response = await _httpClient.PostAsJsonAsync(apiUrl, prodoc_id);
+            var usuariomatrix = userMatrix;
+            var apiUrl = $"{_baseApiUrl}julgamento/excluir-anexo/{prodoc_id}";
+            var response = await _httpClient.PostAsJsonAsync(apiUrl, prodoc_id);
 
-        //    if (!response.IsSuccessStatusCode)
-        //        return PartialView("_ErrorPartialView");
+            if (!response.IsSuccessStatusCode)
+                return PartialView("_ErrorPartialView");
 
-        //        ViewBag.Anexo = await BuscarAnexoBanco(usuariomatrix, ait);
-        //       return PartialView("_AnexoJulgamento");
-        //}
+            ViewBag.Anexos = await BuscarAnexoBanco(prt_numero);
+            return PartialView("_AnexoJulgamento");
+        }
 
         public async Task<List<InstrucaoProcessoModel>> BuscarInstrucao(string? vlobusca)
         {

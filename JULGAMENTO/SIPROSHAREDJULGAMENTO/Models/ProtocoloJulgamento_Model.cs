@@ -5,6 +5,8 @@
         public string? PRT_NUMERO { get; set; }
         public int PRT_COD_ORIGEM { get; set; }
         public string? PRT_NOME_ORIGEM { get; set; }
+        
+        public string? PRT_OBSERVACAO { get; set; }
         public string? PRT_NOME_ASSUNTO { get; set; }         
         public string? PRT_DT_ABERTURA { get; set; }
         public string? PRT_DT_POSTAGEM { get; set; }

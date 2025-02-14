@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Http;
 using SIPROSHARED.DbContext;
+using SIPROSHARED.Models;
 using SIPROSHAREDINSTRUCAO.Models;
 using SIPROSHAREDINSTRUCAO.Service.IRepository;
 using System.Data;
@@ -205,31 +206,68 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
             await connection.ExecuteAsync(query, dbParametro, transaction);
 
         }
-               
-        //Anexo
-        public async Task UploadAnexo(List<IFormFile> arquivos, string protocolo)
+
+       
+
+        public async Task IntoAnexo(List<IFormFile> arquivos, ProtocoloModel protocolo)
         {
-            string _tempFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", protocolo);
-
-            // Certifica-se de que a pasta temporária exista
-            if (!Directory.Exists(_tempFolderPath))
+            // Verifica se há arquivos na lista
+            if (arquivos != null && arquivos.Count > 0)
             {
-                Directory.CreateDirectory(_tempFolderPath);
-            }
-
-            foreach (var arquivo in arquivos)
-            {
-                if (arquivo.Length > 0)
+                foreach (var arquivo in arquivos)
                 {
-                    var fileName = $"{protocolo}_{Path.GetFileName(arquivo.FileName)}";
-                    var filePath = Path.Combine(_tempFolderPath, fileName);
+                    string fileName = arquivo.FileName;
 
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    // Lê o arquivo como um array de bytes
+                    byte[] imagemBytes;
+                    using (var memoryStream = new MemoryStream())
                     {
-                        await arquivo.CopyToAsync(stream);
+                        await arquivo.CopyToAsync(memoryStream);
+                        imagemBytes = memoryStream.ToArray();
+                    }
+
+                    var dbParametro = new DynamicParameters();
+                    dbParametro.Add("@PRTDOC_DOC_ID", 0);
+                    dbParametro.Add("@PRTDOC_PRT_NUMERO", protocolo.PRT_NUMERO);
+                    dbParametro.Add("@PRTDOC_IMAGEM", imagemBytes);
+                    dbParametro.Add("@PRTDOC_OBSERVACAO", fileName);
+                    dbParametro.Add("@PRTDOC_PRT_AIT", protocolo.PRT_AIT);
+                    dbParametro.Add("@PRT_ATENDENTE", protocolo.PRT_ATENDENTE);
+
+                    string query = @"
+
+                        Declare @PRTDOC_PRT_SETOR int
+
+					    Set @PRTDOC_PRT_SETOR = (Select top 1 SETSUBUSU_SETSUB_ID 
+								        from SetorSubXUsuario 
+								    where SETSUBUSU_USUARIO = @PRT_ATENDENTE )
+
+                            INSERT INTO Protocolo_Documento_Imagem 
+                                    (PRTDOC_DOC_ID, 
+                                        PRTDOC_PRT_NUMERO, 
+                                        PRTDOC_IMAGEM, 
+                                        PRTDOC_OBSERVACAO, 
+                                        PRTDOC_DATA_HORA, 
+                                        PRTDOC_PRT_AIT, 
+                                        PRTDOC_PRT_SETOR)
+                                        VALUES 
+                                    (@PRTDOC_DOC_ID, 
+                                        @PRTDOC_PRT_NUMERO, 
+                                        @PRTDOC_IMAGEM, 
+                                        @PRTDOC_OBSERVACAO, 
+                                        GETDATE(), 
+                                        @PRTDOC_PRT_AIT, 
+                                        @PRTDOC_PRT_SETOR)
+                                        ";
+
+                    using (var connection = _context.CreateConnection())
+                    {
+                        await connection.ExecuteAsync(query, dbParametro);
                     }
                 }
             }
+
+
         }
 
         public async Task<List<Anexo_Model>> BuscarAnexo(string usuario, string ait)
@@ -265,6 +303,72 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
             }
         }
 
+        public async Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero)
+        {
+            try
+            {
+                List<AnexoModel> anexoModel = new List<AnexoModel>();
+
+                using (var connection = _context.CreateConnection())
+                {
+                    // Agora, você pode recuperar as imagens da tabela temporária
+                    string selectQuery = @"    SELECT 
+                                           PRTDOC_ID,
+                                           PRTDOC_PRT_NUMERO,
+                                           PRTDOC_OBSERVACAO,
+                                           PRTDOC_IMAGEM
+                                    FROM Protocolo_Documento_Imagem 
+                                    WHERE REPLACE(PRTDOC_PRT_NUMERO, '/', '') = @prt_numero
+                                    and PRTDOC_PRT_SETOR = 49 "; //Passar o id do setor futuramente
+
+                    using (var selectCommand = connection.CreateCommand())
+                    {
+                        connection.Open();
+
+                        selectCommand.CommandText = selectQuery;
+                        var param = selectCommand.CreateParameter();
+                        param.ParameterName = "@prt_numero";
+                        param.Value = prt_numero;
+                        selectCommand.Parameters.Add(param);
+
+                        // Executa a consulta SELECT
+                        using (var reader = selectCommand.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var imagemBytes = (byte[])reader["PRTDOC_IMAGEM"];
+                                var imagemBase64 = Convert.ToBase64String(imagemBytes);
+                                var nomeArquivo = reader["PRTDOC_OBSERVACAO"].ToString();
+                                int prtdoc_id = reader.GetInt32(reader.GetOrdinal("PRTDOC_ID"));
+
+
+                                // Cria uma nova instância de AnexoModel
+                                var anexo = new AnexoModel
+                                {
+                                    nome = nomeArquivo,
+                                    caminhosrc = $"<img src='data:image/jpeg;base64,{imagemBase64}' alt='Imagem' style=\"width: 100%; height: 150px;\">",
+                                    caminhohref = $"data:image/jpeg;base64,{imagemBase64}",
+                                    prtdoc_id = prtdoc_id,
+                                    prt_numero = prt_numero,
+                                };
+                                // Adiciona o objeto AnexoModel à lista
+                                anexoModel.Add(anexo);
+                            }
+                        }
+                    }
+
+                    return anexoModel;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
+
+        }
+
         public async Task ExcluirAnexo(int prtdoc_id)
         {
            
@@ -282,64 +386,8 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
             }
             
         }
-
-        //refatorar para simplificar os parametros!!!!!
-        public async Task SalvarAnexo(string folderPath, string usuario, int dis_id, IDbConnection connection, IDbTransaction transaction)
-        {
-            string _tempFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", folderPath);
-
-                           // Lista de nomes dos arquivos na pasta
-            string[] filePaths = Directory.GetFiles(_tempFolderPath);
-
-            // Verifica se há arquivos na pasta
-            if (filePaths.Length > 0)
-            {
-                //using (var connection = _context.CreateConnection())
-                //{
-                foreach (string filePath in filePaths)
-                {
-                    string fileName = Path.GetFileName(filePath);
-                    byte[] imagemBytes = File.ReadAllBytes(filePath);
-
-                    var dbParametro = new DynamicParameters(); 
-                    dbParametro.Add("@PRTDOC_IMAGEM", imagemBytes);  
-                    dbParametro.Add("@PRT_ATENDENTE", usuario);
-                    dbParametro.Add("@DIS_ID", dis_id);
-                    dbParametro.Add("@OBSERVACAO", fileName);
-
-
-                    string query = @" 
-
-                      Insert into Protocolo_Documento_Imagem 
-                             ( PRTDOC_DOC_ID 
-                              ,PRTDOC_PRT_NUMERO    
-                              ,PRTDOC_IMAGEM                                                                                                                                                                                                                                                    
-                              ,PRTDOC_OBSERVACAO                                                                                    
-                              ,PRTDOC_DATA_HORA        
-                              ,PRTDOC_PRT_AIT 
-                              ,PRTDOC_PRT_SETOR,
-		                       PRTDOC_MOVPRO_ID )
-                     
-                       Select 0
-                             ,PRT_NUMERO
-                             ,@PRTDOC_IMAGEM
-                             ,@OBSERVACAO
-                             ,GETDATE()
-                             ,PRT_AIT 
-                             ,MOVPRO_SETOR_ORIGEM
-                             ,MOVPRO_ID 
-			                 from Protocolo inner join Movimentacao_Processo on (PRT_NUMERO = MOVPRO_PRT_NUMERO) 
-							                inner join Protocolo_distribuicao on (DIS_MOV_ID = MOVPRO_ID)
-							 where DIS_ID = @DIS_ID"
-                    ;
-
-                    await connection.ExecuteAsync(query, dbParametro, transaction);
-                    
-                }
-            }
-                
             
-        }
+ 
 
      
     }

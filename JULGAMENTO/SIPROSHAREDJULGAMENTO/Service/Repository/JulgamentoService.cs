@@ -36,6 +36,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 								  ,PRT_AIT
                                   ,PRT_PLACA
                                   ,'Julgar' AS  PRT_SITUACAO
+                                  ,PRT_OBSERVACAO
                               FROM Protocolo inner join Movimentacao_Processo on (PRT_NUMERO = MOVPRO_PRT_NUMERO)
 				                             inner join Protocolo_distribuicao on (MOVPRO_ID = DIS_MOV_ID)
 				                             inner join Assunto on (PRT_ASSUNTO = ASS_ID)
@@ -71,6 +72,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                                   ,PRT_PLACA
                                   ,DIS_DESTINO_STATUS	
                                   ,'Assinar' AS  PRT_SITUACAO
+                                  ,PRT_OBSERVACAO
                               FROM Protocolo inner join Movimentacao_Processo on (PRT_NUMERO = MOVPRO_PRT_NUMERO)
                                              inner join Protocolo_distribuicao on (MOVPRO_ID = DIS_MOV_ID)
 				                             inner join Protocolo_Distribuicao_Julgamento on (DIS_ID = DISJUG_DIS_ID)
@@ -106,6 +108,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 	                              ,PRT_AIT
                                   ,PRT_PLACA
  	                              ,DIS_ID
+                                  ,PRT_OBSERVACAO
                          FROM Protocolo inner join Movimentacao_Processo  on (PRT_NUMERO = MOVPRO_PRT_NUMERO)
 			                          inner join Protocolo_distribuicao on (MOVPRO_ID = DIS_MOV_ID)
 			                          inner join Assunto on (PRT_ASSUNTO = ASS_ID)
@@ -613,7 +616,8 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                 using (var connection = _context.CreateConnection())
                 {
                     // Agora, você pode recuperar as imagens da tabela temporária
-                    string selectQuery = @"    SELECT PRTDOC_ID,
+                    string selectQuery = @"    SELECT 
+                                           PRTDOC_ID,
                                            PRTDOC_PRT_NUMERO,
                                            PRTDOC_OBSERVACAO,
                                            PRTDOC_IMAGEM
@@ -638,13 +642,17 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                                 var imagemBytes = (byte[])reader["PRTDOC_IMAGEM"];
                                 var imagemBase64 = Convert.ToBase64String(imagemBytes);
                                 var nomeArquivo = reader["PRTDOC_OBSERVACAO"].ToString();
+                                int prtdoc_id = reader.GetInt32(reader.GetOrdinal("PRTDOC_ID"));
+
 
                                 // Cria uma nova instância de AnexoModel
                                 var anexo = new AnexoModel
                                 {
                                     nome = nomeArquivo,
                                     caminhosrc = $"<img src='data:image/jpeg;base64,{imagemBase64}' alt='Imagem' style=\"width: 100%; height: 150px;\">",
-                                    caminhohref = $"data:image/jpeg;base64,{imagemBase64}"
+                                    caminhohref = $"data:image/jpeg;base64,{imagemBase64}",
+                                    prtdoc_id = prtdoc_id,
+                                    prt_numero = prt_numero,
                                 };
                                 // Adiciona o objeto AnexoModel à lista
                                 anexoModel.Add(anexo);
