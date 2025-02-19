@@ -14,12 +14,14 @@
     <link href="~/font-awesome/css/font-awesome.css" rel="stylesheet">
 
     <link href="~/css/animate.css" rel="stylesheet">
-   
+    <link href="~/css/plugins/datapicker/datepicker3.css" rel="stylesheet">
     <link href="~/css/plugins/blueimp/css/blueimp-gallery.min.css" rel="stylesheet">
     <link href="~/css/plugins/select2/select2.min.css" rel="stylesheet">
     <link href="~/css/plugins/summernote/summernote-bs4.css" rel="stylesheet">
     <link href="~/css/style.css" rel="stylesheet">
     <link href="~/dist/notiflix-3.2.7.min.css" rel="stylesheet" />
+
+
 
 
 </head>
@@ -44,7 +46,9 @@
                                    var userRole = Context.Items["UserRoles"] as string;
                                    if (userNome != null && userNome.Any())
                                    {
-                                       <span class="block m-t-xs font-bold"> @userNome</span>                                        
+                                       <span class="block m-t-xs font-bold"> @userNome</span>    
+                                       <br />
+                                        <small>@userRole</small>
                                    }                                   
                                 }
                             </a>
@@ -330,9 +334,17 @@
     <script src="~/js/plugins/select2/select2.full.min.js"></script>
 
 
+    <!-- Data picker -->
+    <script src="~/js/plugins/datapicker/bootstrap-datepicker.js"></script>
 
-    
-    @* <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> *@
+    <!-- Image cropper -->
+    <script src="~/js/plugins/cropper/cropper.min.js"></script>
+
+    <!-- Tags Input -->
+    <script src="~/js/plugins/bootstrap-tagsinput/bootstrap-tagsinput.js"></script>
+
+    <script src="~/js/bootstrap-datepicker.pt-br.js"></script>
+
     
 <script>
     // In your Javascript (external .js resource or <script> tag)

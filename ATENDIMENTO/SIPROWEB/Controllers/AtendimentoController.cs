@@ -684,15 +684,9 @@ namespace SIPROWEB.Controllers
         [HttpGet]
         public IActionResult LocalizarProtocolo()
         {
-
             return View();
         }
-
-
-
-
-
-        //falta fazer o tratamento do BadRequest caso a consulta venha vazia e passar o texto para partial view
+        
         [HttpGet]
         public async Task<PartialViewResult> BuscarProtocolo(string vlobusca)
         {

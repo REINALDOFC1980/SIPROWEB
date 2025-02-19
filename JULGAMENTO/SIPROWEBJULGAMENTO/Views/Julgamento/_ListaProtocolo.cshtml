@@ -35,9 +35,11 @@
                             item?.PRT_SITUACAO == "Assinar" ? "fa fa-edit" : "fa fa-legal";
                         }
                         <td>
-                            <a href="@Url.Action("JulgamentoDetalhe", "Julgamento", new { vlobusca = item?.PRT_AIT })" class="client-link">
-                             <i class="@resultadoClasse"></i> @item?.PRT_SITUACAO
-                            </a>
+                                <a href="@Url.Action("JulgamentoDetalhe", "Julgamento", new { vlobusca = item?.PRT_AIT })"
+                                   class="client-link"
+                                   onclick="mostrarLoading()">
+                                   <i class="@resultadoClasse"></i> @item?.PRT_SITUACAO
+                                </a>
                         </td>
 
                     </tr>

@@ -443,10 +443,10 @@
                                 @await Html.PartialAsync("_VotacaoMembro")
                             </div>
                             <br />                           
-                            <hr />
+                            <br />
                             <br />
                             <h2><i class="fa fa-exclamation"></i> Observação do SETAP</h2>
-                            <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" rows="8" cols="45" class="form-control" readonly>@Model?.PRT_OBSERVACAO</textarea>
+                            <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" rows="12" cols="45" class="form-control" readonly>@Model?.PRT_OBSERVACAO</textarea>
 
                             <br />
 
@@ -494,6 +494,7 @@
         var formData = new FormData($('#form_anexo')[0]);
 
         // Envia os dados via AJAX
+        Notiflix.Loading.Standard('Aguarde...');
         $.ajax({
             url: '@Url.Action("AnexarDocumentos", "Julgamento")',
             type: 'POST',
@@ -501,11 +502,12 @@
             processData: false,
             contentType: false,
             success: function (result) {
-                // Exibe o retorno do servidor no elemento #Div_Anexo
+                Notiflix.Loading.Remove();
                 $('#div_anexo').html(result);
             },
             error: function (xhr, status, error) {
                 console.log('Erro ao enviar arquivo:', error);
+                Notiflix.Loading.Remove();
             }
         });
     });
@@ -518,12 +520,13 @@
         if ($("#form_instrucao").valid()) {
 
             var formData = $("#form_instrucao").serialize();
-
+            Notiflix.Loading.Standard('Aguarde...');
             $.ajax({
                 url: '@Url.Action("EncaminharProcessoInstrucao", "Julgamento")',
                 type: 'POST',
                 data: formData,
                 success: function (response) {
+                    Notiflix.Loading.Remove();
                     if (response.erro == false) {
                         Notiflix.Notify.Success("Instrução enviada com sucesso!");
                         window.location.href = '@Url.Action("Julgamento", "Julgamento")';
@@ -533,6 +536,7 @@
                 },
                 error: function (xhr, status, error) {
                     Notiflix.Notify.Success("Erro interno!");
+                    Notiflix.Loading.Remove();
                 }
             });
 
@@ -564,27 +568,32 @@
                 formData.push({ name: "Disjug_Resultado", value: resultado });
                 formData.push({ name: "Disjug_Parecer_Relatorio", value: parecerContent });
 
+                Notiflix.Loading.Standard('Aguarde...');
+
                 $.ajax({
                     url: '@Url.Action("InserirVotoRelator", "Julgamento")',
                     type: 'POST',
                     data: $.param(formData), // Converte o array para uma string serializada
                     success: function (response) {
+                        Notiflix.Loading.Remove();
                         if (response.erro == false) {
                             Notiflix.Notify.Success("Assinatura realizada com sucesso!");
                             // Atraso de 2 segundos antes do redirecionamento
                             setTimeout(function () {
                                 window.location.href = response.url;
-                            }, 3000);
+                            }, 1000);
                         } else {
                             Notiflix.Notify.Failure(response.retorno);
                         }
                     },
                     error: function (xhr, status, error) {
                         Notiflix.Notify.Failure("Erro interno!");
+                        Notiflix.Loading.Remove();
                     }
                 });
             } else {
                 Notiflix.Notify.Warning("Selecione dois membros.");
+                Notiflix.Loading.Remove();
             }
         }
     };
@@ -628,14 +637,14 @@
                     type: 'POST',
                     data: { prodoc_id: prodocid, prt_numero: prtnumero },
                     success: function (result) {
-                        // Lógica a ser executada em caso de sucesso
+                        Notiflix.Loading.Remove();
                         if (result.error == true) {
                             Notiflix.Notify.Failure('Erro.');
                             return false;
                         }
 
                         $('#div_anexo').html(result); // Atualiza a div com a Partial View
-                        Notiflix.Loading.Remove();
+                 
 
                     },
                     error: function (xhr, status, error) {

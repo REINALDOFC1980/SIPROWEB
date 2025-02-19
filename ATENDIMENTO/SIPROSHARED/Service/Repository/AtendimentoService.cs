@@ -149,15 +149,7 @@ namespace SIPROSHARED.Service.Repository
                 dbParametro.Add("@Age_Cod_Origem", agendaModel.Age_Cod_Origem);
 
                 using (var connection = _context.CreateConnection())
-                {
-                    // Executa o DELETE
-                    string deleteQuery = @"
-                        DELETE FROM Agendamento 
-                        WHERE Age_AIT = @Age_AIT 
-                          AND Age_Cod_Assunto = @Age_Cod_Assunto 
-                          AND ISNULL(Age_Situacao,'') = ''";
-
-                    await connection.ExecuteAsync(deleteQuery, dbParametro);
+                {                   
 
                     // Insere o novo registro
                     string insertQuery = @"
@@ -171,8 +163,7 @@ namespace SIPROSHARED.Service.Repository
                         Age_Cod_Origem,
                         Age_Abertura,
                         Age_Tipo)
-                    VALUES
-                    (      
+                    select 
                         GETDATE(),       
                         @Age_AIT,              
                         @Age_Doc_Solicitante, 
@@ -180,7 +171,11 @@ namespace SIPROSHARED.Service.Repository
                         00, -- Coloque um comentário para explicar este valor
                         @Age_Cod_Origem, 
                         GETDATE(),
-                        'Presencial')";
+                        'Presencial'
+	                    WHERE NOT EXISTS ( SELECT 1 
+                                             FROM Agendamento 
+                                            WHERE Age_AIT = @Age_AIT 
+                                              AND Age_Cod_Assunto = @Age_Cod_Assunto);";
 
                     await connection.ExecuteAsync(insertQuery, dbParametro);
                 }
@@ -196,7 +191,6 @@ namespace SIPROSHARED.Service.Repository
                 List<AnexoModel> anexoModel = new List<AnexoModel>();
 
                 var query = @"
-
                               SELECT TOP 1 prt_imagem FROM Imagem_anexo";
 
                 using (var connection = _context.CreateConnection())
@@ -340,233 +334,182 @@ namespace SIPROSHARED.Service.Repository
 
         public async Task<string> RealizarAbertura(ProtocoloModel dadosMulta, IDbConnection connection, IDbTransaction transaction)
         {
-            string? protocoloNumero = null;
-
-            var validator = new ProtocoloValidator();
-            var result = validator.Validate(dadosMulta);
-            if (result.IsValid == false)
-                throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
            
+                string? protocoloNumero = null;
+
+                var validator = new ProtocoloValidator();
+                var result = validator.Validate(dadosMulta);
+                if (result.IsValid == false)
+                    throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
 
 
-            var dbParametro = new DynamicParameters();
-                dbParametro.Add("PRT_NUMERO",                    dbType: DbType.String, direction: ParameterDirection.Output, size: 50);
-                dbParametro.Add("PRT_ORIGEM",                   dadosMulta.PRT_ORIGEM);
-                dbParametro.Add("PRT_ASSUNTO ",                 dadosMulta.PRT_ASSUNTO);
-                dbParametro.Add("PRT_ATENDENTE",                dadosMulta.PRT_ATENDENTE);
-                dbParametro.Add("PRT_OBSERVACAO",               dadosMulta.PRT_OBSERVACAO);
-                dbParametro.Add("PRT_AIT",                      dadosMulta.PRT_AIT);
-                dbParametro.Add("PRT_TIPO_SOLICITANTE",         dadosMulta.PRT_TIPO_SOLICITANTE);
-                dbParametro.Add("PRT_CPF_SOLICITANTE",          dadosMulta.PRT_CPF_SOLICITANTE);
-                dbParametro.Add("PRT_CPFCNJ_PROPRIETARIO",      dadosMulta.PRT_CPFCNJ_PROPRIETARIO);
-                dbParametro.Add("PRT_NOMEPROPRIETARIO",         dadosMulta.PRT_NOMEPROPRIETARIO);               
-                dbParametro.Add("PRT_CPF_CONDUTOR",             dadosMulta.PRT_CPF_CONDUTOR);
-                dbParametro.Add("PRT_NUMREGISTRO_CNH",          dadosMulta.PRT_NUMREGISTRO_CNH);
-                dbParametro.Add("PRT_CNH_VALIDADE",             dadosMulta.PRT_DT_VALIDADE);
-                dbParametro.Add("PRT_PLACA",                    dadosMulta.PRT_PLACA);
-                
 
-                 dbParametro.Add("PRT_RESS_BANCO",              dadosMulta.PRT_RESS_BANCO);
-                 dbParametro.Add("PRT_RESS_TIPO",               dadosMulta.PRT_RESS_TIPO);
-                 dbParametro.Add("PRT_RESS_TITULAR",            dadosMulta.PRT_RESS_TITULAR);
-                 dbParametro.Add("PRT_RESS_CPF",                dadosMulta.PRT_RESS_CPF);
-                 dbParametro.Add("PRT_RESS_AGENCIA",            dadosMulta.PRT_RESS_AGENCIA);
-                 dbParametro.Add("PRT_RESS_CONTA",              dadosMulta.PRT_RESS_CONTA);
-                 dbParametro.Add("PRT_RESS_OPERACAO",           dadosMulta.PRT_RESS_OPERACAO);
+                var dbParametro = new DynamicParameters();
+                dbParametro.Add("PRT_NUMERO", dbType: DbType.String, direction: ParameterDirection.Output, size: 50);
+                dbParametro.Add("PRT_ORIGEM", dadosMulta.PRT_ORIGEM);
+                dbParametro.Add("PRT_ASSUNTO ", dadosMulta.PRT_ASSUNTO);
+                dbParametro.Add("PRT_ATENDENTE", dadosMulta.PRT_ATENDENTE);
+                dbParametro.Add("PRT_OBSERVACAO", dadosMulta.PRT_OBSERVACAO);
+                dbParametro.Add("PRT_AIT", dadosMulta.PRT_AIT);
+                dbParametro.Add("PRT_TIPO_SOLICITANTE", dadosMulta.PRT_TIPO_SOLICITANTE);
+                dbParametro.Add("PRT_CPF_SOLICITANTE", dadosMulta.PRT_CPF_SOLICITANTE);
+                dbParametro.Add("PRT_CPFCNJ_PROPRIETARIO", dadosMulta.PRT_CPFCNJ_PROPRIETARIO);
+                dbParametro.Add("PRT_NOMEPROPRIETARIO", dadosMulta.PRT_NOMEPROPRIETARIO);
+                dbParametro.Add("PRT_CPF_CONDUTOR", dadosMulta.PRT_CPF_CONDUTOR);
+                dbParametro.Add("PRT_NUMREGISTRO_CNH", dadosMulta.PRT_NUMREGISTRO_CNH);
+                dbParametro.Add("PRT_CNH_VALIDADE", dadosMulta.PRT_DT_VALIDADE);
+                dbParametro.Add("PRT_PLACA", dadosMulta.PRT_PLACA);
 
-                dbParametro.Add("PRT_RESTRICAO",                dadosMulta.PRT_RESTRICAO);
-                dbParametro.Add("PRT_AIT_SITUACAO",             dadosMulta.PRT_AIT_SITUACAO);
 
-                dbParametro.Add("PRT_DT_ARQUIVO",               dadosMulta.PRT_DT_ARQUIVO);
-                dbParametro.Add("PRT_USUARIOARQUIVO",           dadosMulta.PRT_USUARIOARQUIVO);               
+                dbParametro.Add("PRT_RESS_BANCO", dadosMulta.PRT_RESS_BANCO);
+                dbParametro.Add("PRT_RESS_TIPO", dadosMulta.PRT_RESS_TIPO);
+                dbParametro.Add("PRT_RESS_TITULAR", dadosMulta.PRT_RESS_TITULAR);
+                dbParametro.Add("PRT_RESS_CPF", dadosMulta.PRT_RESS_CPF);
+                dbParametro.Add("PRT_RESS_AGENCIA", dadosMulta.PRT_RESS_AGENCIA);
+                dbParametro.Add("PRT_RESS_CONTA", dadosMulta.PRT_RESS_CONTA);
+                dbParametro.Add("PRT_RESS_OPERACAO", dadosMulta.PRT_RESS_OPERACAO);
 
-                dbParametro.Add("PRT_CNH_ESTRANGEIRA",          dadosMulta.PRT_CNH_ESTRANGEIRA);
-                dbParametro.Add("PRT_CNH_ESTRANGEIRA_NOME",     dadosMulta.PRT_CNH_ESTRANGEIRA_NOME);
-                dbParametro.Add("PRT_CNH_ESTRANGEIRA_PAIS",     dadosMulta.PRT_CNH_ESTRANGEIRA_PAIS);
+                dbParametro.Add("PRT_RESTRICAO", dadosMulta.PRT_RESTRICAO);
+                dbParametro.Add("PRT_AIT_SITUACAO", dadosMulta.PRT_AIT_SITUACAO);
 
-                dbParametro.Add("PRT_DT_POSTAGEM",              dadosMulta.PRT_DT_POSTAGEM);
-                dbParametro.Add("PRT_NUMERO_GEP",               dadosMulta.PRT_NUMERO_GEP);
+                dbParametro.Add("PRT_DT_ARQUIVO", dadosMulta.PRT_DT_ARQUIVO);
+                dbParametro.Add("PRT_USUARIOARQUIVO", dadosMulta.PRT_USUARIOARQUIVO);
+
+                dbParametro.Add("PRT_CNH_ESTRANGEIRA", dadosMulta.PRT_CNH_ESTRANGEIRA);
+                dbParametro.Add("PRT_CNH_ESTRANGEIRA_NOME", dadosMulta.PRT_CNH_ESTRANGEIRA_NOME);
+                dbParametro.Add("PRT_CNH_ESTRANGEIRA_PAIS", dadosMulta.PRT_CNH_ESTRANGEIRA_PAIS);
+
+                dbParametro.Add("PRT_DT_POSTAGEM", dadosMulta.PRT_DT_POSTAGEM);
+                dbParametro.Add("PRT_NUMERO_GEP", dadosMulta.PRT_NUMERO_GEP);
 
                 string query = @"
-              
-                        exec Sp_GerarNumeroProcessoProtocolo @PRT_NUMERO out       
-                       
-                            insert into Protocolo
-			                  ( PRT_NUMERO,              
-                                PRT_ORIGEM,              
-                                PRT_ASSUNTO,            
-                                PRT_ASSUNTOTIPO,         
-                                PRT_DT_ABERTURA,         
-                                PRT_ATENDENTE,          
-                                PRT_OBSERVACAO,          
-                                PRT_AIT,  
-                                PRT_CPF_SOLICITANTE, 
-                                PRT_CPFCNJ_PROPRIETARIO,
-                                PRT_NOMEPROPRIETARIO,
-                                PRT_CPF_CONDUTOR,        
-                                PRT_NUMREGISTRO_CNH,     
-                                PRT_DT_CADASTRO,                
-                                PRT_TIPO_SOLICITANTE,    
-                                PRT_CNH_VALIDADE,  
-                                PRT_PLACA,
-                                PRT_RESS_BANCO,          
-                                PRT_RESS_TIPO,           
-                                PRT_RESS_TITULAR,        
-                                PRT_RESS_CPF,            
-                                PRT_RESS_AGENCIA,        
-                                PRT_RESS_CONTA,          
-                                PRT_RESS_OPERACAO,       
-                                PRT_DT_POSTAGEM,         
-                                PRT_RESTRICAO,           
-                                PRT_CNH_ESTRANGEIRA,     
-                                PRT_CNH_ESTRANGEIRA_NOME,
-                                PRT_CNH_ESTRANGEIRA_PAIS,
-                                PRT_NUMERO_GEP,          
-                                PRT_AIT_SITUACAO,
-                                PRT_SITUACAO,
-                                PRT_ACAO,
-                                PRT_DT_ARQUIVO,    
-                                PRT_USUARIOARQUIVO
-                                )
-			                   values
-			                   (@PRT_NUMERO,              
-                                @PRT_ORIGEM,              
-                                @PRT_ASSUNTO,            
-                                1, --tipoassunto        
-                                Getdate(),         
-                                @PRT_ATENDENTE,          
-                                @PRT_OBSERVACAO,          
-                                @PRT_AIT,
-                                @PRT_CPF_SOLICITANTE,          
-                                @PRT_CPFCNJ_PROPRIETARIO,
-                                @PRT_NOMEPROPRIETARIO,  
-                                @PRT_CPF_CONDUTOR,        
-                                @PRT_NUMREGISTRO_CNH,     
-                                Getdate(),            
-                                @PRT_TIPO_SOLICITANTE,    
-                                Convert(datetime,@PRT_CNH_VALIDADE,103), 
-                                @PRT_PLACA,
-                                @PRT_RESS_BANCO,          
-                                @PRT_RESS_TIPO,           
-                                @PRT_RESS_TITULAR,        
-                                @PRT_RESS_CPF,            
-                                @PRT_RESS_AGENCIA,        
-                                @PRT_RESS_CONTA,          
-                                @PRT_RESS_OPERACAO,       
-                                @PRT_DT_POSTAGEM,         
-                                @PRT_RESTRICAO,           
-                                @PRT_CNH_ESTRANGEIRA,     
-                                @PRT_CNH_ESTRANGEIRA_NOME,
-                                @PRT_CNH_ESTRANGEIRA_PAIS,
-                                @PRT_NUMERO_GEP,          
-                                @PRT_AIT_SITUACAO,
-                                CASE WHEN @PRT_RESTRICAO  not in (1,5) THEN 'ARQUIVADO!' END, -- PRT_SITUACAO
-                                CASE WHEN @PRT_RESTRICAO  not in (1,5) THEN 'ARQUIVADO!' END, -- PRT_ACAO
-                                CASE WHEN @PRT_RESTRICAO  not in (1,5) THEN GETDATE() END, -- PRT_DT_ARQUIVO
-                                CASE WHEN @PRT_RESTRICAO  not in (1,5) THEN @PRT_USUARIOARQUIVO END -- PRT_USUARIOARQUIVO                              
-                                )
-                                                            --Dando baixa no agendamento
-                                Update agendamento
-                                set Age_Situacao = 'Atendido'
-                                where Age_AIT = @PRT_AIT
-                                and Age_Cod_Assunto =@PRT_ASSUNTO
-                                and Age_Doc_Solicitante =@PRT_CPF_SOLICITANTE
 
-                              
-                                --Add Movimentacao
-                                insert into Movimentacao_Processo
-                                 ( 
-                                 MOVPRO_PRT_NUMERO  
-                                ,MOVPRO_USUARIO_ORIGEM            
-                                ,MOVPRO_SETOR_ORIGEM
-                                ,MOVPRO_ACAO_ORIGEM 
-                                ,MOVPRO_DATA_ORIGEM 
-                                ,MOVPRO_SETOR_DESTINO 
-                                ,MOVPRO_PRTDOC_ID
-                                ,MOVPRO_STATUS
+                            EXEC Sp_GerarNumeroProcessoProtocolo @PRT_NUMERO OUT;
+
+                            IF NOT EXISTS (
+                                SELECT 1 FROM Protocolo 
+                                WHERE PRT_ASSUNTO = @PRT_ASSUNTO 
+                                AND PRT_AIT = @PRT_AIT
+                            )
+                            BEGIN
+                                INSERT INTO Protocolo (
+                                    PRT_NUMERO, PRT_ORIGEM, PRT_ASSUNTO, PRT_ASSUNTOTIPO, PRT_DT_ABERTURA, PRT_ATENDENTE, PRT_OBSERVACAO, 
+                                    PRT_AIT, PRT_CPF_SOLICITANTE, PRT_CPFCNJ_PROPRIETARIO, PRT_NOMEPROPRIETARIO, PRT_CPF_CONDUTOR, 
+                                    PRT_NUMREGISTRO_CNH, PRT_DT_CADASTRO, PRT_TIPO_SOLICITANTE, PRT_CNH_VALIDADE, PRT_PLACA, 
+                                    PRT_RESS_BANCO, PRT_RESS_TIPO, PRT_RESS_TITULAR, PRT_RESS_CPF, PRT_RESS_AGENCIA, 
+                                    PRT_RESS_CONTA, PRT_RESS_OPERACAO, PRT_DT_POSTAGEM, PRT_RESTRICAO, PRT_CNH_ESTRANGEIRA, 
+                                    PRT_CNH_ESTRANGEIRA_NOME, PRT_CNH_ESTRANGEIRA_PAIS, PRT_NUMERO_GEP, PRT_AIT_SITUACAO, 
+                                    PRT_SITUACAO, PRT_ACAO, PRT_DT_ARQUIVO, PRT_USUARIOARQUIVO
                                 )
-                                values
-                                (                  
-                                 @PRT_NUMERO  
-                                ,@PRT_ATENDENTE  
-                                ,@PRT_ORIGEM
-                                ,'Abertura de processo realizada com sucesso.'
-                                ,Getdate()
-                                ,109 
-                                ,null
-                                ,'ABERTURA'
-                                )";
+                                VALUES (
+                                    @PRT_NUMERO, @PRT_ORIGEM, @PRT_ASSUNTO, 1, GETDATE(), @PRT_ATENDENTE, @PRT_OBSERVACAO, 
+                                    @PRT_AIT, @PRT_CPF_SOLICITANTE, @PRT_CPFCNJ_PROPRIETARIO, @PRT_NOMEPROPRIETARIO, @PRT_CPF_CONDUTOR, 
+                                    @PRT_NUMREGISTRO_CNH, GETDATE(), @PRT_TIPO_SOLICITANTE, TRY_CONVERT(datetime, @PRT_CNH_VALIDADE, 103), 
+                                    @PRT_PLACA, @PRT_RESS_BANCO, @PRT_RESS_TIPO, @PRT_RESS_TITULAR, @PRT_RESS_CPF, @PRT_RESS_AGENCIA, 
+                                    @PRT_RESS_CONTA, @PRT_RESS_OPERACAO, @PRT_DT_POSTAGEM, @PRT_RESTRICAO, @PRT_CNH_ESTRANGEIRA, 
+                                    @PRT_CNH_ESTRANGEIRA_NOME, @PRT_CNH_ESTRANGEIRA_PAIS, @PRT_NUMERO_GEP, @PRT_AIT_SITUACAO,
+                                    CASE WHEN @PRT_RESTRICAO NOT IN (1,5) THEN 'ARQUIVADO!'END,
+                                    CASE WHEN @PRT_RESTRICAO NOT IN (1,5) THEN 'ARQUIVADO!' END,
+                                    CASE WHEN @PRT_RESTRICAO NOT IN (1,5) THEN GETDATE() ELSE NULL END,
+                                    CASE WHEN @PRT_RESTRICAO NOT IN (1,5) THEN @PRT_USUARIOARQUIVO ELSE NULL END
+                                );
+
+                                -- Dando baixa no agendamento
+                                UPDATE agendamento
+                                SET Age_Situacao = 'Atendido'
+                                WHERE Age_AIT = @PRT_AIT
+                                AND Age_Cod_Assunto = @PRT_ASSUNTO
+                                AND Age_Doc_Solicitante = @PRT_CPF_SOLICITANTE;
+
+                                -- Adicionando movimentação
+                                INSERT INTO Movimentacao_Processo (
+                                    MOVPRO_PRT_NUMERO, MOVPRO_USUARIO_ORIGEM, MOVPRO_SETOR_ORIGEM, 
+                                    MOVPRO_ACAO_ORIGEM, MOVPRO_DATA_ORIGEM, MOVPRO_SETOR_DESTINO, 
+                                    MOVPRO_PRTDOC_ID, MOVPRO_STATUS
+                                )
+                                VALUES (
+                                    @PRT_NUMERO, @PRT_ATENDENTE, @PRT_ORIGEM, 
+                                    'Abertura de processo realizada com sucesso.', GETDATE(), 
+                                    109, NULL, 'ABERTURA'
+                                );
+                            END;
+
+                    
+                        ";
+
 
 
                 await connection.ExecuteAsync(query, dbParametro, transaction);
                 protocoloNumero = dbParametro.Get<string>("PRT_NUMERO");
 
-               
+                return protocoloNumero;
            
 
-            return protocoloNumero;
+
+            
         }
 
         public async Task IntoAnexoFolder(string folderPath, ProtocoloDocImgModel protocoloDoc, IDbConnection connection, IDbTransaction transaction)
         {
            
-             // Lista de nomes dos arquivos na pasta
-             string[] filePaths = Directory.GetFiles(folderPath);
+                // Lista de nomes dos arquivos na pasta
+                string[] filePaths = Directory.GetFiles(folderPath);
 
-             // Verifica se há arquivos na pasta
-             if (filePaths.Length > 0)
-             {
-                 //using (var connection = _context.CreateConnection())
-                 //{
-                 foreach (string filePath in filePaths)
-                 {
-                     string fileName = Path.GetFileName(filePath);
+                // Verifica se há arquivos na pasta
+                if (filePaths.Length > 0)
+                {
+                    //using (var connection = _context.CreateConnection())
+                    //{
+                    foreach (string filePath in filePaths)
+                    {
+                        string fileName = Path.GetFileName(filePath);
 
-                     // Lê o arquivo como um array de bytes
-                     byte[] imagemBytes = File.ReadAllBytes(filePath);
+                        // Lê o arquivo como um array de bytes
+                        byte[] imagemBytes = File.ReadAllBytes(filePath);
 
-                     var dbParametro = new DynamicParameters();
-                     dbParametro.Add("@PRTDOC_DOC_ID", 0);
-                     dbParametro.Add("@PRTDOC_PRT_NUMERO", protocoloDoc.PRTDOC_PRT_NUMERO);
-                     dbParametro.Add("@PRTDOC_IMAGEM", imagemBytes);
-                     dbParametro.Add("@PRTDOC_OBSERVACAO", fileName);
-                     dbParametro.Add("@PRTDOC_PRT_AIT", protocoloDoc.PRTDOC_PRT_AIT);
-                     dbParametro.Add("@PRTDOC_PRT_SETOR", protocoloDoc.PRTDOC_PRT_SETOR);
+                        var dbParametro = new DynamicParameters();
+                        dbParametro.Add("@PRTDOC_DOC_ID", 0);
+                        dbParametro.Add("@PRTDOC_PRT_NUMERO", protocoloDoc.PRTDOC_PRT_NUMERO);
+                        dbParametro.Add("@PRTDOC_IMAGEM", imagemBytes);
+                        dbParametro.Add("@PRTDOC_OBSERVACAO", fileName);
+                        dbParametro.Add("@PRTDOC_PRT_AIT", protocoloDoc.PRTDOC_PRT_AIT);
+                        dbParametro.Add("@PRTDOC_PRT_SETOR", protocoloDoc.PRTDOC_PRT_SETOR);
 
-                     string query = @"
+                        string query = @"
                        
                        Declare @PRTDOC_MOVPRO_ID int
                        Set @PRTDOC_MOVPRO_ID = (Select top 1 MOVPRO_ID from Movimentacao_Processo where MovPro_Prt_numero = @PRTDOC_PRT_NUMERO order by MOVPRO_ID desc)
 
-                       Insert into Protocolo_Documento_Imagem 
-                              ( PRTDOC_DOC_ID 
-                               ,PRTDOC_PRT_NUMERO    
-                               ,PRTDOC_IMAGEM                                                                                                                                                                                                                                                    
-                               ,PRTDOC_OBSERVACAO                                                                                    
-                               ,PRTDOC_DATA_HORA        
-                               ,PRTDOC_PRT_AIT 
-                               ,PRTDOC_PRT_SETOR,
-		                        PRTDOC_MOVPRO_ID )
-                       VALUES ( @PRTDOC_DOC_ID
-                               ,@PRTDOC_PRT_NUMERO
-                               ,@PRTDOC_IMAGEM
-                               ,@PRTDOC_OBSERVACAO
-                               ,GETDATE()
-                               ,@PRTDOC_PRT_AIT 
-                               ,@PRTDOC_PRT_SETOR
-		                       ,@PRTDOC_MOVPRO_ID )"; 
-                     await connection.ExecuteAsync(query, dbParametro, transaction);
-                 }
-             }
-             else
-             {
-                 // Não há arquivos na pasta
-                 Console.WriteLine("Não há arquivos na pasta.");
-             }
+                       INSERT INTO Protocolo_Documento_Imagem
+                                  ( PRTDOC_DOC_ID, 
+                                    PRTDOC_PRT_NUMERO, 
+                                    PRTDOC_IMAGEM, 
+                                    PRTDOC_OBSERVACAO, 
+                                    PRTDOC_DATA_HORA, 
+                                    PRTDOC_PRT_AIT, 
+                                    PRTDOC_PRT_SETOR, 
+                                    PRTDOC_MOVPRO_ID )
+                             SELECT 
+                                    @PRTDOC_DOC_ID, 
+                                    @PRTDOC_PRT_NUMERO, 
+                                    @PRTDOC_IMAGEM, 
+                                    @PRTDOC_OBSERVACAO, 
+                                    GETDATE(), 
+                                    @PRTDOC_PRT_AIT, 
+                                    @PRTDOC_PRT_SETOR, 
+                                    @PRTDOC_MOVPRO_ID
+                                ";
+                        await connection.ExecuteAsync(query, dbParametro, transaction);
+                    }
+                }
+                else
+                {
+                    // Não há arquivos na pasta
+                    Console.WriteLine("Não há arquivos na pasta.");
+                }
             
+           
         }
-
-
 
         public async Task<ProtocoloModel> BuscarProtocolo(string PRT_NUMERO)
         {

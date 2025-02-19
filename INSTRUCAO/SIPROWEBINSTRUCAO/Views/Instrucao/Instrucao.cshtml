@@ -41,6 +41,10 @@
 
 <script>
 
+    function mostrarLoading() {
+        Notiflix.Loading.Standard('Aguarde...');
+    }
+
     function LocalizarProtocolo(vlobusca) {
         $.ajax({
             url: '@Url.Action("BuscarProtocolo", "Instrucao")',

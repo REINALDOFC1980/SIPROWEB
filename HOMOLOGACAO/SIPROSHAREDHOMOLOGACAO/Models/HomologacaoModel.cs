@@ -10,7 +10,8 @@ namespace SIPROSHAREDHOMOLOGACAO.Models
     {
 
         //MULTAS
-        public int MOVPRO_ID { get; set; }         
+        public int MOVPRO_ID { get; set; }
+        public int SETSUB_ID { get; set; }
         public string? PRT_AIT { get; set; }
         public string? PRT_AIT_SITUACAO { get; set; }
         public string? PRT_PLACA { get; set; }

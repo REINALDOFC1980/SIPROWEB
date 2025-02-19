@@ -212,6 +212,9 @@
     //CONFIMAR ABERTURA SEM AGENDAMENTO
         $('#btnconfirmarabertura').click(function () {
 
+
+            Notiflix.Loading.Standard('Aguarde...');
+
             inicializarValidacaoFormulario("#FormAbertura");
 
             if ($("#FormAbertura").valid()) {
@@ -224,7 +227,7 @@
                     type: 'POST',
                     data: formData,
                     success: function (response) {
-
+                        Notiflix.Loading.Remove();
                         var mensagem1 = document.getElementById("mensagem1");
                       
                         //pegando os erros da controller
@@ -256,10 +259,11 @@
 
                         }else {                            
                             Abrir('@Url.Action("Atendimento", "Atendimento")', cpf, "nao");
-                        } 
+                        }
+                   
                     },
                     error: function (xhr, status, error) {
-
+                     Notiflix.Loading.Remove();
                     }
                 });
             }
@@ -267,31 +271,38 @@
 
         //Confirmar se é Condutor
         $('#btnConfimarCondutor').click(function () {
+            Notiflix.Loading.Standard('Aguarde...');
             $('#Modal1').modal('hide');
             var cpf = $('#Age_Doc_Solicitante').val();
             cpf = cpf.replace(/\D/g, '');
             Abrir('@Url.Action("Atendimento", "Atendimento")', cpf, "sim")
+            Notiflix.Loading.Remove();
 
         });
 
         //Negar que é condutor e sim portador
         $('#btnNegarCondutor').click(function () {
+            Notiflix.Loading.Standard('Aguarde...');
             $('#Modal1').modal('hide');
             var cpf = $('#Age_Doc_Solicitante').val();
             cpf = cpf.replace(/\D/g, '');
             Abrir('@Url.Action("Atendimento", "Atendimento")', cpf, "nao")
+            Notiflix.Loading.Remove();
         });
 
         
         //Confirmar o proprietário
         $('#btnConfimarProprietario').click(function () {
+            Notiflix.Loading.Standard('Aguarde...');
             $('#Modal1').modal('hide');
             var cpf = $('#Age_Doc_Solicitante').val();
             cpf = cpf.replace(/\D/g, '');
             Abrir('@Url.Action("Atendimento", "Atendimento")', cpf, "nao")
+            Notiflix.Loading.Remove();
         });
 
         function Abrir(redirectUrl, cpf, conduto) {
+
             var form = $('<form action="' + redirectUrl + '" method="post">' +
                         '<input type="hidden" name="cpf" value="' + cpf + '" />' +
                         '<input type="hidden" name="conduto" value="' + conduto + '" />' +
@@ -299,6 +310,7 @@
 
             $('body').append(form);
             $(form).submit();
+        
         }
   
     });

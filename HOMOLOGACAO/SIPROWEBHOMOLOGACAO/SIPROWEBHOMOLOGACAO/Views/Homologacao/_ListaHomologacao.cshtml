@@ -13,7 +13,7 @@
                 {
                     @foreach (var item in ViewBag.Protocolo)
                     {
-                        <tr onclick="handleRowClick('@item.MOVPRO_ID', '@item.PRT_NUMERO', '@item.PRT_AIT')">
+                        <tr onclick="handleRowClick('@item.PRT_NUMERO', '@item.PRT_AIT')">
                             <td class="contact-type" style="padding: 10px;"> <i class="fa fa-car"></i></td>
                             <td style="padding: 10px;"><a href="#" class="client-link">@item.PRT_NUMERO</a></td>
                             <td style="padding: 10px;"><a href="#" class="client-link">@item.SETSUB_NOME</a></td>
@@ -56,8 +56,10 @@
     });
 
 
-    function handleRowClick(movproId, prtNumero, prtAit) {
-        AbrirHomologacao(movproId, prtNumero, prtAit);
+    function handleRowClick(prtNumero, prtAit) {
+        Notiflix.Loading.Standard('Aguarde...');
+        AbrirHomologacao(prtNumero, prtAit);
+
     }
 
 </script>

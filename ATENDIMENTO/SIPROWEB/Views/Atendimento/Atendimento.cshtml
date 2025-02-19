@@ -38,8 +38,21 @@
                                         <div class="form-group col-md-4 has-warning"><label>Serviço</label> <input type="text" class="form-control" value="@Model.PRT_NOME_ASSUNTO" id="PRT_NOME_ASSUNTO" name="PRT_NOME_ASSUNTO" required readonly></div>
                                         <div class="form-group col-md-4"><label>Nome do solicitante</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_NOME_SOLICITANTE" id="PRT_NOME_SOLICITANTE" name="PRT_NOME_SOLICITANTE" readonly></div>
                                           
-                                        <div class="form-group col-md-2"><label>Data Postagem</label> <input type="text" class="form-control" data-mask="99/99/9999" placeholder="" id="PRT_DT_POSTAGEM" name="PRT_DT_POSTAGEM" readonly></div>
-                                        <div class="form-group col-md-2"><label>Processo GEP</label> <input type="text" placeholder="" class="form-control" id="Rec_Proc_GEP" name="Rec_Proc_GEP" ></div>
+       @*                                  <div class="form-group col-md-2"><label>Data Postagem</label> <input type="text" class="form-control" data-mask="99/99/9999" placeholder="" id="PRT_DT_POSTAGEM" name="PRT_DT_POSTAGEM" readonly></div> *@
+                                            <div class="form-group col-md-2">
+                                                <div class="form-group" id="data_1">
+                                                    <label class="font-normal">Data de abertura</label>
+                                                    <div class="input-group date">
+                                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" value="03/04/2014">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group col-md-2">
+                                                <label>Processo GEP</label> 
+                                                <input type="text" placeholder="" class="form-control" id="Rec_Proc_GEP" name="Rec_Proc_GEP" >
+                                            </div>
+                                         
 
                                         @*  <div class="form-group col-md-2"><label>Data Postagem</label> <input type="text" placeholder="" class="form-control"></div> *@
 
@@ -299,7 +312,7 @@
                 </p>                
             </div> 
             <div class="alert alert-warning text-center">
-                Este CPF não consta na base de dados do DETRAN. <br /> Qualquer alteração nos dados da CNH é de responsabilidade do atendente. <br /> Prencha todos os dados e clique em salvar.
+                Este CPF não consta na base de dados do DETRAN. <br /> Qualquer alteração nos dados da CNH é de responsabilidade do atendente. <br /> Complete o cadastro preenchendo os dados necessários.
                 
             </div>
    
@@ -454,9 +467,11 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
 
+
 <script src="~/js/jquery.min.js"></script>
 <script src="~/js/bootstrap.min.js"></script>
 <script src='~/js/jquery.mask.min.js'></script>
+
 <script src="~/js/validadorcpf.js"></script>
 <script src="~/js/validadordtcnh.js"></script>
 <script src="~/js/validacaoformcondutor.js"></script>
@@ -466,10 +481,23 @@
 <!-- blueimp gallery -->
 <script src="~/js/plugins/blueimp/jquery.blueimp-gallery.min.js"></script>
 
+
 <script >
    
      $(document).ready(function () {
-         
+
+
+        var mem = $('#data_1 .input-group.date').datepicker({
+            todayBtn: "linked",
+            keyboardNavigation: false,
+            forceParse: false,
+            calendarWeeks: true,
+            autoclose: true,
+            format: "dd/mm/yyyy",  // Formato brasileiro
+            language: "pt-BR" // Define o idioma para português
+        }).datepicker('setDate', new Date());       
+
+
         var tipoSolicitante = $("#PRT_TIPO_SOLICITANTE").val();
         var origem = $("#PRT_ORIGEM").val();
         var duplicidade = '@ViewBag.Analise.Duplicidade';
@@ -489,8 +517,9 @@
 
         //verificando se veio do SETAP para bloquear campos
         if (origem != 48) {
-            $('#PRT_DT_POSTAGEM').prop('readonly', false).prop('required', true).focus();
+            $('#PRT_DT_POSTAGEM').prop('readonly', false).prop('required', true);
             $('#Rec_Proc_GEP').prop('readonly', false);
+            $('#PRT_CPF_CONDUTOR').focus();
         } else {
             $('#PRT_DT_POSTAGEM').prop('readonly', true).prop('required', false);
             $('#Rec_Proc_GEP').prop('readonly', true);
@@ -609,19 +638,24 @@
         });       
         
         //Confirmar o condutor
-        $('#btnconfirmar').click(function () {
-            
+        $('#btnconfirmar').click(function () {          
+  
+
             inicializarValidacaoFormulario("#formcondutor");
 
             if ($("#formcondutor").valid()) {
 
                 var formData = $("#formcondutor").serialize();
-
+                
+                Notiflix.Loading.Standard('Aguarde...');
+                
                 $.ajax({
                     url: '@Url.Action("CadastrarPessoa", "Pessoa")',
                     type: 'POST',
                     data: formData, 
                     success: function (response) {
+                        
+                        Notiflix.Loading.Remove();
 
                         if (response.error == 'InternalServerError') {
                             window.location.href = '@Url.Action("InternalServerError", "Home")';
@@ -641,9 +675,10 @@
                             if (origem === 2)
                                 $('#PRT_DT_POSTAGEM').focus();                       
                         }
+                       
                     },
                     error: function (xhr, status, error) {
-                       
+                        Notiflix.Loading.Remove();
                     }
                 });
             }
@@ -663,26 +698,31 @@
                         break;
                     }
                 }
-            }       
-
+            }
 
             var observacao = $("#PRT_OBSERVACAO1").val();          
             $("#PRT_OBSERVACAO").val(observacao);
 
-             $("#PRT_RESTRICAO").val(valorSelecionado)
-             inicializarValidacaoFormulario("#form_atendimento");
+            $("#PRT_RESTRICAO").val(valorSelecionado)
+            inicializarValidacaoFormulario("#form_atendimento");
 
 
             //Verifica se o formulário é válido antes de prosseguir
             if ($("#form_atendimento").valid()) {
+
+                Notiflix.Loading.Standard('Aguarde...');
+
                 // Serializa todos os dados do formulário
                 var formData = $("#form_atendimento").serialize();
+
 
                 $.ajax({
                     url: '@Url.Action("GerarProtocolo", "Atendimento")',
                     type: 'POST',
                     data: formData, // Envie todos os dados do formulário
                     success: function (response) {
+                        
+                        Notiflix.Loading.Remove();
 
                         if (response.error == 'InternalServerError') {
                             window.location.href = '@Url.Action("InternalServerError", "Home")'
@@ -700,15 +740,19 @@
                         }
                     },
                     error: function (xhr, status, error) {
+                        Notiflix.Loading.Remove();
                         // Tratar erros de requisição
                     }
+                        
                 });
+
+               
             }
         });
 
         //BUTÃO ESCANEEAR VALIDANDO
         $('#btnscanner').click(function (event) {
-            // Impedir o comportamento padrão do botão
+
             event.preventDefault();
 
             // Verificar se pelo menos um checkbox está marcado
@@ -736,10 +780,7 @@
                             if (!$('#optionsRadios6').prop('checked') && !$('#optionsRadios4').prop('checked')) { //Caso AIT Penalizado não esteja esteja marcado não marcar
                                  $('#optionsRadios5').prop('checked', true);
                             }
-
                             Removeiconeerro(".error-checkbox");
-
-
 
                             //pegando as imagens
                             $.ajax({
@@ -748,23 +789,23 @@
                                 contentType: "application/html; charset=utf-8",
                                 type: "GET",
                                 success: function (result) {
-
+                                    Notiflix.Loading.Remove();
                                     $('#BtnGerarProtocolo').prop('disabled', false);
                                     $('#div_anexos').html(result);
                                 },
                                 error: function (xhr, status, error) {
-                                    // Lidar com erros, se necessário
+                                    Notiflix.Loading.Remove();
                                 }
                             });
                         },
                         function cancelCb() {
-                            // alert('If you say so...');
+                            Notiflix.Loading.Remove();
                         },
                         {
                         },
                     );
-                }else
-                {
+                }else {
+                    Notiflix.Loading.Standard('Aguarde...');
                     Removeiconeerro(".error-checkbox");
 
                     $.ajax({
@@ -773,6 +814,7 @@
                         contentType: "application/html; charset=utf-8",
                         type: "GET",
                         success: function (result) {
+                            Notiflix.Loading.Remove();
                             if (!$('#optionsRadios6').prop('checked') && !$('#optionsRadios4').prop('checked')) { //Caso AIT Penalizado não esteja esteja marcado não marcar
                                 $('#optionsRadios0').prop('checked', true);
                             }                            
@@ -780,7 +822,7 @@
                             $('#div_anexos').html(result);
                         },
                         error: function (xhr, status, error) {
-                            // Lidar com erros, se necessário
+                            Notiflix.Loading.Remove();
                         }
                     });
                 }
@@ -790,6 +832,8 @@
 
         function buscarcondutor() {
 
+
+        
 
             // Limpa os campos preenchidos após confirmar o formulário do condutor
             $('#PRT_NOME_CONDUTOR').val('');
@@ -836,21 +880,20 @@
             }
 
             Notiflix.Loading.Standard('Aguarde...');
-
-
             // Busca os dados do condutor
             $.ajax({
                 url: '@Url.Action("BuscarCondutor", "Atendimento")',
                 type: 'GET',
                 data: { cpf: cpf },
-                success: function (response) {   
- 
+                success: function (response) {
+
+                    Notiflix.Loading.Remove();
+
                     if (response.error == 'InternalServerError') 
                         window.location.href = '@Url.Action("InternalServerError", "Home")';
                     
                     if (response.error == 'BadRequest') {
-                        Notiflix.Notify.Failure(response.message);
-                        Notiflix.Loading.Remove();
+                        Notiflix.Notify.Failure(response.message);                  
                         return false;
                     }
 
@@ -920,8 +963,7 @@
                             $('#formcondutor textarea').val('');
                             $("#PES_CPF").val(cpf);
                         }
-                        // Remove o loading após preenchimento completo
-                        Notiflix.Loading.Remove();
+                        
                     });
 
                     // Limpa classes de erro e texto ao fechar a modal
@@ -930,14 +972,13 @@
                     });
                 },
                 error: function (xhr, status, error) {
-                    // Tratar erros de requisição
+                    Notiflix.Loading.Remove();
                 }
             });
         }
 
-        function buscarpessoa()
-        {   
-            Notiflix.Loading.Standard('Aguarde...');
+        function buscarpessoa()       {   
+          
             
             var cpf = $('#PRT_RESS_CPF').val();
             cpf = cpf.replace(/\D/g, ''); //tirando os caracteres!
@@ -946,30 +987,29 @@
             if (cpf.length != 11 || !validarCPF(cpf)) {
                 Addiconeerro(".error-message", " CPF inválido!");//add um icone antes da imagem
                 $('#PRT_RESS_CPF').focus();
-                return false;
+               return false;
             } else {
-                Removeiconeerro(".error-message")
+                Removeiconeerro(".error-message")            
             }
 
-            
 
+            Notiflix.Loading.Standard('Aguarde...');
             //## Buscando os dados do condutor
             $.ajax({
                 url: '@Url.Action("GetPessoa", "Pessoa")',
                 type: 'GET',
                 data: { cpf: cpf },
                 success: function (response) {
-                
-                    //Caso tenha registro prrenche os campos
+
+                    Notiflix.Loading.Remove();
                     $(response.pessoaModel).each(function () {
       
                         $("#PRT_RESS_TITULAR").val(this.pes_Nome);
                     });
                     $('#PRT_RESS_BANCO').focus();
-                    Notiflix.Loading.Remove();
+              
                 },
                 error: function (xhr, status, error) {
-                    // Tratar erros de requisição
                     Notiflix.Loading.Remove();
                 }
             });

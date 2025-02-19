@@ -326,31 +326,53 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             // Adicionar este parâmetro
 
             var query = @"
-                        -- Inserção inicial do julgamento
-                        INSERT INTO Protocolo_Distribuicao_Julgamento
-                        VALUES 
-                        (
-                            @Disjug_Dis_Id,
-                            @Disjug_Relator,
-                            GETDATE(),
-                            @Disjug_Parecer_Relatorio,
-                            @Disjug_Resultado,
-                            @Disjug_Motivo_Voto,
-                            GETDATE(),               
-                            0
-                        );
+                      -- Inserindo o relator principal
+                        IF NOT EXISTS (
+                            SELECT 1 FROM Protocolo_Distribuicao_Julgamento 
+                            WHERE Disjug_Dis_Id = @Disjug_Dis_Id 
+                            AND Disjug_Relator = @Disjug_Relator
+                        )
+                        BEGIN
+                            INSERT INTO Protocolo_Distribuicao_Julgamento
+                            VALUES 
+                            (
+                                @Disjug_Dis_Id,
+                                @Disjug_Relator,
+                                GETDATE(),
+                                @Disjug_Parecer_Relatorio,
+                                @Disjug_Resultado,
+                                @Disjug_Motivo_Voto,
+                                GETDATE(),               
+                                0
+                            );
+                        END;
 
-                        -- Inserindo para outros membros
-                        INSERT INTO Protocolo_Distribuicao_Julgamento (DISJUG_DIS_ID, DISJUG_RELATOR)  
-                        VALUES (@Disjug_Dis_Id, @Disjug_Membro1);
+                        -- Inserindo Membro 1
+                        IF NOT EXISTS (
+                            SELECT 1 FROM Protocolo_Distribuicao_Julgamento 
+                            WHERE Disjug_Dis_Id = @Disjug_Dis_Id 
+                            AND Disjug_Relator = @Disjug_Membro1
+                        )
+                        BEGIN
+                            INSERT INTO Protocolo_Distribuicao_Julgamento (DISJUG_DIS_ID, DISJUG_RELATOR)  
+                            VALUES (@Disjug_Dis_Id, @Disjug_Membro1);
+                        END;
 
-                        INSERT INTO Protocolo_Distribuicao_Julgamento (DISJUG_DIS_ID, DISJUG_RELATOR)  
-                        VALUES (@Disjug_Dis_Id, @Disjug_Membro2);
+                        -- Inserindo Membro 2
+                        IF NOT EXISTS (
+                            SELECT 1 FROM Protocolo_Distribuicao_Julgamento 
+                            WHERE Disjug_Dis_Id = @Disjug_Dis_Id 
+                            AND Disjug_Relator = @Disjug_Membro2
+                        )
+                        BEGIN
+                            INSERT INTO Protocolo_Distribuicao_Julgamento (DISJUG_DIS_ID, DISJUG_RELATOR)  
+                            VALUES (@Disjug_Dis_Id, @Disjug_Membro2);
+                        END;
 
-
-                       Update Protocolo_Distribuicao
+                         Update Protocolo_Distribuicao
                           set DIS_DESTINO_STATUS = 'JULGANDO'
-                        where DIS_ID = @Disjug_Dis_Id 
+                        where DIS_ID = @Disjug_Dis_Id
+
 
 
                     ";
@@ -403,14 +425,14 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                         Select MOVPRO_ID,
                                DIS_MOV_ID, 
                                MOVPRO_PRT_NUMERO,
-                               MOVPRO_SETOR_DESTINO 
+                               DIS_DESTINO_USUARIO as MOVPRO_USUARIO_ORIGEM 
                         into #temp_julgado
                         from Movimentacao_Processo  
                         inner join Protocolo_Distribuicao on (MOVPRO_ID = DIS_MOV_ID) 
                         where DIS_ID = @Disjug_Dis_Id;
 
                         Update mp
-                        set mp.MOVPRO_STATUS = 'JULGAMENTO->HOMOLOGAR'
+                        set mp.MOVPRO_STATUS = 'JULGADO->HOMOLOGAR'
                         from Movimentacao_Processo mp, #temp_julgado tj
                         where mp.MOVPRO_ID = tj.DIS_MOV_ID;
 
@@ -441,7 +463,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                         select   
                                mp.MOVPRO_PRT_NUMERO,
                                mp.MOVPRO_SETOR_DESTINO as ORIGEM,
-                               mp.MOVPRO_USUARIO_ORIGEM AS USERLOGADO,
+                               tj.MOVPRO_USUARIO_ORIGEM AS USERLOGADO,
                                GETDATE(),
                                NULL,
                                'Processo julgado e encaminhado para homologação',

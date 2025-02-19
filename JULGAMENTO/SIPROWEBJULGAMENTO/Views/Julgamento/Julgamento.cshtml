@@ -40,9 +40,13 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
 
-<script>   
+<script>
+    function mostrarLoading() {
+        Notiflix.Loading.Standard('Aguarde...');
+    }
       
         function LocalizarProtocolo(vlobusca) {
+      
             $.ajax({
             url: '@Url.Action("BuscarProtocolo", "Julgamento")',
                 datatype: 'html',
@@ -50,7 +54,8 @@
                 type: "GET",
                 data: { vlobusca: vlobusca },
                 success: function (result) {
-                    $('#div_listaProtocolo').html(result);
+
+                $('#div_listaProtocolo').html(result);
                 },
                 error: function (xhr, status, error) {
                     // console.error("Erro na busca do protocolo:", error);

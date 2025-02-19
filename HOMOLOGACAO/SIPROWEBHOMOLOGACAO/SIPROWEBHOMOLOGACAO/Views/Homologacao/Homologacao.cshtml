@@ -181,7 +181,7 @@
 
     function LocalizarProtocolo(Setor, Resultado) {
         $.ajax({
-            url: '@Url.Action("BuscarProtocolo", "Homologacao")',
+            url: '@Url.Action("ListaHomologar", "Homologacao")',
             datatype: 'html',
             contentType: "application/html; charset=utf-8",
             type: "GET",
@@ -238,20 +238,42 @@
     }
 
 
-    async function AbrirHomologacao(_movpro_id, _prt_numero, _ait) {
+    async function AbrirHomologacao(_prt_numero, _ait) {
         
         const urls = [
-            { url: '@Url.Action("HomologacaoDetalhe", "Homologacao")' + '?movpro_id=' + encodeURIComponent(_movpro_id), elementId: 'div_Homologacao' },
+            { url: '@Url.Action("HomologacaoDetalhe", "Homologacao")' + '?prt_numero=' + encodeURIComponent(_prt_numero), elementId: 'div_Homologacao' },
             { url: '@Url.Action("BuscarParecer", "Homologacao")' + '?prt_numero=' + encodeURIComponent(_prt_numero), elementId: 'div_ParecerRelator' },
             { url: '@Url.Action("DetalheAIT", "Homologacao")' + '?ait=' + encodeURIComponent(_ait), elementId: 'div_notificacao' },
             { url: '@Url.Action("BuscarAnexoBanco", "Homologacao")' + '?prt_numero=' + encodeURIComponent(_prt_numero), elementId: 'div_anexo' }
         ];
         await Promise.all(urls.map(({ url, elementId }) => fetchAndUpdate(url, elementId)));
 
+        Notiflix.Loading.Remove();
 
     }
 
-    
+    $(document).on('click', '#btn_homologacao', function () {
+        var formData = $("#form_homologacao").serialize();
+        Notiflix.Loading.Standard('Aguarde...');
+
+        $.ajax({
+            url: '@Url.Action("RealizarHomologacao", "Homologacao")',
+            type: 'POST',
+            data: formData,
+            success: function (response) {
+                AbrirHomologacao("pr0/000", "a00000");
+                Notiflix.Loading.Remove();
+                Notiflix.Notify.Success("Homologação realizada com sucesso!");
+                $('#div_listaHomologacao').html(response);
+            },
+            error: function (xhr, status, error) {
+                Notiflix.Loading.Remove();
+                Notiflix.Notify.Success("Erro interno!");
+            }
+        });
+    });
+
+
 
 
 

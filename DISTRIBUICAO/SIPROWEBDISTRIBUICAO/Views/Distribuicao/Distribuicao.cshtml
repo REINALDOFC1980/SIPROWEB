@@ -59,6 +59,7 @@
     attachTouchspinEvents();
 
     let isProcessing = false; // Variável de controle para evitar múltiplos cliques
+   
     $(document).on('click', '#getAddBtn', async function () {
         let processoStatus = document.getElementById('processoStatus').value;
 
@@ -166,6 +167,7 @@
                 'Não',
                 async function okCb() {
                     Notiflix.Loading.Standard('Aguarde...');
+
                     document.getElementById('getRemoverBtn').disabled = true;
                     let Result = '';
 
@@ -193,6 +195,7 @@
                     }
 
                     Notiflix.Notify.Success('Operação realizada com sucesso!');
+                   
                     $('#Div_Assunto').html(Result);
 
                     // Chame a função para associar os eventos aos novos botões
@@ -212,6 +215,7 @@
             );
         }
     });
+
 
     $(document).on('click', '.retirar-processo', function (e) {
         e.preventDefault();
@@ -290,13 +294,7 @@
             }
         });
     });
-
-
-    $('#DIS_USUARIO').on('change', function () {
-        var selectedValue = $(this).val();
-        console.log("Valor selecionado: ", selectedValue);
-    });
-
+ 
 
     $(document).on('click', '#btnDistribuir', async function () {
 
@@ -316,14 +314,16 @@
             DIS_DESTINO_USUARIO: dIS_DESTINO_USUARIO,
             MOVPRO_PARECER_ORIGEM: mOVPRO_PARECER_ORIGEM
         };
-
+        Notiflix.Loading.Standard('Aguarde...');
         $.ajax({
             url: '@Url.Action("addDistribuicaoProcessoEspecifico", "Distribuicao")',
             type: 'POST',
             contentType: 'application/json', // Define que o tipo de conteúdo é JSON
             data: JSON.stringify(distribuicaoModel), // Serializa o objeto para JSON
             success: function (result) {
-                // Lógica a ser executada em caso de sucesso
+                
+                Notiflix.Loading.Remove();
+
                 if (result.error === true) {
                     Notiflix.Notify.Failure('Erro.');
                     return false;
@@ -334,12 +334,16 @@
             },
             error: function (xhr, status, error) {
                 console.log('Erro ao enviar arquivo:', error);
+                Notiflix.Loading.Remove();
             }
         });
     });
 
 
-
+    // $('#DIS_USUARIO').on('change', function () {
+    //     var selectedValue = $(this).val();
+    //     console.log("Valor selecionado: ", selectedValue);
+    // });
 
 
 

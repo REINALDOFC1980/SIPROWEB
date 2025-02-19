@@ -1,5 +1,6 @@
-﻿@{
-if (ViewBag.Parecer != null)
+﻿ @model SIPROSHAREDHOMOLOGACAO.Models.HomologacaoModel
+@{
+    if (ViewBag.Parecer != null && !string.IsNullOrWhiteSpace(ViewBag.Parecer.Disjug_Parecer_Relatorio))
     {
     <ul class="list-group clear-list">
         <li class="list-group-item fist-item">
@@ -7,7 +8,28 @@ if (ViewBag.Parecer != null)
             <input type="hidden" class="form-control" value="@ViewBag.Parecer.MovPro_Prt_Numero" id="PRT_NUMERO" name="PRT_NUMERO">
             Processo:
         </li>
-    </ul>
+        </ul>
+    }
+    else
+    {
+        <div class="ibox-content inspinia-timeline">
+            <div id="div_defesa">
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <h4 class="text-center">Selecione um processo para visualizar os dados.</h4>
+                <br>
+                <br>
+                <p class="text-center">
+                    <a href=""><i class="fa fa-twitch big-icon"></i></a>
+                    <br>
+                    <br>
+                </p>
+
+            </div>
+        </div>
     }
 }
 
@@ -64,24 +86,28 @@ if (ViewBag.Parecer != null)
 
 
 @{
-    if (ViewBag.Parecer != null)
-    {
+        if (ViewBag.Parecer != null && !string.IsNullOrWhiteSpace(ViewBag.Parecer.Disjug_Parecer_Relatorio))
+        {
+            <form role="form" id="form_homologacao">
+                <div>
+                    <h2>Parecer do Relatório do Processo:</h2>
+                    <textarea id="Disjug_Parecer_Relatorio" name="Disjug_Parecer_Relatorio" rows="7" cols="60" class="form-control" readonly>
+                        @ViewBag.Parecer.Disjug_Parecer_Relatorio
+                    </textarea>
+                    <input type="hidden" id="MovPro_Prt_Numero" name="MovPro_Prt_Numero" value="@ViewBag.Parecer.MovPro_Prt_Numero">
+                </div>
 
+                <hr />
+                <a class="btn btn-primary btn-rounded btn-block" href="#" id="btn_homologacao">
+                    <i class="fa fa-thumbs-up"></i> Homologar processo
+                </a>
+                <br />
+                <a class="btn btn-light btn-rounded btn-block" href="#">
+                    <i class="fa fa-reply"></i> Devolver para correção
+                </a>
+            </form>
+        }
 
-            <div>
-                <h2>Parecer do Relatorio do Processo:</h2>
-                <textarea id="Disjug_Parecer_Relatorio" name="Disjug_Parecer_Relatorio" rows="7" cols="60" class="form-control">@ViewBag.Parecer.Disjug_Parecer_Relatorio</textarea>
-
-            </div>
-
-            <hr />
-            <a class="btn btn-primary btn-rounded btn-block" href="#"><i class="fa fa-thumbs-up"></i> Homologar processo</a>
-            <br />
-            <a class="btn btn-light btn-rounded btn-block" href="#"><i class="fa fa-reply"></i> Devolver para correção</a>
-
-
-
-    }
   
 }
 

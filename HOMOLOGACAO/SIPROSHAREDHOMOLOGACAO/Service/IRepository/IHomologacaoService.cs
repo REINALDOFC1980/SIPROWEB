@@ -14,7 +14,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.IRepository
     {
         Task<List<HomologacaoModel>> LocalizarHomolgacao(int setor, string resultado);
         
-        Task<HomologacaoModel> GetHomologacao(int movpro_id);
+        Task<HomologacaoModel> BuscarHomologacao(string prt_numero);
 
         Task<List<SetorModel>> BuscarSetor();
 
@@ -26,7 +26,9 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.IRepository
 
         Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero);        
 
-        Task RealizarHomologacao(HomologacaoModel homologacaoModel, IDbConnection connection, IDbTransaction transaction);
+        Task RealizarHomologacao(JulgamentoModel julgamentoModel, IDbConnection connection, IDbTransaction transaction);
+
+        
     }
 }
 

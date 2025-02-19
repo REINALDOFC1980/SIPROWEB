@@ -44,11 +44,12 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
             }
         }
 
-        public async Task<HomologacaoModel> GetHomologacao(int movpro_id)
+        public async Task<HomologacaoModel> BuscarHomologacao(string prt_numero)
         {
             var query = @"				 
                  select MOVPRO_ID,
                         SETSUB_NOME,
+                        SETSUB_ID,
                         PRT_NUMERO,
                         PRT_AIT,
 		                Convert(varchar(10),CASE WHEN PRT_DT_POSTAGEM IS NULL THEN PRT_DT_ABERTURA ELSE PRT_DT_POSTAGEM END,103) as PRT_DT_ABERTURA,
@@ -58,15 +59,15 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                   FROM  Protocolo inner join Movimentacao_Processo on(prt_numero = MOVPRO_PRT_NUMERO)
 			                      inner join Assunto on (PRT_ASSUNTO = ASS_ID)  
                                   inner join SetorSub on(SETSUB_ID = MOVPRO_SETOR_ORIGEM)
-		          WHERE Movpro_id = @movpro_id
+		          WHERE REPLACE(PRT_NUMERO, '/', '') = @prt_numero
 		            and MOVPRO_STATUS = 'HOMOLOGAR'";
 
             using (var connection = _context.CreateConnection())
             {
-                var parametros = new { movpro_id };
-                var processo = await connection.QueryFirstOrDefaultAsync<HomologacaoModel>(query, parametros);
+                var parametros = new { prt_numero };
+                var result = await connection.QueryFirstOrDefaultAsync<HomologacaoModel>(query, parametros);
 
-                return processo;
+                return result;
             }
         }
 
@@ -128,6 +129,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
             try
             {
                 var query = @"  select 
+                                    MOVPRO_ID,
 		                            DISJUG_RELATOR,
                                     FORMAT(DISJUG_RESULTADO_DATA, 'dd/MM/yyyy HH:mm') AS DISJUG_RESULTADO_DATA,
 		                            Case when DISJUG_RESULTADO = 'I' then 'INDEFERIDO'
@@ -155,18 +157,23 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
             }
         }
 
-        public async Task RealizarHomologacao(HomologacaoModel homologacaoModel, IDbConnection connection, IDbTransaction transaction)
+        public async Task RealizarHomologacao(JulgamentoModel julgamentoModel,  IDbConnection connection, IDbTransaction transaction)
         {
-            var dbParametro = new DynamicParameters();
-            dbParametro.Add("@MOVPRO_ID", 0);
-            dbParametro.Add("@USUARIOORIGEM", "");
-            dbParametro.Add("@MOVPRO_PARECER_ORIGEM", "");
-            dbParametro.Add("@@PRT_NUMERO", homologacaoModel.PRT_NUMERO);
+            try
+            {
+
+                var dbParametro = new DynamicParameters();
+                dbParametro.Add("@MOVPRO_ID", julgamentoModel.MovPro_id);
+                dbParametro.Add("@USUARIOORIGEM", julgamentoModel.Disjug_Homologador);
+                dbParametro.Add("@MOVPRO_PARECER_ORIGEM", julgamentoModel.Disjug_Parecer_Relatorio);
+                dbParametro.Add("@PRT_NUMERO", julgamentoModel.MovPro_Prt_Numero);
+                dbParametro.Add("@Homologador", julgamentoModel.Disjug_Homologador);
+                dbParametro.Add("@SETORDESTINO", julgamentoModel.Disjul_SetSub_Id);
 
 
-            var query = @"
+                var query = @"
 	             UPDATE Movimentacao_Processo
-	                Set MOVPRO_STATUS = 'HOLOMOLOGADO->PUBLICAR'
+	                Set MOVPRO_STATUS = 'HOMOLOGADO->PUBLICAR'
 	              WHERE MOVPRO_ID = @MOVPRO_ID
 
                  insert into Movimentacao_Processo
@@ -176,7 +183,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                         Getdate(),
                         @MOVPRO_PARECER_ORIGEM,
                         'Processo homologado e encaminhado para publicação.',
-                        00 as SETORDESTINO,
+                        @SETORDESTINO,
 	                    'PUBLICAR',
 		                null,   
 		                null
@@ -187,10 +194,15 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                         PRT_DT_HOMOLOGACAO = GETDATE(),  
                         PRT_ACAO = 'PUBLICAR'  
                   Where PRT_NUMERO = @PRT_NUMERO  
-
-
                 ";
-            await connection.ExecuteAsync(query, dbParametro, transaction);
+                await connection.ExecuteAsync(query, dbParametro, transaction);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
 
         }
 
@@ -199,6 +211,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
             try
             {
                 var query = @"  select top 1 
+                                       MovPro_id,
                                        MovPro_Prt_Numero,
                                        Disjug_Parecer_Relatorio
                                   from Protocolo_Distribuicao_Julgamento 

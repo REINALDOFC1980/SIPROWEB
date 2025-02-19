@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SIPROSHARED.DbContext;
+using SIPROSHAREDHOMOLOGACAO.Models;
 using SIPROSHAREDHOMOLOGACAO.Service.IRepository;
 using SIPROSHAREDHOMOLOGACAO.Service.Repository;
 using SIRPOEXCEPTIONS.ExceptionBase;
@@ -42,15 +43,15 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
 
 
         [HttpGet]
-        [Route("get-homologacao/{movpro_id}")]
-        public async Task<IActionResult> GetInstrucao(int movpro_id)
+        [Route("buscar-homologacao/{prt_numero}")]
+        public async Task<IActionResult> GetInstrucao(string prt_numero)
         {
-            var processo = await _homologacaoService.GetHomologacao(movpro_id);
+            var result = await _homologacaoService.BuscarHomologacao(prt_numero);
 
-            if (processo == null)
+            if (result == null)
                 return NoContent();
 
-            return Ok(processo);
+            return Ok(result);
         }
 
 
@@ -136,6 +137,43 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
                 return NoContent();
             }
             return Ok(anexos);
+
+        }
+
+
+
+        [HttpPost]
+        [Route("realizar-homologacao")]
+        public async Task<IActionResult> RealizarHomologacao(JulgamentoModel julgamentoModel)
+        {
+
+            using (var connection = _context.CreateConnection())
+            {
+                // Abrir a conexão
+                connection.Open();
+
+                // Iniciar a transação
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        await _homologacaoService.RealizarHomologacao(julgamentoModel,  connection, transaction);
+
+
+                        transaction.Commit();
+
+                        return Ok();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+
+
 
         }
 
