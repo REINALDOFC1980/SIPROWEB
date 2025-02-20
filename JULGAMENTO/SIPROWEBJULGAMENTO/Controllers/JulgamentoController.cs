@@ -99,7 +99,40 @@ namespace SIPROWEBJULGAMENTO.Controllers
 
             return PartialView("_ListaProtocolo");
         }
+
         
+
+             [HttpGet]
+        public async Task<IActionResult> AssinaturaDetalhe(string vlobusca)
+        {
+
+            string apiUrl = $"{_baseApiUrl}julgamento/localizar-processo/{userMatrix}/{vlobusca}";
+            var response = await _httpClient.GetAsync(apiUrl);
+
+            //tratamento de erro 500
+            if (response.StatusCode == HttpStatusCode.InternalServerError)
+                return RedirectToAction("InternalServerError", "Home");
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var Protocolo = await response.Content.ReadFromJsonAsync<ProtocoloJulgamento_Model>();
+
+                ViewBag.Notificacao = await BuscarNotificacao(vlobusca);
+                ViewBag.Condutor = await BuscarCondutor(vlobusca);
+                ViewBag.Setor = await BuscarSetor();
+                ViewBag.Membro = await BuscarMembro();
+                ViewBag.MotivoVoto = await BuscarMotivoVoto();
+                ViewBag.ParecerRelator = await BuscarParecerRelator(Protocolo.DIS_ID);
+                ViewBag.Votacao = await BuscarVotacao(Protocolo.DIS_ID);
+                ViewBag.instrucao = await BuscarInstrucao(Protocolo.PRT_NUMERO);
+                ViewBag.Anexos = await BuscarAnexoBanco(Protocolo.PRT_NUMERO);
+
+                return View(Protocolo);
+            }
+
+            return View(new ProtocoloJulgamento_Model());
+        }
+
         [HttpGet]
         public async Task<IActionResult> JulgamentoDetalhe(string vlobusca)
         {

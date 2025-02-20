@@ -26,8 +26,8 @@
                     </div>
                     <div class="clients-list">
                         <div class="full-height-scroll">
-                            <div id="div_listaProtocolo">
-                                 @await Html.PartialAsync("_ListaProtocolo")
+                            <div id="div_listaAssinatura">
+                                 @await Html.PartialAsync("_ListaAssinatura")
                             </div>
                         </div>
                     </div>
@@ -52,7 +52,7 @@
                 type: "GET",
                 data: { vlobusca: vlobusca },
                 success: function (result) {
-                    $('#div_listaProtocolo').html(result);
+                $('#div_listaAssinatura').html(result);
                 Notiflix.Loading.Remove();
                 },
                 error: function (xhr, status, error) {
