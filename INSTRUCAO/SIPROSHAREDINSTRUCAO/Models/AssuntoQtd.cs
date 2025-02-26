@@ -10,7 +10,7 @@ namespace SIPROSHAREDINSTRUCAO.Models
     {
 
         public string? PRT_ASSUNTO { get; set; }
-        public string? PRT_QTD { get; set; }
+        public int PRT_QTD { get; set; }
 
     }
 }

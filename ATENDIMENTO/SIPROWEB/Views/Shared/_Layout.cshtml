@@ -76,14 +76,7 @@
                             <a href="~/Pessoa/Pessoa"><i class="fa fa-user"></i> <span class="nav-label">Localizar Pessoa</span></a>
                         </li>
                     }
-
-                    var distribuicao = new[] { "JULGAMENTO_ADM", "INSTRUCAO_ADM", "ADM" };
-                    if (distribuicao.Contains(roles))
-                    {
-                        <li>
-                             <a asp-controller="Distribuicao" asp-action="Distribuicao"><i class="fa fa-exchange"></i> <span class="nav-label">Distribuicao</span></a>
-                        </li>
-                    }
+         
                    
                     var julgamento = new[] { "JULGAMENTO_1", "JULGAMENTO_ADM", "ADM" };
                     if (julgamento.Contains(roles))
@@ -91,9 +84,17 @@
                         <li>
                         <a href="#"><i class="fa fa-legal"></i> <span class="nav-label">Julgamento</span><span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level collapse">
-                        
-                                <li> <a href="~/Julgamento/Julgamento"><i class="fa fa-legal"></i> <span class="nav-label">julgar Processo</span></a></li>
-                                <li> <a href="~/Julgamento/Assinatura"> <i class="fa fa-edit"></i><span class="nav-label">Assinar Processo</span></a></li>
+                                   @{
+                                        var adm_julgamento = new[] { "JULGAMENTO_ADM", "ADM" };
+                                        if (adm_julgamento.Contains(roles))
+                                        {
+                                            <li> <a asp-controller="Distribuicao" asp-action="Distribuicao"> <i class="fa fa-exchange"></i> <span class="nav-label">Distribuir Processo</span></a></li>
+                                        }
+
+                                   }                                  
+                                    
+                                    <li> <a asp-controller="Julgamento" asp-action="Julgamento"> <i class="fa fa-legal"></i> <span class="nav-label">julgar Processo</span></a></li>
+                                    <li> <a asp-controller="Julgamento" asp-action="Assinatura"> <i class="fa fa-edit"></i><span class="nav-label">Assinar Processo</span></a></li>
                                 <li>
                                     <a href="#"> <i class="fa fa-file"></i> Relatórios <span class="fa arrow"></span></a>
                                     <ul class="nav nav-third-level">
@@ -107,7 +108,7 @@
                                             <a href="#">AIT Eletrônico</a>
                                         </li>
                                         <li>
-                                            <a href="#">Parecer do Relat</a>
+                                            <a href="#">Parecer do Relatório</a>
                                         </li>
 
                                     </ul>
@@ -115,22 +116,35 @@
                             </ul>
                         </li>
                     }
-                    
-                    var instrucao = new[] { "INSTRUCAO_ADM", "INSTRUCAO_1", "ADM" };
-                    if (instrucao.Contains(roles))                        
+
+
+                    var instrucao = new[] { "INSTRUCAO_ADM", "INSTRUCAO_1", "ADM", "SEPIT_ADM" };
+                    if (instrucao.Contains(roles))
                     {
                         <li>
-                            <a asp-controller="Instrucao" asp-action="Instrucao"><i class="fa fa-external-link"></i> <span class="nav-label">Instrução</span></a>
+                            <a href="#"><i class="fa fa-external-link"></i> <span class="nav-label">Instrução</span><span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level collapse">
+                                     @{
+                                        var adm_julgamento = new[] { "INSTRUCAO_ADM", "ADM", "SEPIT_ADM", "JULGAMENTO_ADM" };
+                                        if (adm_julgamento.Contains(roles))
+                                        {
+                                            <li> <a asp-controller="InstrucaoDistribuicao" asp-action="InstrucaoDistribuicao"><i class="fa fa-exchange"></i> <span class="nav-label">Distribuir</span></a></li>
+                                        }
+                                    }
+                                   
+                                <li> <a asp-controller="Instrucao" asp-action="Instrucao"> <i class="fa fa-edit"></i><span class="nav-label">Instruir</span></a></li>
+                                   
+                            </ul>
                         </li>
-                        
-                    }   
-                    var homologacao = new[] { "HOMOLOGACAO_ADM", "HOMOLOGACAO_1", "ADM" };
+                    }                   
+     
+                   
+                        var homologacao = new[] { "HOMOLOGACAO_ADM", "HOMOLOGACAO_1", "ADM", "ATENDIMENTO_ADM" };
                     if (homologacao.Contains(roles))
                     {
                         <li>
                             <a asp-controller="Homologacao" asp-action="Homologacao"><i class="fa fa-external-link"></i> <span class="nav-label">Homologação</span></a>
                         </li>
-
                     }
                     }
                 </ul>          

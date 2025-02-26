@@ -1,5 +1,5 @@
 
-LOGIN E SENHA DO PROTOCOLO 
+select * from Sub
 
 
 Setor : SETAP 
@@ -44,7 +44,6 @@ Usuario: ROSANEMSB    - Presidente
 
 
 
-
 ##############
 
  Setor : CDA3 
@@ -74,7 +73,9 @@ Usuario: GISNAIARS     - Presidente
 		 WALDSON	   - Membros
 		 LUCIANOSS	   - Suplente	
 		 GENIVALBM	   - Suplente
-		 
+
+
+
 ##############
 
  Setor : JARI3 

@@ -179,7 +179,7 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
                    Prioridade
                WHERE 
                    RN = 1 
-                   AND PRT_STATUS IN ('RECEBIDO', 'JULGANDO')
+                   AND PRT_STATUS IN ('RECEBIDO', 'JULGANDO','INSTRUCAO')
                ORDER BY 
                    DIS_ORIGEM_DATA DESC;";
 
@@ -255,9 +255,6 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
                 throw new Exception("Erro ao obter dados.", ex);
             }
         }
-
-
-
 
         public async Task DistribuicaoProcessoEspecifico(ProtocoloDistribuicaoModel distribuicaoModel, IDbConnection connection, IDbTransaction transaction)
         {

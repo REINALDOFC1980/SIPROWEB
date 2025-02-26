@@ -95,6 +95,8 @@
                         @ViewBag.Parecer.Disjug_Parecer_Relatorio
                     </textarea>
                     <input type="hidden" id="MovPro_Prt_Numero" name="MovPro_Prt_Numero" value="@ViewBag.Parecer.MovPro_Prt_Numero">
+                    <input type="hidden" id="MovPro_id" name="MovPro_id" value="@ViewBag.Parecer.MovPro_id">
+                  
                 </div>
 
                 <hr />
@@ -102,7 +104,7 @@
                     <i class="fa fa-thumbs-up"></i> Homologar processo
                 </a>
                 <br />
-                <a class="btn btn-light btn-rounded btn-block" href="#">
+                <a class="btn btn-light btn-rounded btn-block" href="#" id="btn_retificar">
                     <i class="fa fa-reply"></i> Devolver para correção
                 </a>
             </form>

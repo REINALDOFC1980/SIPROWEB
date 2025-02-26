@@ -5,6 +5,7 @@ using SIPROSHAREDHOMOLOGACAO.Models;
 using SIPROSHAREDHOMOLOGACAO.Service.IRepository;
 using SIRPOEXCEPTIONS.ExceptionBase;
 using System.Data;
+using System.Data.Common;
 
 namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 {
@@ -181,7 +182,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                         MOVPRO_SETOR_DESTINO as SETORORIGEM,
                         @USUARIOORIGEM,
                         Getdate(),
-                        @MOVPRO_PARECER_ORIGEM,
+                        null,
                         'Processo homologado e encaminhado para publicação.',
                         @SETORDESTINO,
 	                    'PUBLICAR',
@@ -295,6 +296,90 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
            
         }
+
+        public async Task RetificarVoto(RetificacaoModel retificacaoModel, IDbConnection connection, IDbTransaction transaction)
+        {
+            try
+            {
+                var dbParametro = new DynamicParameters();
+                dbParametro.Add("@MOVPRO_ID", retificacaoModel.MOVPRO_ID);
+                dbParametro.Add("@MOVPRO_PARECER_ORIGEM", retificacaoModel.MOVPRO_PARECER_ORIGEM);
+                dbParametro.Add("@MOVPRO_USUARIO_ORIGEM", retificacaoModel.MOVPRO_USUARIO_ORIGEM);
+
+
+                var query = @"
+
+
+		             DECLARE @SetorOrigem int
+
+			             SET @SetorOrigem = (Select top 1 
+			 		                                SETSUBUSU_SETSUB_ID 
+								               from SetorSubXUsuario 
+							                   where SETSUBUSU_USUARIO = @MOVPRO_USUARIO_ORIGEM)
+	             
+
+                SELECT TOP 1 DIS_ID, DIS_MOV_ID, 
+			                 MOVPRO_SETOR_ORIGEM AS SetorDestino, 
+			                 MOVPRO_PRT_NUMERO 
+                        INTO #Processo
+                        FROM Movimentacao_Processo 
+                  INNER JOIN Protocolo_Distribuicao ON (MovPro_id = DIS_MOV_ID)
+                       WHERE MOVPRO_PRT_NUMERO = ( SELECT TOP 1 Movpro_prt_numero 
+					        		                FROM Movimentacao_Processo 
+							                       WHERE MovPro_id = @MOVPRO_ID);
+
+                      DELETE PD
+                        FROM Protocolo_Distribuicao_Julgamento pd
+                  INNER JOIN #Processo ap ON pd.DISJUG_DIS_ID = ap.DIS_ID;
+
+                      UPDATE MP
+                         SET MOVPRO_STATUS = 'HOMOLOGADO->REFITICAR'
+                        FROM Movimentacao_Processo MP where MOVPRO_ID = @MOVPRO_ID;
+
+
+                    --Mudando o status dos processo distribuido
+                      UPDATE PD
+                         SET DIS_DESTINO_STATUS = 'RECEBIDO',
+                             DIS_RETORNO = 1
+                        FROM Protocolo_Distribuicao PD INNER JOIN #Processo P ON pd.DIS_MOV_ID = p.DIS_MOV_ID;
+
+
+                      DELETE PD
+                        FROM Protocolo_Distribuicao_Julgamento pd
+                  INNER JOIN #Processo ap ON pd.DISJUG_DIS_ID = ap.DIS_ID;                      
+
+                -- Inserindo novo registro na Movimentacao_Processo
+                      INSERT INTO Movimentacao_Processo
+                      SELECT MOVPRO_PRT_NUMERO,
+                             @SetorOrigem,
+                             @MOVPRO_USUARIO_ORIGEM, 
+                             GETDATE(),
+                             @MOVPRO_PARECER_ORIGEM, -- Observação ou parecer!
+                            'Processo devolvido para refiticar voto.',
+                             SetorDestino,
+                            'RECEBIDO',
+                             NULL,
+                             NULL
+                       FROM #Processo;
+
+                -- Limpando a tabela temporária
+                    DROP TABLE #Processo;
+
+                ";
+                await connection.ExecuteAsync(query, dbParametro, transaction);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
+         
+        }
+
+
+        /*
+         */
     }
 }
 

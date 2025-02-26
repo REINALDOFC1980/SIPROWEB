@@ -164,6 +164,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                                   UPPER(SETSUB_NOME) AS SETSUB_NOME 
                              FROM SetorSub  
                             WHERE SETSUB_Ativo = 1  
+                              and SETSUB_ID NOT IN (45,46,47,52,53,54,55,56)
                          ORDER BY SETSUB_NOME";
            
            
@@ -405,7 +406,15 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             dbParametro.Add("@Disjug_Resultado", julgamentoProcesso.Disjug_Resultado);     
 
             var query = @"
-                    DECLARE @qtd INT;
+
+                    Declare @SetoroOrigem int, @qtd INT
+                    Set @SetoroOrigem = (Select top 1 
+						                SETSUBUSU_SETSUB_ID 
+					                from SetorSubXUsuario 
+					            where SETSUBUSU_USUARIO = @Disjug_Relator)
+
+
+                    
 
                     Update Protocolo_Distribuicao_Julgamento
                        set DISJUG_RESULTADO = @Disjug_Resultado,
@@ -462,12 +471,12 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 	                       )
                         select   
                                mp.MOVPRO_PRT_NUMERO,
-                               mp.MOVPRO_SETOR_DESTINO as ORIGEM,
+                               @SetoroOrigem,
                                tj.MOVPRO_USUARIO_ORIGEM AS USERLOGADO,
                                GETDATE(),
                                NULL,
                                'Processo julgado e encaminhado para homologação',
-                               110, --Setor SEINP porem poder ser alterado futuramente
+                               48, --Setor SETAP porem poder ser alterado futuramente
                                'HOMOLOGAR',
                                NULL
                         from Movimentacao_Processo mp, #temp_julgado tj

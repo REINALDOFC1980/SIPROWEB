@@ -81,40 +81,41 @@
 
                         @if (ViewBag.instrucao != null)
                         {
-                           
-                                <div class="feed-element">
-                                    <a href="#" class="float-left">
-                                        <img alt="image" class="rounded-circle" src="~/img/user3.png">
-                                    </a>
-                                    <div class="media-body">
-                                         Origem: <strong> @ViewBag.instrucao.INSPRO_Setor_origem</strong> <br>
-                                                <small class="text-muted">@ViewBag.instrucao.INSPRO_DATA_ORIGEM</small>
-                                        <div class="well">
-                                                @ViewBag.instrucao.INSPRO_Parecer
-                                        </div>
+
+                        <div class="feed-element  has-warning">
+                            @*  <a href="#" class="float-left">
+                                <img alt="image" class="rounded-circle" src="~/img/user3.png">
+                            </a> *@
+                            <div class="media-body">
+                                    Origem: <strong> @ViewBag.instrucao.INSPRO_Setor_origem</strong> <br>
+                                        <small class="text-muted">@ViewBag.instrucao.INSPRO_DATA_ORIGEM</small>
+                                <textarea id="INSPRO_Parecer" name="INSPRO_Parecer_Origem" rows="5" class="form-control" required readonly>        @ViewBag.instrucao.INSPRO_Parecer </textarea>
+                                @*  <div class="well">
+                                        @ViewBag.instrucao.INSPRO_Parecer
+                                </div> *@
                                        
-                                    </div>
-                                </div>
+                            </div>
+                        </div>
 
                         }
-
+                        <hr />
                     <div class="feed-element">
-                        <a href="#" class="float-left">
+                        @* <a href="#" class="float-left">
                             <img alt="image" class="rounded-circle" src="~/img/user3.png" style="">
-                        </a>
+                        </a> *@
                         <div class="media-body">
                         <div class="row ">
                             <div class="col-sm-12 b-r">
 
             
-                                <h4 class="m-t-none "> Setor de destino</h4>
+                         @*        <h4 class="m-t-none "> Setor de destino</h4> *@
 
                                 <form role="form" id="form_instrucao">
 
                                     <input type="hidden" id="INSPRO_Dis_id" name="INSPRO_Dis_id" value="@Model?.DIS_ID">
                                     <input type="hidden" id="INSPRO_PRT_NUMERO" name="INSPRO_PRT_NUMERO" value="@Model?.PRT_NUMERO">
 
-                                    <select class="select2_demo_3 form-control" style="width:100%;" id="INSPRO_Setor_destino" name="INSPRO_Setor_destino" required>
+                                   @*  <select class="select2_demo_3 form-control" style="width:100%;" id="INSPRO_Setor_destino" name="INSPRO_Setor_destino" required>
 
                                         <option></option>
                                         @if (ViewBag.Setor != null)
@@ -125,13 +126,13 @@
                                             }
                                         }
 
-                                    </select>
+                                    </select> 
                                     <p><small> <i class="fa fa-twitch"></i> Selecione o setor para o qual deseja solicitar uma instrução.</small></p>
-
+                                        *@
 
                                     <h4 class="m-t-none">Instrução</h4>
 
-                                    <textarea id="INSPRO_Parecer" name="INSPRO_Parecer" rows="14" class="form-control" required> </textarea>
+                                    <textarea id="INSPRO_Parecer" name="INSPRO_Parecer" rows="12" class="form-control" required> </textarea>
                                     <p><small>  <i class="fa fa-twitch"></i> Por favor, digite a instrução para o setor responsável de forma clara e objetiva, detalhando seu pedido. </small></p>
 
 
@@ -150,7 +151,7 @@
                                 <hr />
                                 <br />
                                 <p>
-                                    Clique em <strong>Escolher arquivo</strong> para localizar o documento que deja anexar.
+                                    Clique em <strong>Anexar um Arquivo</strong> para localizar o documento que deseja anexar.
                                 </p>
                                 <div class="btn-group" style="width:100%;">
 

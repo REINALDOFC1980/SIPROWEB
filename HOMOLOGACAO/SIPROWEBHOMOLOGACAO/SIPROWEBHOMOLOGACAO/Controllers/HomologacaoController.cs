@@ -77,10 +77,8 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
             
         }
 
-
-
         [HttpGet]
-        public async Task<List<HomologacaoModel>> BuscarProtocolo(int setor, string resultado)
+        public async Task<List<HomologacaoModel>> BuscarListaProtocolo(int setor, string resultado)
         {
             //buscando os documentos necessários
         
@@ -94,15 +92,13 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
 
         }
 
-
-
         [HttpGet]
         public async Task<PartialViewResult> ListaHomologar(int setor, string resultado)
         {
             try
             {
 
-                ViewBag.Protocolo = await BuscarProtocolo(setor, resultado);
+                ViewBag.Protocolo = await BuscarListaProtocolo(setor, resultado);
 
                 return PartialView("_ListaHomologacao");
             }
@@ -146,25 +142,40 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
            
         }
 
+
+        [HttpGet]
+        public async Task<HomologacaoModel> BuscarPrtHomologar(string protocolo)
+        {
+            try
+            {
+                string apiUrl = $"{_baseApiUrl}homologacao/buscar-homologacao/{protocolo}";
+                var response = await _httpClient.GetAsync(apiUrl);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                    return await response.Content.ReadFromJsonAsync<HomologacaoModel>();
+                else
+                    return new HomologacaoModel();
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+        }
+
+
+
+
         [HttpGet]
         public async Task<PartialViewResult> HomologacaoDetalhe(string prt_numero)
         {
-            var protocolo = prt_numero.Replace("/", "");
-            string apiUrl = $"{_baseApiUrl}homologacao/buscar-homologacao/{protocolo}";
-            var response = await _httpClient.GetAsync(apiUrl);
-            
+            var prtnumero = prt_numero.Replace("/", "");
+            var Protocolo = await BuscarPrtHomologar(prtnumero);
+            return PartialView("_DetalhamentoProtocolo", Protocolo);
 
-
-
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                var Protocolo = await response.Content.ReadFromJsonAsync<HomologacaoModel>();
-
-      
-                return PartialView("_DetalhamentoProtocolo", Protocolo);
-            }
-
-            return PartialView("_DetalhamentoProtocolo", null);
+           
         }
 
         [HttpGet]
@@ -198,7 +209,6 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
 
         }
 
-
         [HttpGet]
         public async Task<PartialViewResult> BuscarAnexoBanco(string prt_numero)
         {
@@ -224,44 +234,62 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
             return PartialView("_Anexos");
         }
 
-
         [HttpPost]
         public async Task<IActionResult> RealizarHomologacao(JulgamentoModel julgamentoModel)
         {
-
-            //buscando os dados do protocolo que será homologado
-            var nprotocolo = julgamentoModel.MovPro_Prt_Numero.Replace("/", "");
-            HomologacaoModel Protocolo = null;
-            string apiUrl = $"{_baseApiUrl}homologacao/buscar-homologacao/{nprotocolo}";
+            var prtnumero = julgamentoModel.MovPro_Prt_Numero.Replace("/", "");
            
-            var response = await _httpClient.GetAsync(apiUrl);
-            if (!response.IsSuccessStatusCode)
-            {
-                if (response.StatusCode == HttpStatusCode.InternalServerError)
-                    return PartialView("_ErrorPartialView");
-            }
+            HomologacaoModel homologacaoModel = await BuscarPrtHomologar(prtnumero); ;
 
-            if (response.StatusCode == HttpStatusCode.OK)
+            if (homologacaoModel != null)
             {
-                Protocolo = await response.Content.ReadFromJsonAsync<HomologacaoModel>();
-                julgamentoModel.MovPro_id = Protocolo.MOVPRO_ID;
-                julgamentoModel.Disjul_SetSub_Id = Protocolo.SETSUB_ID;
+                julgamentoModel.MovPro_id = homologacaoModel.MOVPRO_ID;
+                julgamentoModel.Disjul_SetSub_Id = homologacaoModel.SETSUB_ID;
                 julgamentoModel.Disjug_Homologador = userMatrix;
 
-            }              
-
+            }  
              
              //Realizando a homologação
-             apiUrl = $"{_baseApiUrl}homologacao/realizar-homologacao";
-             response = await _httpClient.PostAsJsonAsync(apiUrl, julgamentoModel);
+            var  apiUrl = $"{_baseApiUrl}homologacao/realizar-homologacao";
+            var  response = await _httpClient.PostAsJsonAsync(apiUrl, julgamentoModel);
 
 
             if (response.StatusCode == HttpStatusCode.InternalServerError)
                 return PartialView("_ErrorPartialView");
 
             if (response.StatusCode == HttpStatusCode.OK)
-                ViewBag.Protocolo = await BuscarProtocolo(Protocolo.SETSUB_ID, "Todos");
+                ViewBag.Protocolo = await BuscarListaProtocolo(homologacaoModel.SETSUB_ID, "Todos");
         
+            return PartialView("_ListaHomologacao");
+
+
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> RetificarVoto(RetificacaoModel retificacaoModel)
+        {
+            var prtnumero = retificacaoModel.MOVPRO_PRT_NUMERO.Replace("/", "");
+            HomologacaoModel homologacaoModel = await BuscarPrtHomologar(prtnumero); 
+
+            if (homologacaoModel != null)
+            {
+                retificacaoModel.MOVPRO_ID = homologacaoModel.MOVPRO_ID;
+                retificacaoModel.MOVPRO_USUARIO_ORIGEM = userMatrix;
+            }
+
+            string apiUrl = $"{_baseApiUrl}homologacao/retificar-voto";
+            var response = await _httpClient.PostAsJsonAsync(apiUrl, retificacaoModel);
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    return PartialView("_ErrorPartialView");
+            }
+           
+
+            if (response.StatusCode == HttpStatusCode.OK)
+                ViewBag.Protocolo = await BuscarListaProtocolo(homologacaoModel.SETSUB_ID, "Todos");
+
             return PartialView("_ListaHomologacao");
 
 

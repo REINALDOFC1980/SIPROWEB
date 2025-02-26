@@ -1,0 +1,36 @@
+﻿<table class="footable table table-stripped default footable-loaded" data-page-size="8" data-filter="#filter">
+    <thead>
+        <tr>
+
+            <th>Número do Processo</th>
+            <th>Número da NA</th>
+            <th>Ação</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @{
+        if (ViewBag.Assunto != null)
+        {
+                
+            @foreach (var item in ViewBag.Assunto)
+            {
+            <tr class="gradeX">
+
+                <td>PR121/2024</td>
+                <td>t000123458</td>
+                <td>
+
+                    <a href="#" class="btn btn-white btn-sm" data-toggle="modal" data-target="#myModal">
+                        <i class="fa fa-minus-square-o"></i> Distribuir
+                    </a>
+                </td>
+            </tr>
+
+            }
+                
+        }
+        }
+
+    </tbody>
+</table>

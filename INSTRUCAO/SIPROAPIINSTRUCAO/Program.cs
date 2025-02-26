@@ -15,6 +15,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddSingleton<IInstrucaoService, InstrucaoService>();
+builder.Services.AddSingleton<IInstrucaoDistribuicaoService, InstrucaoDistribuicaoService>();
+
 builder.Services.AddMvc(options => options.Filters.Add(typeof(ExceptionFilter)));
 
 var app = builder.Build();

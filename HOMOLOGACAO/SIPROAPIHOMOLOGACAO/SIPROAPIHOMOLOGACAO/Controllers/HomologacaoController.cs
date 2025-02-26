@@ -177,5 +177,36 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
 
         }
 
+        [HttpPost]
+        [Route("retificar-voto")]
+        public async Task<IActionResult> RetificarVoto(RetificacaoModel retificacaoModel)
+        {
+            using (var connection = _context.CreateConnection())
+            {
+                // Abrir a conexão
+                connection.Open();
+
+                // Iniciar a transação
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        await _homologacaoService.RetificarVoto(retificacaoModel, connection, transaction);
+
+
+                        transaction.Commit();
+
+                        return Ok();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
     }
 }

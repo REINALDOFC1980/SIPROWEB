@@ -100,9 +100,7 @@ namespace SIPROWEBJULGAMENTO.Controllers
             return PartialView("_ListaProtocolo");
         }
 
-        
-
-             [HttpGet]
+        [HttpGet]
         public async Task<IActionResult> AssinaturaDetalhe(string vlobusca)
         {
 

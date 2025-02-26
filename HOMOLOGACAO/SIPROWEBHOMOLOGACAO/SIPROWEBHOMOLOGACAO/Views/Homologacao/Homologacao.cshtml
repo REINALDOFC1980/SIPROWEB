@@ -274,6 +274,28 @@
     });
 
 
+    $(document).on('click', '#btn_retificar', function () {
+        var formData = $("#form_homologacao").serialize();
+        Notiflix.Loading.Standard('Aguarde...');
+
+        $.ajax({
+            url: '@Url.Action("RetificarVoto", "Homologacao")',
+            type: 'POST',
+            data: formData,
+            success: function (response) {
+                AbrirHomologacao("pr0/000", "a00000");
+                Notiflix.Loading.Remove();
+                Notiflix.Notify.Success("Operação realizada com sucesso!");
+                $('#div_listaHomologacao').html(response);
+            },
+            error: function (xhr, status, error) {
+                Notiflix.Loading.Remove();
+                Notiflix.Notify.Success("Erro interno!");
+            }
+        });
+    });
+
+
 
 
 

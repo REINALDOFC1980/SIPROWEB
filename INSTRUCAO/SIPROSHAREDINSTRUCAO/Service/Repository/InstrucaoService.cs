@@ -18,30 +18,28 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));           
         }
 
-
         public async Task<List<InstrucaoProcessosModel>> LocalizarInstrucao(string usuario, string vlobusca)
         {
             
             var query = @"
 				Select 
-		                DIS_ID,
-                        Convert(varchar(10),DIS_ORIGEM_DATA,103) as DIS_ORIGEM_DATA,
-	                    MOVPRO_ID,
-	                    MOVPRO_USUARIO_ORIGEM,
+                        INSDIS_ID as DIS_ID,
+                        Convert(varchar(10),INSDIS_DATA_ORIGEM,103) as DIS_ORIGEM_DATA,
+                        MOVPRO_ID,
+                        MOVPRO_USUARIO_ORIGEM,
                         PRT_NUMERO,
                         PRT_AIT,
                         (Select top 1 SETSUB_NOME from SetorSub where (MOVPRO_SETOR_ORIGEM = SETSUB_ID)) as PRT_SETOR_ORIGEM,
                         ASS_NOME as PRT_NOME_ASSUNTO,
                         MOVPRO_PARECER_ORIGEM as PRT_PARECER
-   
-                    from Protocolo_distribuicao 
-                        inner join Movimentacao_Processo on (DIS_MOV_ID = MOVPRO_ID)
-						inner join Protocolo on(PRT_NUMERO = MOVPRO_PRT_NUMERO)
-						inner join Assunto on (PRT_ASSUNTO = ASS_ID)							
-			        where DIS_DESTINO_USUARIO = @usuario
-                    and PRT_AIT like case when @vlobusca = 'Todos' then '%' else @vlobusca end
-			        and DIS_DESTINO_STATUS = 'RECEBIDO' 
-                    and MOVPRO_INSTRUCAO = 1
+
+                  from Instrucao_Distribuicao 
+                       inner join Movimentacao_Processo on (INSDIS_MOV_ID = MOVPRO_ID)
+					   inner join Protocolo on(PRT_NUMERO = MOVPRO_PRT_NUMERO)
+					   inner join Assunto on (PRT_ASSUNTO = ASS_ID)							
+                 where INSDIS_USUARIO_DESTINO = @usuario
+                   and PRT_AIT like case when @vlobusca = 'Todos' then '%' else @vlobusca end
+                   and INSDIS_STATUS = 'RECEBIDO' 
 					";
 
             using (var connection = _context.CreateConnection())
@@ -59,10 +57,10 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
        
             var query = @"
 						Select 
-		                       DIS_ID,
-	                           Convert(varchar(10),DIS_ORIGEM_DATA,103) as DIS_ORIGEM_DATA,
+                               INSDIS_ID as DIS_ID,
+                               Convert(varchar(10),INSDIS_DATA_ORIGEM,103) as DIS_ORIGEM_DATA,
                                MOVPRO_ID,
-	                           MOVPRO_USUARIO_ORIGEM,                                  
+                               MOVPRO_USUARIO_ORIGEM,                                  
                                PRT_NUMERO,
                                PRT_AIT,
                                PRT_DT_ABERTURA,
@@ -72,13 +70,12 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                                (Select top 1 SETSUB_NOME from SetorSub where (MOVPRO_SETOR_ORIGEM = SETSUB_ID)) as PRT_NOME_ORIGEM,
                                ASS_NOME as PRT_NOME_ASSUNTO,
                                MOVPRO_PARECER_ORIGEM as PRT_PARECER                                    	   
-                          from Protocolo_distribuicao 
-                               inner join Movimentacao_Processo on (DIS_MOV_ID = MOVPRO_ID)
-							   inner join Protocolo on(PRT_NUMERO = MOVPRO_PRT_NUMERO)
-							   inner join Assunto on (PRT_ASSUNTO = ASS_ID)							
-		                 where DIS_ID = @DIS_ID 
-		                   and DIS_DESTINO_STATUS = 'RECEBIDO' 
-                           and MOVPRO_INSTRUCAO = 1
+                          from Instrucao_Distribuicao 
+                               inner join Movimentacao_Processo on (INSDIS_MOV_ID = MOVPRO_ID)
+				                           inner join Protocolo on(PRT_NUMERO = MOVPRO_PRT_NUMERO)
+				                           inner join Assunto on (PRT_ASSUNTO = ASS_ID)							
+                         where INSDIS_ID = @DIS_ID  
+                           and INSDIS_STATUS = 'RECEBIDO'
 						";
 
             using (var connection = _context.CreateConnection())
@@ -94,12 +91,13 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
         public async Task<List<SetorModel>> BuscarSetor()
         {
             
-            var query = @" SELECT SETSUB_ID, 
-                                  UPPER(SETSUB_NOME) AS SETSUB_NOME 
-                             FROM SetorSub  
-                            WHERE SETSUB_Ativo = 1  
-                         ORDER BY SETSUB_NOME"
-            ;
+            var query = @" 
+                        SELECT SETSUB_ID, 
+	                           UPPER(SETSUB_NOME) AS SETSUB_NOME 
+                          FROM SetorSub  
+                         WHERE SETSUB_Ativo = 1  
+                       
+                      ORDER BY SETSUB_NOME";
 
 
             using (var connection = _context.CreateConnection())
@@ -115,21 +113,20 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
         {
         
             var query = @"   
-                Select MOVPRO_USUARIO_ORIGEM as INSPRO_Usuario_origem,
-                       MOVPRO_PARECER_ORIGEM as INSPRO_Parecer,
-                       MOVPRO_DATA_ORIGEM as INSPRO_DATA_ORIGEM,
-                       PRTDOC_OBSERVACAO as INSPRO_Arquivo,
-                       ssb.SETSUB_NOME as INSPRO_Setor_origem ,
-		               ssa.SETSUB_NOME as INSPRO_Setor_destino
-                  from Protocolo inner join Movimentacao_Processo on (PRT_NUMERO = MOVPRO_PRT_NUMERO) 
-	                             inner join Protocolo_distribuicao on (DIS_MOV_ID = MOVPRO_ID)
-				                 inner join SetorSub ssa on(MOVPRO_SETOR_DESTINO = ssa.SETSUB_ID)
-		                         inner join SetorSub ssb on(MOVPRO_SETOR_ORIGEM = ssb.SETSUB_ID)
-				                 left join Protocolo_Documento_Imagem on(movpro_id = PRTDOC_MOVPRO_ID)
-                 where Movpro_instrucao = 1 and 
-	                   DIS_DESTINO_STATUS = 'RECEBIDO' and
-			           DIS_ID = @dis_id           
-		             order by MOVPRO_ID";
+                  Select MOVPRO_USUARIO_ORIGEM as INSPRO_Usuario_origem,
+                         MOVPRO_PARECER_ORIGEM as INSPRO_Parecer,
+                         MOVPRO_DATA_ORIGEM as INSPRO_DATA_ORIGEM,
+                         PRTDOC_OBSERVACAO as INSPRO_Arquivo,
+                         ssb.SETSUB_NOME as INSPRO_Setor_origem ,
+                         ssa.SETSUB_NOME as INSPRO_Setor_destino
+                    from Protocolo inner join Movimentacao_Processo on (PRT_NUMERO = MOVPRO_PRT_NUMERO) 
+                                   inner join Instrucao_Distribuicao on (INSDIS_MOV_ID = MOVPRO_ID)
+		                           inner join SetorSub ssa on(MOVPRO_SETOR_DESTINO = ssa.SETSUB_ID)
+                                   inner join SetorSub ssb on(MOVPRO_SETOR_ORIGEM = ssb.SETSUB_ID)
+		                           left join Protocolo_Documento_Imagem on(movpro_id = PRTDOC_MOVPRO_ID)
+                   where INSDIS_STATUS = 'RECEBIDO' and
+                         INSDIS_ID = @dis_id           
+                          order by MOVPRO_ID";
 
             using (var connection = _context.CreateConnection())
             {
@@ -146,68 +143,78 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
         //EVITAR ENVIAR PARA O PROPRIO SETOR
         public async Task EncaminharIntrucao(InstrucaoModel instrucaoProcesso, IDbConnection connection, IDbTransaction transaction)
         {
-         
-            // Adicionando parâmetros
-            var dbParametro = new DynamicParameters();
-            dbParametro.Add("@DIS_ID", instrucaoProcesso.INSPRO_Dis_id);
-            dbParametro.Add("@MOVPRO_USUARIO_ORIGEM", instrucaoProcesso.INSPRO_Usuario_origem);
-            dbParametro.Add("@MOVPRO_SETOR_DESTINO", instrucaoProcesso.INSPRO_Setor_destino);
-            dbParametro.Add("@MOVPRO_PARECER_ORIGEM", instrucaoProcesso.INSPRO_Parecer);
 
+            try
+            {
+                // Adicionando parâmetros
+                var dbParametro = new DynamicParameters();
+                dbParametro.Add("@DIS_ID", instrucaoProcesso.INSPRO_Dis_id);
+                dbParametro.Add("@MOVPRO_USUARIO_ORIGEM", instrucaoProcesso.INSPRO_Usuario_origem);
+                dbParametro.Add("@MOVPRO_SETOR_DESTINO", instrucaoProcesso.INSPRO_Setor_destino);
+                dbParametro.Add("@MOVPRO_PARECER_ORIGEM", instrucaoProcesso.INSPRO_Parecer);
 
-            string query = @"   
-                    Select
-	                    DIS_ID,
-	                    DIS_MOV_ID,
-	                    DIS_DESTINO_USUARIO as USU_ORIGEM
-	                into #Processo
-                    from Protocolo_Distribuicao where Dis_Id = @DIS_ID
-   
-                Declare @Setor int
-                    Set @Setor = (Select top 1 
-						                SETSUBUSU_SETSUB_ID 
-					                from SetorSubXUsuario 
-					            where SETSUBUSU_USUARIO = @MOVPRO_USUARIO_ORIGEM)
+                string query = @"                     
+                            Select
+                                INSDIS_ID,
+                                INSDIS_MOV_ID,
+				                INSDIS_DIS_ID,
+                                MOVPRO_USUARIO_ORIGEM AS  UsuarioSolicitante
+                        into #Processo
+                        from Instrucao_Distribuicao inner join Movimentacao_Processo on (INSDIS_MOV_ID = MovPro_ID)  where INSDIS_ID =  @DIS_ID
+	
 
-	                Update PD
-	                Set DIS_DESTINO_STATUS = 'INSTRUCAO->ENCAMINDO'
-	                From #Processo P INNER JOIN Protocolo_Distribuicao PD ON(P.DIS_MOV_ID = PD.DIS_MOV_ID)
+		                Declare @SetorOrigem int,
+				                @SetorSolicitante int
 
+			                Set @SetorOrigem = (Select top 1 
+			 		                                SETSUBUSU_SETSUB_ID 
+								                from SetorSubXUsuario 
+							                    where SETSUBUSU_USUARIO = @MOVPRO_USUARIO_ORIGEM)
+
+		            Set @SetorSolicitante = (Select top 1 
+					                                SETSUBUSU_SETSUB_ID 
+				                                from SetorSubXUsuario inner join #Processo 
+						                        on (SETSUBUSU_USUARIO = UsuarioSolicitante))
+
+                --Vericiar se a responsta está indo para o solicitante
                     Insert Into Movimentacao_Processo
-                    Select MOVPRO_PRT_NUMERO, 
-		                @Setor,
-			            USU_ORIGEM,
-	                    Getdate(),
-			            @MOVPRO_PARECER_ORIGEM,
-			            'Instrucação encaminhada para o solicitante.',
-			            @MOVPRO_SETOR_DESTINO,
-			            'INSTRUCAO->ENCAMINHADO',
-			            null,   
-			            1
-	                from #Processo inner join Movimentacao_Processo on (DIS_MOV_ID = MOVPRO_ID)
-                    where MOVPRO_INSTRUCAO = 1	
+                            Select MOVPRO_PRT_NUMERO, 
+				                @SetorOrigem,
+				                @MOVPRO_USUARIO_ORIGEM,
+				                Getdate(),
+				                @MOVPRO_PARECER_ORIGEM,
+				                'Instrucação encaminhada para o solicitante.',
+				                @SetorSolicitante,
+				                'INSTRUCAO->ENCAMINHADO',
+				                null,   
+				                1
+                            from #Processo inner join Movimentacao_Processo on (INSDIS_MOV_ID = MOVPRO_ID)
 
-	            Declare @UltimoID int
-                    Set @UltimoID = SCOPE_IDENTITY();
+		
+                    Declare @UltimoID int
+                        Set @UltimoID = SCOPE_IDENTITY();
 
-	                Insert into Protocolo_Distribuicao
-                    Select 
-	                    @UltimoID,
-		                USU_ORIGEM,
-		                GETDATE(),
-		                MOVPRO_USUARIO_ORIGEM AS USU_DESTINO,
-		                0,
-		                'RECEBIDO',
-		                0,
-		                0,
-		                NULL
-		            from #Processo inner join Movimentacao_Processo on(DIS_MOV_ID = MOVPRO_ID) ";
+                        Update PD
+                        Set DIS_DESTINO_STATUS = 'RECEBIDO'
+                        From Protocolo_Distribuicao PD  INNER JOIN #Processo P ON(P.INSDIS_DIS_ID = PD.DIS_ID)
 
-            await connection.ExecuteAsync(query, dbParametro, transaction);
+		                Update PD
+                        Set INSDIS_STATUS = 'RECEBIDO->ENCAMINHADO'
+                        From Instrucao_Distribuicao PD  INNER JOIN  #Processo P ON(P.INSDIS_ID = PD.INSDIS_ID)
+                       ";
+
+                        await connection.ExecuteAsync(query, dbParametro, transaction);
+            }
+            catch (Exception ex )
+            {
+
+                throw;
+            }
+         
+
+          
 
         }
-
-       
 
         public async Task IntoAnexo(List<IFormFile> arquivos, ProtocoloModel protocolo)
         {
@@ -319,7 +326,7 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                                            PRTDOC_IMAGEM
                                     FROM Protocolo_Documento_Imagem 
                                     WHERE REPLACE(PRTDOC_PRT_NUMERO, '/', '') = @prt_numero
-                                    and PRTDOC_PRT_SETOR = 49 "; //Passar o id do setor futuramente
+                                    and PRTDOC_PRT_SETOR not in(64) "; //Passar o id do setor futuramente
 
                     using (var selectCommand = connection.CreateCommand())
                     {
