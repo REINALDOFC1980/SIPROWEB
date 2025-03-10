@@ -30,6 +30,20 @@ namespace SIPROAPIJULGAMENTO.Controllers
 
         }
 
+        [HttpGet]
+        [Route("localizar-processo/{usuario}/{vlobusca}")]
+        public async Task<IActionResult> LocalizarProcesso(string usuario, string vlobusca)
+        {
+
+            var processo = await _julgamento.LocalizarProcesso(usuario, vlobusca);
+
+            if (processo == null)
+                return NoContent();
+
+            return Ok(processo);
+
+        }
+
 
         [HttpGet]
         [Route("localizar-processoall/{usuario}/{vlobusca}")]
@@ -60,18 +74,20 @@ namespace SIPROAPIJULGAMENTO.Controllers
 
 
         [HttpGet]
-        [Route("localizar-processo/{usuario}/{vlobusca}")]
-        public async Task<IActionResult> LocalizarProcesso(string usuario, string vlobusca)
+        [Route("localizar-retificacao/{usuario}/{vlobusca}")]
+        public async Task<IActionResult> LocalizarRetificacao(string usuario, string vlobusca)
         {
-           
-            var processo = await _julgamento.LocalizarProcesso(usuario, vlobusca);
+            var processo = await _julgamento.LocalizarRetificacao(usuario, vlobusca);
 
             if (processo == null)
                 return NoContent();
 
             return Ok(processo);
-           
+
         }
+
+
+
 
 
         [HttpGet]

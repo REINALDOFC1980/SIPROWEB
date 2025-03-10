@@ -86,12 +86,12 @@
                                 <label>Selecione o serviço que deseja realizar a abertura</label> <br />
 
                                 <select class="select2_demo_3 form-control" style="width:100%;" id="Age_Cod_Assunto" name="Age_Cod_Assunto" required>
-                                  
-                                   
-                                    @* <option value="7">ADVERTÊNCIA</option> *@
+
+
+                                    <option value="">Selecione uma opção</option>
                                     @*                    <option value="59">ADVERTÊNCIA COM APRESENTAÇÃO DE CONDUTOR</option> *@
                                     <option value="1">APRESENTAÇÃO DE CONDUTOR</option>
-                                    <option value="39">APRESENTAÇÃO DE CONDUTOR INFRATOR E DEFESA DA AUTUAÇÃO</option>
+     @*                                <option value="39">APRESENTAÇÃO DE CONDUTOR INFRATOR E DEFESA DA AUTUAÇÃO</option> *@
                                     @*   <option value="6">CADIN</option> *@
                                     <option value="2">DEFESA DA AUTUAÇÃO</option>
                                     @*         <option value="5">EFEITO SUSPENSIVO</option> *@
@@ -194,7 +194,8 @@
             $(".select2_demo_1").select2();
             $(".select2_demo_2").select2();
             $(".select2_demo_3").select2({
-            placeholder: "",
+
+            placeholder: "Selecione uma opção",
                 allowClear: true
             });
 
@@ -213,11 +214,13 @@
         $('#btnconfirmarabertura').click(function () {
 
 
-            Notiflix.Loading.Standard('Aguarde...');
+          
 
             inicializarValidacaoFormulario("#FormAbertura");
 
             if ($("#FormAbertura").valid()) {
+                
+                Notiflix.Loading.Standard('Aguarde...');
 
                 var formData = $("#FormAbertura").serialize();
                      var cpf = $('#Age_Doc_Solicitante').val();

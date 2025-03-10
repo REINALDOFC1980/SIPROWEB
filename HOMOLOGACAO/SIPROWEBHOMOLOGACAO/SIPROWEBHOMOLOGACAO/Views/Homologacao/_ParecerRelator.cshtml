@@ -33,7 +33,7 @@
     }
 }
 
-<div class="full-height-scroll">
+
 
         <div id="Div_Votacao">
             @{
@@ -81,7 +81,7 @@
 
             }
 
-        </div>
+
 
 
 
@@ -91,9 +91,10 @@
             <form role="form" id="form_homologacao">
                 <div>
                     <h2>Parecer do Relatório do Processo:</h2>
-                    <textarea id="Disjug_Parecer_Relatorio" name="Disjug_Parecer_Relatorio" rows="7" cols="60" class="form-control" readonly>
-                        @ViewBag.Parecer.Disjug_Parecer_Relatorio
+                    <textarea id="Disjug_Parecer_Relatorio" name="Disjug_Parecer_Relatorio" rows="6" cols="60" class="form-control" readonly>
+                        @ViewBag.Parecer.Disjug_Parecer_Relatorio?.Trim()
                     </textarea>
+
                     <input type="hidden" id="MovPro_Prt_Numero" name="MovPro_Prt_Numero" value="@ViewBag.Parecer.MovPro_Prt_Numero">
                     <input type="hidden" id="MovPro_id" name="MovPro_id" value="@ViewBag.Parecer.MovPro_id">
                   

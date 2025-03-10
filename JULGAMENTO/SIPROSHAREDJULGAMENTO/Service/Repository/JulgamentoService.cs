@@ -44,7 +44,8 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 							WHERE DIS_DESTINO_USUARIO = @usuario
                               and PRT_AIT like case when @vlobusca = 'Todos' then '%' else @vlobusca end
 							  and DIS_DESTINO_STATUS = 'RECEBIDO'
-                                and DIS_ID not in (select DISJUG_DIS_ID from Protocolo_Distribuicao_Julgamento)
+                              and isnull(DIS_RETORNO,0) = 0
+                              and DIS_ID not in (select DISJUG_DIS_ID from Protocolo_Distribuicao_Julgamento)
 							";
 
                 using (var connection = _context.CreateConnection())
@@ -91,7 +92,42 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
                     return processos.ToList();
                 }
-        }          
+        }
+
+        public async Task<List<ProtocoloJulgamento_Model>> LocalizarRetificacao(string usuario, string vlobusca)
+        {
+            var query = @"
+							SELECT PRT_NUMERO
+                                  ,MOVPRO_SETOR_ORIGEM as PRT_COD_ORIGEM
+	                              ,ORI_DESCRICAO as PRT_NOME_ORIGEM
+		                          ,ASS_NOME as PRT_NOME_ASSUNTO
+		                          ,PRT_DT_ABERTURA
+		                          ,PRT_DT_POSTAGEM
+		                          ,PRT_CPFCNJ_PROPRIETARIO
+		                          ,PRT_NOMEPROPRIETARIO							  
+								  ,PRT_AIT
+                                  ,PRT_PLACA
+                                  ,'Julgar' AS  PRT_SITUACAO
+                                  ,PRT_OBSERVACAO
+                              FROM Protocolo inner join Movimentacao_Processo on (PRT_NUMERO = MOVPRO_PRT_NUMERO)
+				                             inner join Protocolo_distribuicao on (MOVPRO_ID = DIS_MOV_ID)
+				                             inner join Assunto on (PRT_ASSUNTO = ASS_ID)
+				                             inner join Origem on(PRT_ORIGEM = ORI_CODIGO)
+							WHERE DIS_DESTINO_USUARIO = @usuario
+                              and PRT_AIT like case when @vlobusca = 'Todos' then '%' else @vlobusca end
+							  and DIS_DESTINO_STATUS = 'RECEBIDO'
+                              and DIS_RETORNO = 1
+                                and DIS_ID not in (select DISJUG_DIS_ID from Protocolo_Distribuicao_Julgamento)
+							";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parametros = new { usuario, vlobusca };
+                var processos = await connection.QueryAsync<ProtocoloJulgamento_Model>(query, parametros);
+
+                return processos.ToList();
+            }
+        }
 
         public async Task<ProtocoloJulgamento_Model> LocalizarProcesso(string usuario, string vlobusca)
         {
@@ -233,7 +269,8 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             string query = @"   Select
                                 DIS_ID,
                                 DIS_MOV_ID,
-	                            DIS_DESTINO_USUARIO as USU_ORIGEM
+	                            DIS_DESTINO_USUARIO as USU_ORIGEM,
+                                DIS_RETORNO
                            into #Processo
                            from Protocolo_Distribuicao where Dis_Id = @INSPRO_Dis_id
 
@@ -254,8 +291,9 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
                         Update Mov
                            set MOVPRO_STATUS = 'DISTRIBUIDO->INSTRUCAO'
-                          from Movimentacao_Processo Mov , #Processo PDis
+                          from Movimentacao_Processo Mov, #Processo PDis
                           where Mov.MOVPRO_ID = PDis.DIS_MOV_ID 
+                            and isnull(DIS_RETORNO,0)=0 
 		 
   		
                         Update Dis
@@ -747,5 +785,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             }
            
         }
+
+
     }
 }

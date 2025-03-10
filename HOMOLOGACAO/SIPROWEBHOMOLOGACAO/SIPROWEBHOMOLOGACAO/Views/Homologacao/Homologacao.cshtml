@@ -91,8 +91,9 @@
                         <div id="tab-1" class="tab-pane active show"> 
                         <div class="panel-body">
                             <div class="client-detail">
-                                <strong>Dados do julgamento</strong>
                                 <div class="full-height-scroll">
+                                <strong>Dados do julgamento</strong>
+                        
                                     <div id="div_ParecerRelator">
                                           @await Html.PartialAsync("_ParecerRelator")
                                     </div>
@@ -155,10 +156,6 @@
                     </div>
 
 
-                  
-
-                    
-
                 </div>
             </div>
         </div>
@@ -190,7 +187,7 @@
                 $('#div_listaHomologacao').html(result);
             },
             error: function (xhr, status, error) {
-                console.error("Erro na busca do protocolo:", error);
+                Notiflix.Notify.Failure("Erro na busca do protocolo");
             }
         });
     }
@@ -229,11 +226,11 @@
             if (element) {
                 element.innerHTML = result;
             } else {
-                console.warn(`Elemento com ID "${elementId}" não encontrado.`);
+                Notiflix.Notify.Failure("Erro na busca do protocolo");
             }
 
         } catch (error) {
-            console.error(`Erro ao buscar e atualizar ${elementId}:`, error);
+            Notiflix.Notify.Failure("Erro na busca do protocolo");
         }
     }
 
@@ -252,47 +249,87 @@
 
     }
 
+    let isProcessing = false; // Variável de controle para evitar múltiplos cliques
+
     $(document).on('click', '#btn_homologacao', function () {
         var formData = $("#form_homologacao").serialize();
-        Notiflix.Loading.Standard('Aguarde...');
 
-        $.ajax({
-            url: '@Url.Action("RealizarHomologacao", "Homologacao")',
-            type: 'POST',
-            data: formData,
-            success: function (response) {
-                AbrirHomologacao("pr0/000", "a00000");
-                Notiflix.Loading.Remove();
-                Notiflix.Notify.Success("Homologação realizada com sucesso!");
-                $('#div_listaHomologacao').html(response);
+        Notiflix.Confirm.Show(
+            'Aviso!',
+            'Tem certeza que deseja homologar esse processo?',
+            'Sim',
+            'Não',
+            async function okCb() {
+
+                if (isProcessing) return; // Impede execução se já estiver em andamento
+                isProcessing = true; // Marca como em processamento
+
+                Notiflix.Loading.Standard('Aguarde...');
+
+                $.ajax({
+                    url: '@Url.Action("RealizarHomologacao", "Homologacao")',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        AbrirHomologacao("pr0/000", "a00000");
+                        Notiflix.Loading.Remove();
+                        Notiflix.Notify.Success("Homologação realizada com sucesso!");
+                        $('#div_listaHomologacao').html(response);
+                    },
+                    error: function (xhr, status, error) {
+                        Notiflix.Loading.Remove();
+                        Notiflix.Notify.Failure("Erro interno!");
+                    }
+                });
             },
-            error: function (xhr, status, error) {
+            function cancelCb() {
                 Notiflix.Loading.Remove();
-                Notiflix.Notify.Success("Erro interno!");
+            },
+            {
+                // Configurações adicionais (opcional)
             }
-        });
+        );
+
     });
 
 
     $(document).on('click', '#btn_retificar', function () {
         var formData = $("#form_homologacao").serialize();
-        Notiflix.Loading.Standard('Aguarde...');
 
-        $.ajax({
-            url: '@Url.Action("RetificarVoto", "Homologacao")',
-            type: 'POST',
-            data: formData,
-            success: function (response) {
-                AbrirHomologacao("pr0/000", "a00000");
-                Notiflix.Loading.Remove();
-                Notiflix.Notify.Success("Operação realizada com sucesso!");
-                $('#div_listaHomologacao').html(response);
+        Notiflix.Confirm.Show(
+            'Aviso!',
+            'Tem certeza que deseja devolver esse processo?',
+            'Sim',
+            'Não',
+            async function okCb() {
+
+            if (isProcessing) return; // Impede execução se já estiver em andamento
+            isProcessing = true; // Marca como em processamento
+            Notiflix.Loading.Standard('Aguarde...');
+
+                $.ajax({
+                    url: '@Url.Action("RetificarVoto", "Homologacao")',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        AbrirHomologacao("pr0/000", "a00000");
+                        Notiflix.Loading.Remove();
+                        Notiflix.Notify.Success("Operação realizada com sucesso!");
+                        $('#div_listaHomologacao').html(response);
+                    },
+                    error: function (xhr, status, error) {
+                        Notiflix.Loading.Remove();
+                        Notiflix.Notify.Failure("Erro interno!");
+                    }
+                });
             },
-            error: function (xhr, status, error) {
+            function cancelCb() {
                 Notiflix.Loading.Remove();
-                Notiflix.Notify.Success("Erro interno!");
+            },
+            {
+                // Configurações adicionais (opcional)
             }
-        });
+        );
     });
 
 

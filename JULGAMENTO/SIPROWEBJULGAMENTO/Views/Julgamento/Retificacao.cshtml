@@ -2,8 +2,7 @@
 
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
-        <h2>Processos Para Julgar</h2>
-
+        <h2>Processos Para Retificar</h2>
     </div>
     <div class="col-lg-2">
     </div>
@@ -16,18 +15,18 @@
             <div class="ibox">
                 <div class="ibox-content">
                     @*    <span class="text-muted small float-right">Total de 2 registro</span> *@
-                    <h3><i class="fa fa-list-ul"></i>  Lista de Processos para Julgar </h3>
+                    <h3><i class="fa fa-list-ul"></i>  Lista de Processos para Retificar </h3>
                     <small>Buscar por: Processo e AIT</small>
                     <div class="input-group">
                         <input type="text" placeholder=" " class="input form-control" id="Vlo_Busca">
                         <span class="input-group-append">
-                            <button type="button" class="btn btn btn-primary" id="btmLocalizarProtocolo"> <i class="fa fa-search"></i> Localizar</button>
+                            <button type="button" class="btn btn btn-primary" id="btmLocalizarProtocolo"> <i class="fa fa-search"></i> Localizar </button>
                         </span>
                     </div>
                     <div class="clients-list">
                         <div class="full-height-scroll">
-                            <div id="div_listaProtocolo">
-                                 @await Html.PartialAsync("_ListaProtocolo")
+                            <div id="div_listaRetificacao">
+                                 @await Html.PartialAsync("_ListaRetificar")
                             </div>
                         </div>
                     </div>
@@ -36,7 +35,6 @@
         </div>
     </div>
 </div>
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
 
@@ -44,18 +42,17 @@
     function mostrarLoading() {
         Notiflix.Loading.Standard('Aguarde...');
     }
-      
         function LocalizarProtocolo(vlobusca) {
-      
+        Notiflix.Loading.Standard('Aguarde...');
             $.ajax({
-            url: '@Url.Action("BuscarProtocolo", "Julgamento")',
+            url: '@Url.Action("BuscarRetificar", "Julgamento")',
                 datatype: 'html',
                 contentType: "application/html; charset=utf-8",
                 type: "GET",
                 data: { vlobusca: vlobusca },
                 success: function (result) {
-
-                $('#div_listaProtocolo').html(result);
+                    $('#div_listaRetificacao').html(result);
+                    Notiflix.Loading.Remove();
                 },
                 error: function (xhr, status, error) {
                     // console.error("Erro na busca do protocolo:", error);
@@ -76,7 +73,10 @@
             if (searchTerm === '') {
                 LocalizarProtocolo("Todos"); // Busca todos os resultados
             }
-        });      
+        });
+
+
+       
 
 
 

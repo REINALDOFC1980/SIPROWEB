@@ -82,6 +82,37 @@ namespace SIPROWEBJULGAMENTO.Controllers
             return View();
         }
 
+
+        public async Task<IActionResult> Retificacao()
+        {
+            try
+            {
+                ViewBag.Protocolo = new List<ProtocoloModel>();
+
+                string apiUrl = $"{_baseApiUrl}julgamento/localizar-retificacao/{userMatrix}/{"Todos"}";
+                var response = await _httpClient.GetAsync(apiUrl);
+
+                //tratamento de erro 500
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    return RedirectToAction("InternalServerError", "Home");
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var protocolos = await response.Content.ReadFromJsonAsync<List<ProtocoloModel>>();
+                    ViewBag.Protocolo = protocolos;
+                }
+
+                return View();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+
+        }
+
         [HttpGet]
         public async Task<IActionResult> BuscarProtocolo(string vlobusca)
         {

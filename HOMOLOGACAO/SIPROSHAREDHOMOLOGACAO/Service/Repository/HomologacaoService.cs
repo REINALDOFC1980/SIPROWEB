@@ -47,7 +47,9 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
         public async Task<HomologacaoModel> BuscarHomologacao(string prt_numero)
         {
-            var query = @"				 
+            try
+            {
+                var query = @"				 
                  select MOVPRO_ID,
                         SETSUB_NOME,
                         SETSUB_ID,
@@ -63,13 +65,21 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 		          WHERE REPLACE(PRT_NUMERO, '/', '') = @prt_numero
 		            and MOVPRO_STATUS = 'HOMOLOGAR'";
 
-            using (var connection = _context.CreateConnection())
-            {
-                var parametros = new { prt_numero };
-                var result = await connection.QueryFirstOrDefaultAsync<HomologacaoModel>(query, parametros);
+                using (var connection = _context.CreateConnection())
+                {
+                    var parametros = new { prt_numero };
+                    var result = await connection.QueryFirstOrDefaultAsync<HomologacaoModel>(query, parametros);
 
-                return result;
+                    return result;
+                }
             }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+           
         }
 
         public async Task<List<Anexo_Model>> BuscarAnexo(string ait)
@@ -326,27 +336,30 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                   INNER JOIN Protocolo_Distribuicao ON (MovPro_id = DIS_MOV_ID)
                        WHERE MOVPRO_PRT_NUMERO = ( SELECT TOP 1 Movpro_prt_numero 
 					        		                FROM Movimentacao_Processo 
-							                       WHERE MovPro_id = @MOVPRO_ID);
+							                       WHERE MovPro_id = @MOVPRO_ID)
 
                       DELETE PD
-                        FROM Protocolo_Distribuicao_Julgamento pd
-                  INNER JOIN #Processo ap ON pd.DISJUG_DIS_ID = ap.DIS_ID;
+                        FROM Protocolo_Distribuicao_Julgamento pd INNER JOIN #Processo ap ON (pd.DISJUG_DIS_ID = ap.DIS_ID)
 
                       UPDATE MP
                          SET MOVPRO_STATUS = 'HOMOLOGADO->REFITICAR'
-                        FROM Movimentacao_Processo MP where MOVPRO_ID = @MOVPRO_ID;
+                        FROM Movimentacao_Processo MP where MOVPRO_ID = @MOVPRO_ID
 
 
                     --Mudando o status dos processo distribuido
                       UPDATE PD
                          SET DIS_DESTINO_STATUS = 'RECEBIDO',
                              DIS_RETORNO = 1
-                        FROM Protocolo_Distribuicao PD INNER JOIN #Processo P ON pd.DIS_MOV_ID = p.DIS_MOV_ID;
+                        FROM Protocolo_Distribuicao PD INNER JOIN #Processo P ON (pd.DIS_MOV_ID = p.DIS_MOV_ID)
+                     
 
-
-                      DELETE PD
-                        FROM Protocolo_Distribuicao_Julgamento pd
-                  INNER JOIN #Processo ap ON pd.DISJUG_DIS_ID = ap.DIS_ID;                      
+                      UPDATE P
+                         SET PRT_ACAO = 'RETIFICAR VOTO',  
+	                         PRT_DT_JULGAMENTO = NULL,  
+	                         PRT_RESULTADO = NULL,  
+                             PRT_DT_HOMOLOGACAO = NULL  
+                        FROM Protocolo P INNER JOIN  #Processo  ON (P.PRT_NUMERO = MOVPRO_PRT_NUMERO)
+                 
 
                 -- Inserindo novo registro na Movimentacao_Processo
                       INSERT INTO Movimentacao_Processo
@@ -357,7 +370,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                              @MOVPRO_PARECER_ORIGEM, -- Observação ou parecer!
                             'Processo devolvido para refiticar voto.',
                              SetorDestino,
-                            'RECEBIDO',
+                            'RECEBIDO->DISTRIBUIDO',
                              NULL,
                              NULL
                        FROM #Processo;
