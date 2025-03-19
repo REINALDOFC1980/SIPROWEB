@@ -19,6 +19,7 @@ using System.Collections.Generic;
 
 namespace SIPROWEB.Controllers
 {
+ 
     [AutorizacaoTokenAttribute("ADM", "ATENDIMENTO_1")]
     public class AtendimentoController : Controller
     {
@@ -398,7 +399,7 @@ namespace SIPROWEB.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> AberturaEstrangeiro()
+        public IActionResult AberturaEstrangeiro()
         {
             return View();
 

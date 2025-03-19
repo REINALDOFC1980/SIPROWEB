@@ -377,7 +377,8 @@ namespace SIPROSHAREDINSTRUCAO.Controllers
             ViewBag.Assunto = new List<AssuntoQtd>();
 
             distribuicaoModel.DIS_ID = DIS_ID;
-         
+            distribuicaoModel.DIS_ORIGEM_USUARIO = userMatrix;
+
             try 
             {
                 //ADD 

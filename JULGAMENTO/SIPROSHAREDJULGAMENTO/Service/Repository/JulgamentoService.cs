@@ -356,7 +356,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             var dbParametro = new DynamicParameters();
             dbParametro.Add("@Disjug_Dis_Id", julgamentoProcesso.Disjug_Dis_Id);  
             dbParametro.Add("@Disjug_Relator", julgamentoProcesso.Disjug_Relator);
-            dbParametro.Add("@Disjug_Parecer_Relatorio", julgamentoProcesso.Disjug_Parecer_Relatorio);
+            dbParametro.Add("@Disjug_Parecer_Relatorio", julgamentoProcesso.Disjug_Parecer_Relatorio.Trim());
             dbParametro.Add("@Disjug_Resultado", julgamentoProcesso.Disjug_Resultado);
             dbParametro.Add("@Disjug_Motivo_Voto", julgamentoProcesso.Disjug_Motivo_Voto);
             dbParametro.Add("@Disjug_Membro1", julgamentoProcesso.Disjug_Membro1);

@@ -240,6 +240,8 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                     dbParametro.Add("@PRTDOC_OBSERVACAO", fileName);
                     dbParametro.Add("@PRTDOC_PRT_AIT", protocolo.PRT_AIT);
                     dbParametro.Add("@PRT_ATENDENTE", protocolo.PRT_ATENDENTE);
+                    dbParametro.Add("@PRTDOC_MOVPRO_ID", protocolo.PRTDOC_MOVPRO_ID);
+                    
 
                     string query = @"
 
@@ -250,21 +252,23 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
 								    where SETSUBUSU_USUARIO = @PRT_ATENDENTE )
 
                             INSERT INTO Protocolo_Documento_Imagem 
-                                    (PRTDOC_DOC_ID, 
+                                       (PRTDOC_DOC_ID, 
                                         PRTDOC_PRT_NUMERO, 
                                         PRTDOC_IMAGEM, 
                                         PRTDOC_OBSERVACAO, 
                                         PRTDOC_DATA_HORA, 
                                         PRTDOC_PRT_AIT, 
-                                        PRTDOC_PRT_SETOR)
+                                        PRTDOC_PRT_SETOR,
+                                        PRTDOC_MOVPRO_ID)
                                         VALUES 
-                                    (@PRTDOC_DOC_ID, 
+                                       (@PRTDOC_DOC_ID, 
                                         @PRTDOC_PRT_NUMERO, 
                                         @PRTDOC_IMAGEM, 
                                         @PRTDOC_OBSERVACAO, 
                                         GETDATE(), 
                                         @PRTDOC_PRT_AIT, 
-                                        @PRTDOC_PRT_SETOR)
+                                        @PRTDOC_PRT_SETOR,
+                                        @PRTDOC_MOVPRO_ID)
                                         ";
 
                     using (var connection = _context.CreateConnection())

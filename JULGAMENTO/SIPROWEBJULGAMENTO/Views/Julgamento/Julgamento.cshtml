@@ -10,9 +10,14 @@
 </div>
 
 <div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+       
+
+    </div>
+
 
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-9">
             <div class="ibox">
                 <div class="ibox-content">
                     @*    <span class="text-muted small float-right">Total de 2 registro</span> *@
@@ -30,6 +35,85 @@
                                  @await Html.PartialAsync("_ListaProtocolo")
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-3">
+            <div class="">
+                <div>
+                    <h4>Historico dos ultimos processos  <span class="badge badge-info float-right">5</span></h4>
+                    <div class="feed-element">
+                                      
+                        <div class="media-body">
+                            Processo Julgado e encaminhado para assinatura.
+                            <br>
+                            <small class="text-muted">PR1875/2025 | 18/03/2025 12:55</small>
+                        </div>
+                    </div>
+                    
+                    <div class="feed-element">
+
+                        <div class="media-body">
+                            Processo encaminhado para instrução.
+                            <br>
+                            <small class="text-muted">PR1888/2025 | 11/03/2025 12:44</small>
+                        </div>
+                    </div>
+
+                    <div class="feed-element">
+
+                        <div class="media-body">
+                            Processo Julgado e encaminhado para homologação.
+                            <br>
+                            <small class="text-muted">PR1854/2025 | 14/03/2025 16:14</small>
+                        </div>
+                    </div>
+                    <div class="feed-element">
+
+                        <div class="media-body">
+                            Processo Julgado e encaminhado para assinatura.
+                            <br>
+                            <small class="text-muted">PR1854/2025 | 14/03/2025 16:14</small>
+                        </div>
+                    </div>
+                    <div class="feed-element">
+
+                        <div class="media-body">
+                            Processo Julgado e encaminhado para assinatura.
+                            <br>
+                            <small class="text-muted">PR1854/2025 | 14/03/2025 16:14</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="m-t-md">
+                    <h4>Situação dos processos:</h4>
+                     <small>Acompanhe abaixo total de processo vinculado ao seu usuário por situação.</small>
+                    <br />
+                    <br />
+                    <div>
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <span class="badge badge-primary">16</span>
+                                Aguardando Julgamento
+                            </li>
+                            <li class="list-group-item ">
+                                <span class="badge badge-info">12</span>
+                                Aguardando Assinatura
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge badge-warning">07</span>
+                                Encaminhado para Retifiação
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge badge">02</span>
+                                Encaminhado para Instrução
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

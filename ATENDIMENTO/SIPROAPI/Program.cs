@@ -26,6 +26,8 @@ builder.Services.AddSingleton<IAutenticacaoService, AutenticacaoService>();
 builder.Services.AddMvc(options => options.Filters.Add(typeof(ExceptionFilter)));
 builder.Services.AddHttpClient<Detran>();
 
+
+
 // Configurar Serilog para gravar logs em um arquivo
 Log.Logger = new LoggerConfiguration()
     .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)

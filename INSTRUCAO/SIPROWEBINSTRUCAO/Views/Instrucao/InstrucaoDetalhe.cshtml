@@ -132,7 +132,7 @@
 
                                     <h4 class="m-t-none">Instrução</h4>
 
-                                    <textarea id="INSPRO_Parecer" name="INSPRO_Parecer" rows="12" class="form-control" required> </textarea>
+                                    <textarea id="INSPRO_Parecer" name="INSPRO_Parecer" rows="15" class="form-control" required> </textarea>
                                     <p><small>  <i class="fa fa-twitch"></i> Por favor, digite a instrução para o setor responsável de forma clara e objetiva, detalhando seu pedido. </small></p>
 
 
@@ -158,6 +158,8 @@
                                     <form enctype="multipart/form-data" style="width:100%;" id="form_anexo">
                                         <input type="hidden" id="PRT_NUMERO" name="PRT_NUMERO" value="@Model?.PRT_NUMERO" />
                                         <input type="hidden" id="PRT_AIT" name="PRT_AIT" value="@Model?.PRT_AIT" />
+                                        <input type="hidden" id="PRTDOC_MOVPRO_ID" name="PRTDOC_MOVPRO_ID" value="@Model?.MOVPRO_ID" />
+
                                         <input type="file" id="arquivos" name="arquivos" style="display: none;" multiple />
                                         <label title="Upload image file" class="btn btn-secondary" for="arquivos" style="width:100%;" id="uploadButton">
                                             Click aqui para anexar um arquivo.

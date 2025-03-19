@@ -184,6 +184,7 @@
                                                                 <th>Assunto</th>
                                                                 <th>Usuário</th>
                                                                 <th>Situação</th>
+                                                                <th>Destino</th>
                                                                 <th>Ação</th>
                                                             </tr>
                                                         </thead>
@@ -198,6 +199,7 @@
                                                             <td>@processo.PRT_ASSUNTO</td>
                                                             <td>@processo.PRT_USUARIO</td>
                                                             <td>@processo.PRT_STATUS</td>
+                                                            <td>@processo.SETSUB_NOME</td>
                                                             <td>
                                                                 <a href="#" class="btn btn-white btn-sm @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "" : "retirar-processo")"
                                                                     data-id="@processo.DIS_ID">

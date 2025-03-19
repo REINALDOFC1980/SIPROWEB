@@ -92,7 +92,8 @@ namespace SIPROSHARED.Models
         //OUTROS
         public string? PRT_AGENDAMENTO { get; set; }
         public string? PRT_CONDUTOR_APRESENTADO { get; set; }
-        // public IFormFile PRT_IMAGEM { get; set; }
+        public int PRTDOC_MOVPRO_ID { get; set; }
+        
 
     }
 }

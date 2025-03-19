@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Newtonsoft.Json;
 using SIPROSHARED.Filtro;
 using SIPROSHARED.Models;
 using SIPROSHAREDHOMOLOGACAO.Models;
@@ -31,6 +32,17 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
             userMatrix = HttpContext.Items["UserMatrix"] as string;
             base.OnActionExecuting(context);
         }
+
+
+        private async Task<JsonResult> HandleErrorResponse(HttpResponseMessage response)
+        {
+            var errorResponse = await response.Content.ReadAsStringAsync();
+            var errorData = JsonConvert.DeserializeObject<ErrorResponseModel>(errorResponse);
+            var errorMessage = errorData?.Errors?.FirstOrDefault() ?? "Erro ao processar sua solicitação.";
+            TempData["ErroMessage"] = errorMessage;
+            return Json(new { error = "BadRequest", message = errorMessage });
+        }
+
 
         public static string RemoveHtmlTags(string input)
         {
@@ -85,10 +97,33 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
             string apiUrl = $"{_baseApiUrl}homologacao/localizar-homologacao/{setor}/{resultado}";
             var response = await _httpClient.GetAsync(apiUrl);
 
+
             if (response.StatusCode == HttpStatusCode.OK)//
                 return await response.Content.ReadFromJsonAsync<List<HomologacaoModel>>();
 
             return new List<HomologacaoModel>();
+
+        }
+
+        [HttpGet]
+        public async Task<HomologacaoModel> BuscarPrtHomologar(string protocolo)
+        {
+            try
+            {
+                string apiUrl = $"{_baseApiUrl}homologacao/buscar-homologacao/{protocolo}";
+                var response = await _httpClient.GetAsync(apiUrl);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                    return await response.Content.ReadFromJsonAsync<HomologacaoModel>();
+                else
+                    return new HomologacaoModel();
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
 
         }
 
@@ -120,6 +155,12 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
                 string apiUrl = $"{_baseApiUrl}homologacao/buscar-parecer/{protocolo}";
                 var response = await _httpClient.GetAsync(apiUrl);
 
+                if (!response.IsSuccessStatusCode)
+                {
+                    if (response.StatusCode == HttpStatusCode.InternalServerError)
+                        return PartialView("_ErrorPartialView");
+                }
+                else
                 if (response.StatusCode == HttpStatusCode.OK)
                 { 
                     ViewBag.Parecer = await response.Content.ReadFromJsonAsync<JulgamentoModel>();
@@ -142,37 +183,12 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
            
         }
 
-
-        [HttpGet]
-        public async Task<HomologacaoModel> BuscarPrtHomologar(string protocolo)
-        {
-            try
-            {
-                string apiUrl = $"{_baseApiUrl}homologacao/buscar-homologacao/{protocolo}";
-                var response = await _httpClient.GetAsync(apiUrl);
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                    return await response.Content.ReadFromJsonAsync<HomologacaoModel>();
-                else
-                    return new HomologacaoModel();
-
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-
-        }
-
-
-
-
         [HttpGet]
         public async Task<PartialViewResult> HomologacaoDetalhe(string prt_numero)
         {
             var prtnumero = prt_numero.Replace("/", "");
             var Protocolo = await BuscarPrtHomologar(prtnumero);
+
             return PartialView("_DetalhamentoProtocolo", Protocolo);
 
            
@@ -181,31 +197,24 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
         [HttpGet]
         public async Task<PartialViewResult> DetalheAIT(string ait)
         {
-            try
-            {
-                string apiUrl = $"{_baseSipApiUrl}ait/v1/{ait}";
+               string apiUrl = $"{_baseSipApiUrl}ait/v1/{ait}";
                 var response = await _httpClient.GetAsync(apiUrl);
 
-                if (response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
+                {
+                    if (response.StatusCode == HttpStatusCode.InternalServerError)
+                        return PartialView("_ErrorPartialView");
+                }
+                else if (response.StatusCode == HttpStatusCode.OK)
                 {
                     var apiAitModel = await response.Content.ReadFromJsonAsync<ResultGetAitModel>();
 
                     DateTime defesaNaiDate = DateTime.Parse(apiAitModel.defesanai);
                     apiAitModel.defesanai = defesaNaiDate.ToString("dd/MM/yyyy");
 
-
                     return PartialView("_DetalhamentoAIT", apiAitModel);
                 }
-                else
-                {
-                    return PartialView("_DetalhamentoAIT", null);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+                return PartialView("_DetalhamentoAIT", null);           
 
         }
 
@@ -221,7 +230,9 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
 
             if (!response.IsSuccessStatusCode)
             {
-                if (response.StatusCode == HttpStatusCode.InternalServerError)
+                if (response.StatusCode == HttpStatusCode.BadRequest)
+                    return PartialView("_ErrorPartialView");
+                else if (response.StatusCode == HttpStatusCode.InternalServerError)
                     return PartialView("_ErrorPartialView");
             }
 
@@ -253,6 +264,8 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
             var  apiUrl = $"{_baseApiUrl}homologacao/realizar-homologacao";
             var  response = await _httpClient.PostAsJsonAsync(apiUrl, julgamentoModel);
 
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+                return await HandleErrorResponse(response);
 
             if (response.StatusCode == HttpStatusCode.InternalServerError)
                 return PartialView("_ErrorPartialView");
@@ -272,20 +285,23 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
             var prtnumero = retificacaoModel.MOVPRO_PRT_NUMERO.Replace("/", "");
             HomologacaoModel homologacaoModel = await BuscarPrtHomologar(prtnumero); 
 
+
+
             if (homologacaoModel != null)
             {
-                retificacaoModel.MOVPRO_ID = homologacaoModel.MOVPRO_ID;
+                retificacaoModel.MOVPRO_ID = homologacaoModel.MOVPRO_ID;               
                 retificacaoModel.MOVPRO_USUARIO_ORIGEM = userMatrix;
             }
 
             string apiUrl = $"{_baseApiUrl}homologacao/retificar-voto";
             var response = await _httpClient.PostAsJsonAsync(apiUrl, retificacaoModel);
-            if (!response.IsSuccessStatusCode)
-            {
-                if (response.StatusCode == HttpStatusCode.InternalServerError)
-                    return PartialView("_ErrorPartialView");
-            }
-           
+
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+                return await HandleErrorResponse(response);
+
+            if (response.StatusCode == HttpStatusCode.InternalServerError)
+                return PartialView("_ErrorPartialView");
+          
 
             if (response.StatusCode == HttpStatusCode.OK)
                 ViewBag.Protocolo = await BuscarListaProtocolo(homologacaoModel.SETSUB_ID, "Todos");

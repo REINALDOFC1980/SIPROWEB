@@ -45,15 +45,34 @@ namespace SIPROWEB.Controllers
 
             PessoaModel? pessoaModel = null;
 
-            if (response.StatusCode == HttpStatusCode.NoContent)
-                return Json(new { message = "Nenhuma pessoa encontrada.", pessoaModel });
-        
+            var retornodetran = 0;
 
-            if (response.IsSuccessStatusCode)
+            if (response.StatusCode == HttpStatusCode.OK)
                 pessoaModel = await response.Content.ReadFromJsonAsync<PessoaModel>();
-            else
-                return Json(new { message = "Erro ao buscar pessoa.", pessoaModel });
 
+
+            else if (response.StatusCode == HttpStatusCode.NoContent)
+            {
+                //Pegando dados do Detran Para atualizar os campos no formulário
+                apiUrl = $"{_baseApiUrl}pessoa/getpessoadetram/{cpf}";
+                response = await _httpClient.GetAsync(apiUrl);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    retornodetran = 1;
+                    pessoaModel = new PessoaModel();
+
+                    var pessoaDetranModel = await _httpClient.GetFromJsonAsync<PessoaModel>(apiUrl);
+                    pessoaModel.pes_Nome = pessoaDetranModel.pes_Nome;
+                    pessoaModel.pes_NumRegistroCNH = pessoaDetranModel.pes_NumRegistroCNH;
+                    pessoaModel.pes_DT_Validade = pessoaDetranModel.pes_DT_Validade;
+                    pessoaModel.pes_UFCNH = pessoaDetranModel.pes_UFCNH;
+                }
+                else if (response.StatusCode == HttpStatusCode.NoContent)
+                    return Json(new { message = "Nenhuma pessoa encontrada.", pessoaModel });
+                else if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    return Json(new { message = "Erro na busca.", pessoaModel });
+            }           
 
             return Json(new { pessoaModel });
         }

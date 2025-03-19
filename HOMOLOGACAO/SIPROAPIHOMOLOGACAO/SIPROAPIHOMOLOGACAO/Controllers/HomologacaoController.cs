@@ -155,8 +155,7 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
                 // Iniciar a transação
                 using (var transaction = connection.BeginTransaction())
                 {
-                    try
-                    {
+                    
                         await _homologacaoService.RealizarHomologacao(julgamentoModel,  connection, transaction);
 
 
@@ -164,12 +163,7 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
 
                         return Ok();
 
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        throw;
-                    }
+                   
                 }
             }
 
@@ -189,8 +183,7 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
                 // Iniciar a transação
                 using (var transaction = connection.BeginTransaction())
                 {
-                    try
-                    {
+                    
                         await _homologacaoService.RetificarVoto(retificacaoModel, connection, transaction);
 
 
@@ -198,12 +191,7 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
 
                         return Ok();
 
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        throw;
-                    }
+                    
                 }
             }
         }

@@ -17,6 +17,7 @@ namespace SIPROSHAREDDISTRIBUICAO.Models
         public string? PRT_ASSUNTO { get; set; }
         public string? PRT_USUARIO { get; set; }
         public string? PRT_STATUS { get; set; }
+        public string? SETSUB_NOME { get; set; }
         public string? PRT_QTD { get; set; }
     }
 }

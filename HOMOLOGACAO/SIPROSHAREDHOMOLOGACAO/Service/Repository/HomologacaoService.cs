@@ -1,8 +1,11 @@
 ﻿using Dapper;
+using FluentValidation;
 using SIPROSHARED.DbContext;
 using SIPROSHARED.Models;
+using SIPROSHARED.Validator;
 using SIPROSHAREDHOMOLOGACAO.Models;
 using SIPROSHAREDHOMOLOGACAO.Service.IRepository;
+using SIPROSHAREDHOMOLOGACAO.Validator;
 using SIRPOEXCEPTIONS.ExceptionBase;
 using System.Data;
 using System.Data.Common;
@@ -21,6 +24,12 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
         public async Task<List<HomologacaoModel>> LocalizarHomolgacao(int setor, string resultado)
         {
+            //validação
+            if (setor == 0)
+            {
+                throw new ErrorOnValidationException(new List<string> { "Setor está vazio!" });
+            }
+
             var query = @"
 				 select Movpro_id,
 	                    SETSUB_NOME,
@@ -47,8 +56,13 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
         public async Task<HomologacaoModel> BuscarHomologacao(string prt_numero)
         {
-            try
+            //validação
+            if (string.IsNullOrEmpty(prt_numero))
             {
+                throw new ErrorOnValidationException(new List<string> { "O número do processo não foi identificado." });
+            }
+
+            
                 var query = @"				 
                  select MOVPRO_ID,
                         SETSUB_NOME,
@@ -72,21 +86,20 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
                     return result;
                 }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+           
 
            
         }
 
         public async Task<List<Anexo_Model>> BuscarAnexo(string ait)
         {
+            //validação
+            if (string.IsNullOrEmpty(ait))
             {
+                throw new ErrorOnValidationException(new List<string> { "O número do AIT não foi identificado." });
+            }
 
-                var query = @"
+            var query = @"
 
 
 			                select PRTDOC_ID,
@@ -106,14 +119,12 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                 }
 
 
-            }
+            
         }
 
         public async Task<List<SetorModel>> BuscarSetor()
         {
-            try
-            {
-                var query = @" SELECT 
+              var query = @" SELECT 
                                SETSUB_ID, 
                                UPPER(SETSUB_NOME) AS SETSUB_NOME 
                           FROM SetorSub  
@@ -125,20 +136,19 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                     var command = await connection.QueryAsync<SetorModel>(query);
                     return command.ToList();
                 }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
-
 
         }
 
         public async Task<List<JulgamentoModel>> BuscarVotacao(string processo)
         {
-            try
+            //validação
+            if (string.IsNullOrEmpty(processo))
             {
+                throw new ErrorOnValidationException(new List<string> { "O número do processo não foi identificado." });
+            }
+
+
+           
                 var query = @"  select 
                                     MOVPRO_ID,
 		                            DISJUG_RELATOR,
@@ -160,25 +170,26 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                     return command.ToList();
                 }
 
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            
         }
 
         public async Task RealizarHomologacao(JulgamentoModel julgamentoModel,  IDbConnection connection, IDbTransaction transaction)
         {
-            try
-            {
+           
+                //validando a model agendamento 
+                var validator = new HomologarValidator();
+                var result = validator.Validate(julgamentoModel);
+                if (result.IsValid == false)
+                    throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
+                //fim
+
+
 
                 var dbParametro = new DynamicParameters();
                 dbParametro.Add("@MOVPRO_ID", julgamentoModel.MovPro_id);
                 dbParametro.Add("@USUARIOORIGEM", julgamentoModel.Disjug_Homologador);
                 dbParametro.Add("@MOVPRO_PARECER_ORIGEM", julgamentoModel.Disjug_Parecer_Relatorio);
                 dbParametro.Add("@PRT_NUMERO", julgamentoModel.MovPro_Prt_Numero);
-                dbParametro.Add("@Homologador", julgamentoModel.Disjug_Homologador);
                 dbParametro.Add("@SETORDESTINO", julgamentoModel.Disjul_SetSub_Id);
 
 
@@ -201,125 +212,109 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                    from Movimentacao_Processo where MOVPRO_ID = @MOVPRO_ID
 
                  update Protocolo  
-                    set PRT_HOMOLOGADOR = @Homologador,  
+                    set PRT_HOMOLOGADOR = @USUARIOORIGEM,  
                         PRT_DT_HOMOLOGACAO = GETDATE(),  
                         PRT_ACAO = 'PUBLICAR'  
                   Where PRT_NUMERO = @PRT_NUMERO  
                 ";
                 await connection.ExecuteAsync(query, dbParametro, transaction);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+           
 
 
         }
 
         public async Task<JulgamentoModel> BuscarParecer(string processo)
         {
-            try
+           
+            var query = @"  select top 1 
+                                    MovPro_id,
+                                    MovPro_Prt_Numero,
+                                    Disjug_Parecer_Relatorio
+                                from Protocolo_Distribuicao_Julgamento 
+                        inner join Protocolo_Distribuicao on(DISJUG_DIS_ID = DIS_ID)
+	                    inner join Movimentacao_Processo on (DIS_MOV_ID = MOVPRO_ID) 
+                                where Replace(movpro_prt_numero,'/','') = @processo
+	                            and Disjug_Parecer_Relatorio is not null";
+
+
+            using (var connection = _context.CreateConnection())
             {
-                var query = @"  select top 1 
-                                       MovPro_id,
-                                       MovPro_Prt_Numero,
-                                       Disjug_Parecer_Relatorio
-                                  from Protocolo_Distribuicao_Julgamento 
-                            inner join Protocolo_Distribuicao on(DISJUG_DIS_ID = DIS_ID)
-	                        inner join Movimentacao_Processo on (DIS_MOV_ID = MOVPRO_ID) 
-                                 where Replace(movpro_prt_numero,'/','') = @processo
-	                               and Disjug_Parecer_Relatorio is not null";
-
-
-                using (var connection = _context.CreateConnection())
-                {
-                    var parametros = new { processo };
-                    var command = await connection.QueryFirstOrDefaultAsync<JulgamentoModel>(query, parametros);
-                    return command;
-                }
-
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        public async Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero)
-        {
-            try
-            {
-                List<AnexoModel> anexoModel = new List<AnexoModel>();
-
-                using (var connection = _context.CreateConnection())
-                {
-                    // Agora, você pode recuperar as imagens da tabela temporária
-                    string selectQuery = @"    SELECT PRTDOC_ID,
-                                           PRTDOC_PRT_NUMERO,
-                                           PRTDOC_OBSERVACAO,
-                                           PRTDOC_IMAGEM
-                                    FROM Protocolo_Documento_Imagem 
-                                    WHERE REPLACE(PRTDOC_PRT_NUMERO, '/', '') = @prt_numero";
-
-                    using (var selectCommand = connection.CreateCommand())
-                    {
-                        connection.Open();
-
-                        selectCommand.CommandText = selectQuery;
-                        var param = selectCommand.CreateParameter();
-                        param.ParameterName = "@prt_numero";
-                        param.Value = prt_numero;
-                        selectCommand.Parameters.Add(param);
-
-                        // Executa a consulta SELECT
-                        using (var reader = selectCommand.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                var imagemBytes = (byte[])reader["PRTDOC_IMAGEM"];
-                                var imagemBase64 = Convert.ToBase64String(imagemBytes);
-                                var nomeArquivo = reader["PRTDOC_OBSERVACAO"].ToString();
-
-                                // Cria uma nova instância de AnexoModel
-                                var anexo = new AnexoModel
-                                {
-                                    nome = nomeArquivo,
-                                    caminhosrc = $"<img src='data:image/jpeg;base64,{imagemBase64}' alt='Imagem' style=\"width: 100%; height: 150px;\">",
-                                    caminhohref = $"data:image/jpeg;base64,{imagemBase64}"
-                                };
-                                // Adiciona o objeto AnexoModel à lista
-                                anexoModel.Add(anexo);
-                            }
-                        }
-                    }
-
-                    return anexoModel;
-                }
-            }
-            catch (Exception ex)
-            {
-
-                throw;
+                var parametros = new { processo };
+                var command = await connection.QueryFirstOrDefaultAsync<JulgamentoModel>(query, parametros);
+                return command;
             }
 
            
         }
 
+        public async Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero)
+        {
+            List<AnexoModel> anexoModel = new List<AnexoModel>();
+
+            using (var connection = _context.CreateConnection())
+            {                
+                string selectQuery = @" SELECT PRTDOC_ID,
+                                               PRTDOC_PRT_NUMERO,
+                                               PRTDOC_OBSERVACAO,
+                                               PRTDOC_IMAGEM
+                                          FROM Protocolo_Documento_Imagem 
+                                         WHERE REPLACE(PRTDOC_PRT_NUMERO, '/', '') = @prt_numero";
+
+                using (var selectCommand = connection.CreateCommand())
+                {
+                    connection.Open();
+
+                    selectCommand.CommandText = selectQuery;
+                    var param = selectCommand.CreateParameter();
+                    param.ParameterName = "@prt_numero";
+                    param.Value = prt_numero;
+                    selectCommand.Parameters.Add(param);
+
+                    // Executa a consulta SELECT
+                    using (var reader = selectCommand.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var imagemBytes = (byte[])reader["PRTDOC_IMAGEM"];
+                            var imagemBase64 = Convert.ToBase64String(imagemBytes);
+                            var nomeArquivo = reader["PRTDOC_OBSERVACAO"].ToString();
+
+                            // Cria uma nova instância de AnexoModel
+                            var anexo = new AnexoModel
+                            {
+                                nome = nomeArquivo,
+                                caminhosrc = $"<img src='data:image/jpeg;base64,{imagemBase64}' alt='Imagem' style=\"width: 100%; height: 150px;\">",
+                                caminhohref = $"data:image/jpeg;base64,{imagemBase64}"
+                            };
+                            
+                            // Adiciona o objeto AnexoModel à lista
+                            anexoModel.Add(anexo);
+                        }
+                    }
+                }
+
+                return anexoModel;
+            }
+           
+        }
+
         public async Task RetificarVoto(RetificacaoModel retificacaoModel, IDbConnection connection, IDbTransaction transaction)
         {
-            try
-            {
-                var dbParametro = new DynamicParameters();
+            //validando a model agendamento 
+            var validator = new RetificacaoValidator();
+            var result = validator.Validate(retificacaoModel);
+            if (result.IsValid == false)
+                throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
+            //fim
+
+
+            var dbParametro = new DynamicParameters();
                 dbParametro.Add("@MOVPRO_ID", retificacaoModel.MOVPRO_ID);
                 dbParametro.Add("@MOVPRO_PARECER_ORIGEM", retificacaoModel.MOVPRO_PARECER_ORIGEM);
                 dbParametro.Add("@MOVPRO_USUARIO_ORIGEM", retificacaoModel.MOVPRO_USUARIO_ORIGEM);
 
 
                 var query = @"
-
-
 		             DECLARE @SetorOrigem int
 
 			             SET @SetorOrigem = (Select top 1 
@@ -328,64 +323,59 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 							                   where SETSUBUSU_USUARIO = @MOVPRO_USUARIO_ORIGEM)
 	             
 
-                SELECT TOP 1 DIS_ID, DIS_MOV_ID, 
-			                 MOVPRO_SETOR_ORIGEM AS SetorDestino, 
-			                 MOVPRO_PRT_NUMERO 
-                        INTO #Processo
-                        FROM Movimentacao_Processo 
-                  INNER JOIN Protocolo_Distribuicao ON (MovPro_id = DIS_MOV_ID)
-                       WHERE MOVPRO_PRT_NUMERO = ( SELECT TOP 1 Movpro_prt_numero 
-					        		                FROM Movimentacao_Processo 
-							                       WHERE MovPro_id = @MOVPRO_ID)
+                    SELECT TOP 1 DIS_ID, DIS_MOV_ID, 
+			                     MOVPRO_SETOR_ORIGEM AS SetorDestino, 
+			                     MOVPRO_PRT_NUMERO 
+                            INTO #Processo
+                            FROM Movimentacao_Processo 
+                      INNER JOIN Protocolo_Distribuicao ON (MovPro_id = DIS_MOV_ID)
+                           WHERE MOVPRO_PRT_NUMERO = ( SELECT TOP 1 Movpro_prt_numero 
+					        		                    FROM Movimentacao_Processo 
+							                           WHERE MovPro_id = @MOVPRO_ID)
 
-                      DELETE PD
-                        FROM Protocolo_Distribuicao_Julgamento pd INNER JOIN #Processo ap ON (pd.DISJUG_DIS_ID = ap.DIS_ID)
+                          DELETE PD
+                            FROM Protocolo_Distribuicao_Julgamento pd INNER JOIN #Processo ap ON (pd.DISJUG_DIS_ID = ap.DIS_ID)
 
-                      UPDATE MP
-                         SET MOVPRO_STATUS = 'HOMOLOGADO->REFITICAR'
-                        FROM Movimentacao_Processo MP where MOVPRO_ID = @MOVPRO_ID
+                          UPDATE MP
+                             SET MOVPRO_STATUS = 'HOMOLOGADO->REFITICAR'
+                            FROM Movimentacao_Processo MP where MOVPRO_ID = @MOVPRO_ID
 
 
-                    --Mudando o status dos processo distribuido
-                      UPDATE PD
-                         SET DIS_DESTINO_STATUS = 'RECEBIDO',
-                             DIS_RETORNO = 1
-                        FROM Protocolo_Distribuicao PD INNER JOIN #Processo P ON (pd.DIS_MOV_ID = p.DIS_MOV_ID)
+                        --Mudando o status dos processo distribuido
+                          UPDATE PD
+                             SET DIS_DESTINO_STATUS = 'RECEBIDO',
+                                 DIS_RETORNO = 1
+                            FROM Protocolo_Distribuicao PD INNER JOIN #Processo P ON (pd.DIS_MOV_ID = p.DIS_MOV_ID)
                      
 
-                      UPDATE P
-                         SET PRT_ACAO = 'RETIFICAR VOTO',  
-	                         PRT_DT_JULGAMENTO = NULL,  
-	                         PRT_RESULTADO = NULL,  
-                             PRT_DT_HOMOLOGACAO = NULL  
-                        FROM Protocolo P INNER JOIN  #Processo  ON (P.PRT_NUMERO = MOVPRO_PRT_NUMERO)
+                          UPDATE P
+                             SET PRT_ACAO = 'RETIFICAR VOTO',  
+	                             PRT_DT_JULGAMENTO = NULL,  
+	                             PRT_RESULTADO = NULL,  
+                                 PRT_DT_HOMOLOGACAO = NULL  
+                            FROM Protocolo P INNER JOIN  #Processo  ON (P.PRT_NUMERO = MOVPRO_PRT_NUMERO)
                  
 
-                -- Inserindo novo registro na Movimentacao_Processo
-                      INSERT INTO Movimentacao_Processo
-                      SELECT MOVPRO_PRT_NUMERO,
-                             @SetorOrigem,
-                             @MOVPRO_USUARIO_ORIGEM, 
-                             GETDATE(),
-                             @MOVPRO_PARECER_ORIGEM, -- Observação ou parecer!
-                            'Processo devolvido para refiticar voto.',
-                             SetorDestino,
-                            'RECEBIDO->DISTRIBUIDO',
-                             NULL,
-                             NULL
-                       FROM #Processo;
+                    -- Inserindo novo registro na Movimentacao_Processo
+                          INSERT INTO Movimentacao_Processo
+                          SELECT MOVPRO_PRT_NUMERO,
+                                 @SetorOrigem,
+                                 @MOVPRO_USUARIO_ORIGEM, 
+                                 GETDATE(),
+                                 @MOVPRO_PARECER_ORIGEM, -- Observação ou parecer!
+                                'Processo devolvido para refiticar voto.',
+                                 SetorDestino,
+                                'RECEBIDO->DISTRIBUIDO',
+                                 NULL,
+                                 NULL
+                           FROM #Processo;
 
-                -- Limpando a tabela temporária
-                    DROP TABLE #Processo;
+                    -- Limpando a tabela temporária
+                        DROP TABLE #Processo;
 
                 ";
                 await connection.ExecuteAsync(query, dbParametro, transaction);
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+           
 
          
         }

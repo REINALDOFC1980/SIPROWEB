@@ -78,9 +78,18 @@
                                 <label>Digite o número de autuação </label> -      <small>(T000000000)</small>
                            
                                 <input type="text" id="Age_AIT" name="Age_AIT" class="form-control" required maxlength="10">
+
                                 <input type="hidden" id="Ass_Nome" name="Ass_Nome" class="form-control">
                        
                             </div>
+                           @*  <div class="form-group">
+                                <label>Digite o número da placa </label>
+
+                                <input type="text" id="Age_Placa" name="Age_Placa" class="form-control" required maxlength="10">                               
+
+                            </div>
+ *@
+
 
                             <div class="form-group">
                                 <label>Selecione o serviço que deseja realizar a abertura</label> <br />
@@ -114,9 +123,8 @@
                         <div class="col-sm-4">
                             <h4>Qual a origem?</h4>
                             <p class="text-center">
+                                <div><label><input type="radio" checked value="48" id="Age_Cod_Origem" name="Age_Cod_Origem"> Presencial </label></div>
                                 <div><label><input type="radio" checked value="64" id="Age_Cod_Origem" name="Age_Cod_Origem"> Correios </label></div>
-                                <div><label><input type="radio" value="90" id="Age_Cod_Origem" name="Age_Cod_Origem"> Prefeitura Bairro </label></div>
-                                <div><label><input type="radio" value="109" id="Age_Cod_Origem" name="Age_Cod_Origem"> Protocolo Órgão Domicílio/287 </label></div>
                             </p>
                         </div>
 
@@ -163,11 +171,11 @@
                 <p class="text-center h6" id="mensagem"></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-white" id="btnNegarCondutor"> Portador </button>
-                <button type="button" class="btn btn-dark" id="btnConfimarCondutor"> Confimar Condutor</button>
-                <button type="button" class="btn btn-dark" id="btnConfimarProprietario"> Continuar </button>
+                <button type="button" class="btn btn-white me-2" id="btnNegarCondutor"> Portador </button>
+                <button type="button" class="btn btn-dark me-2" id="btnConfimarCondutor"> Confimar Condutor</button>
+                <button type="button" class="btn btn-dark me-2" id="btnConfimarProprietario"> Continuar </button>
                 
-            </div>
+            </div>2
         </div>
     </div>
 </div>
@@ -211,10 +219,7 @@
 
 
     //CONFIMAR ABERTURA SEM AGENDAMENTO
-        $('#btnconfirmarabertura').click(function () {
-
-
-          
+        $('#btnconfirmarabertura').click(function () {          
 
             inicializarValidacaoFormulario("#FormAbertura");
 

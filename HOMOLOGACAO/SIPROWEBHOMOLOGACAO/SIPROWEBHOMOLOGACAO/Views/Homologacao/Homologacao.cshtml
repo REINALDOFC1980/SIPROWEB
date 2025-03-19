@@ -162,6 +162,45 @@
     </div>
 </div>
 
+
+
+@*Modal*@
+<div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <div class="modal-dialog">
+        <div class="modal-content animated bounceInRight">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <i class="fa fa-share-square-o modal-icon"></i>
+                <h4 class="modal-title">Devolução de Processo</h4>
+                <small class="font-bold">Encamimhar processo para ser retificado.</small>
+            </div>
+
+
+            <div class="modal-body">
+
+                <form id="form_distribuicao">
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label text-right">Processo:</label>
+                        <div class="col-lg-9"><input type="text" class="form-control" id="PRT_NUMERO_R" readonly></div>
+                        <input type="hidden" class="form-control" id="MOVPRO_ID" />
+                    </div>
+                  
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label text-right">Motivo:</label>
+                        <div class="col-lg-9"><textarea name="MOVPRO_PARECER_ORIGEM_R" id="MOVPRO_PARECER_ORIGEM_R" rows="5" cols="40" class="form-control" placeholder="Digite sua mensagem aqui..."></textarea></div>
+                    </div>
+                   
+                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="btnDevolver">Devolver Processo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
 <!-- blueimp gallery -->
@@ -199,6 +238,7 @@
         event.preventDefault();
         LocalizarProtocolo(Setor, Resultado);
     });
+
 
     $('#Vlo_Busca').on('input', function () {
         var searchTerm = $(this).val();
@@ -252,6 +292,7 @@
     let isProcessing = false; // Variável de controle para evitar múltiplos cliques
 
     $(document).on('click', '#btn_homologacao', function () {
+      
         var formData = $("#form_homologacao").serialize();
 
         Notiflix.Confirm.Show(
@@ -271,8 +312,15 @@
                     type: 'POST',
                     data: formData,
                     success: function (response) {
-                        AbrirHomologacao("pr0/000", "a00000");
+
                         Notiflix.Loading.Remove();
+                        if (response.error == 'BadRequest') {
+                            Notiflix.Notify.Failure(response.message);
+                            return false;
+                        };
+
+                        AbrirHomologacao("pr0/000", "a00000");
+
                         Notiflix.Notify.Success("Homologação realizada com sucesso!");
                         $('#div_listaHomologacao').html(response);
                     },
@@ -294,6 +342,19 @@
 
 
     $(document).on('click', '#btn_retificar', function () {
+
+
+        $('#myModal').modal('show');
+        $('#PRT_NUMERO_R').val($('#PRT_NUMERO').val());
+    
+        
+
+    });
+    $(document).on('click', '#btnDevolver', function () {
+        
+        $('#myModal').modal('hide');
+        $('#MovPro_Parecer_Origem').val($('#MOVPRO_PARECER_ORIGEM_R').val());
+
         var formData = $("#form_homologacao").serialize();
 
         Notiflix.Confirm.Show(
@@ -303,17 +364,24 @@
             'Não',
             async function okCb() {
 
-            if (isProcessing) return; // Impede execução se já estiver em andamento
-            isProcessing = true; // Marca como em processamento
-            Notiflix.Loading.Standard('Aguarde...');
+                if (isProcessing) return; // Impede execução se já estiver em andamento
+                isProcessing = true; // Marca como em processamento
+                Notiflix.Loading.Standard('Aguarde...');
 
                 $.ajax({
                     url: '@Url.Action("RetificarVoto", "Homologacao")',
                     type: 'POST',
                     data: formData,
                     success: function (response) {
-                        AbrirHomologacao("pr0/000", "a00000");
+
                         Notiflix.Loading.Remove();
+                        if (response.error == 'BadRequest') {
+                            Notiflix.Notify.Failure(response.message);
+                            return false;
+                        };
+
+                        AbrirHomologacao("pr0/000", "a00000");
+
                         Notiflix.Notify.Success("Operação realizada com sucesso!");
                         $('#div_listaHomologacao').html(response);
                     },
@@ -330,10 +398,10 @@
                 // Configurações adicionais (opcional)
             }
         );
+
+
     });
 
-
-
-
+    
 
 </script>

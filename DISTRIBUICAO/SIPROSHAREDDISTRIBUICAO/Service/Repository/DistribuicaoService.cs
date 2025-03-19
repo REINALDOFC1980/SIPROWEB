@@ -94,7 +94,7 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
                             INNER JOIN Movimentacao_Processo ON PRT_NUMERO = MOVPRO_PRT_NUMERO
                             INNER JOIN Protocolo_Distribuicao ON MOVPRO_ID = DIS_MOV_ID
                             WHERE
-                                DIS_DESTINO_STATUS IN ('RECEBIDO', 'JULGANDO') 
+                                DIS_DESTINO_STATUS IN ('RECEBIDO', 'JULGANDO','INSTRUCAO') 
                         )
 
                         , Filtrado AS (
@@ -146,42 +146,49 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
             var query = @"
 				
                 WITH Prioridade AS (
-                   SELECT 
-                       DIS_ID,
-                       PRT_NUMERO,
-                       PRT_AIT,
-                       ASS_NOME AS PRT_ASSUNTO,
-                       DIS_DESTINO_USUARIO AS PRT_USUARIO,
-                       DIS_DESTINO_STATUS AS PRT_STATUS,
-		               DIS_ORIGEM_DATA,
-                       ROW_NUMBER() OVER (
-                           PARTITION BY PRT_NUMERO 
-                           ORDER BY 
-                               DIS_ORIGEM_DATA DESC
-                       ) AS RN
-                   FROM 
-                       Protocolo
-                       INNER JOIN Movimentacao_Processo ON PRT_NUMERO = MOVPRO_PRT_NUMERO
-                       INNER JOIN Protocolo_Distribuicao ON MOVPRO_ID = DIS_MOV_ID
-                       INNER JOIN Assunto ON PRT_ASSUNTO = ASS_ID
-                   WHERE 
-                       DIS_DESTINO_USUARIO = @usuario
-                      
-               )
-               SELECT 
-                   DIS_ID, 
-                   PRT_NUMERO,
-                   PRT_AIT,
-                   PRT_ASSUNTO,
-                   PRT_USUARIO,
-                   PRT_STATUS
-               FROM 
-                   Prioridade
-               WHERE 
-                   RN = 1 
-                   AND PRT_STATUS IN ('RECEBIDO', 'JULGANDO','INSTRUCAO')
-               ORDER BY 
-                   DIS_ORIGEM_DATA DESC;";
+                    SELECT 
+                        DIS_ID,
+                        PRT_NUMERO,
+                        PRT_AIT,
+                        ASS_NOME AS PRT_ASSUNTO,
+                        DIS_DESTINO_USUARIO AS PRT_USUARIO,
+                        DIS_DESTINO_STATUS AS PRT_STATUS,
+                        DIS_ORIGEM_DATA,
+                        INSDIS_USUARIO_DESTINO,
+		                SETSUB_NOME AS SETORORIGEM,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY PRT_NUMERO 
+                            ORDER BY 
+                                DIS_ORIGEM_DATA DESC
+                        ) AS RN
+                    FROM 
+                        Protocolo
+                        INNER JOIN Movimentacao_Processo ON PRT_NUMERO = MOVPRO_PRT_NUMERO
+                        INNER JOIN Protocolo_Distribuicao ON MOVPRO_ID = DIS_MOV_ID
+                        INNER JOIN Assunto ON PRT_ASSUNTO = ASS_ID
+                        LEFT JOIN Instrucao_Distribuicao ON (INSDIS_DIS_ID = DIS_ID  AND INSDIS_STATUS = 'RECEBIDO')
+		                LEFT JOIN SetorSubXUsuario ON (DIS_DESTINO_USUARIO = SETSUBUSU_USUARIO)
+                        LEFT JOIN SetorSub on (SETSUB_ID = SETSUBUSU_SETSUB_ID)
+                    WHERE 
+                        DIS_DESTINO_USUARIO = @usuario
+        
+                )
+                SELECT 
+                    DIS_ID, 
+                    PRT_NUMERO,
+                    PRT_AIT,
+                    PRT_ASSUNTO,
+                    PRT_USUARIO,
+                    PRT_STATUS,
+                    isnull(SETSUB_NOME,SETORORIGEM) as SETSUB_NOME
+
+               FROM Prioridade LEFT JOIN SetorSubXUsuario ON (INSDIS_USUARIO_DESTINO = SETSUBUSU_USUARIO)
+                            LEFT JOIN SetorSub on (SETSUB_ID = SETSUBUSU_SETSUB_ID)
+                WHERE 
+                    RN = 1 
+                    AND PRT_STATUS IN ('RECEBIDO', 'JULGANDO','INSTRUCAO')
+                ORDER BY 
+                    DIS_ORIGEM_DATA DESC";
 
             using (var connection = _context.CreateConnection())
             {

@@ -661,7 +661,8 @@
                             window.location.href = '@Url.Action("InternalServerError", "Home")';
                         }
                         else if (response.error == 'BadRequest') {
-                            Notiflix.Notify.Failure(response.retorno);
+                            Notiflix.Notify.Failure(response.message);
+                            return false;
                         }
                         else {
                           //  Notiflix.Notify.Success(response.retorno);
@@ -929,7 +930,7 @@
                             $('#PES_Nome').prop('readonly', true);
                             $('#PES_NumRegistroCNH').prop('readonly', true);
                             $('#PES_UFCNH').prop('readonly', true);
-                            $('#PES_DT_Validade').prop('readonly', true);
+                            //$('#PES_DT_Validade').prop('readonly', true);
                             $('#PES_Email').focus();
                             divAlerta.style.display = 'none';
                         }                 
