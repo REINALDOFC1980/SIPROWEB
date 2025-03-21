@@ -158,8 +158,13 @@ namespace SIPROAPI.Controllers
 
                     //Integração API SIP
                     var response = await EnviarRequisicaoAsync(protocoloModel);
+                    if(response == null)
+                    {
+                        transaction.Commit();
+                        return Ok(new { protocolo = protocoloModel.PRT_NUMERO });
 
-                    if (!response.IsSuccessStatusCode)
+                    }
+                    else if (!response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
                         transaction.Rollback();
@@ -275,8 +280,8 @@ namespace SIPROAPI.Controllers
 
             var condutor = await _pessoaService.GetDadosPessoa(protocoloModel.PRT_CPF_CONDUTOR);
 
-
-            if (protocoloModel.PRT_ASSUNTO == 1)//Condutor
+            //Condutor
+            if (protocoloModel.PRT_ASSUNTO == 1 && (protocoloModel.PRT_RESTRICAO == 1 || protocoloModel.PRT_RESTRICAO == 5))
             {
                 if (!string.IsNullOrEmpty(protocoloModel.PRT_CNH_ESTRANGEIRA))
                 {
@@ -335,18 +340,18 @@ namespace SIPROAPI.Controllers
                 var apiUrl = $"{_baseApiUrl}defesa/v1";
                 return await httpClient.PostAsJsonAsync(apiUrl, payload);
             }
-            //else if (protocoloModel.PRT_ASSUNTO == 3)//ressarcimento
-            //{
-            //    var payload = new
-            //    {
-            //        recAitNumero = protocoloModel.PRT_AIT,
-            //        recRsProcesso = protocoloModel.PRT_NUMERO,                
-            //        recRsDataabertura = DateTime.Now.ToString("yyyy-MM-dd"),              
-            //        recRsUsuariocadastroabertura = protocoloModel.PRT_ATENDENTE,
-            //    };
-            //    var apiUrl = $"{_baseApiUrl}ressarcimento/v1";
-            //    return await httpClient.PostAsJsonAsync(apiUrl, payload);
-            //}
+            else if (protocoloModel.PRT_ASSUNTO == 3)//ressarcimento
+            {
+                var payload = new
+                {
+                    recAitNumero = protocoloModel.PRT_AIT,
+                    recRsProcesso = protocoloModel.PRT_NUMERO,
+                    recRsDataabertura = DateTime.Now.ToString("yyyy-MM-dd"),
+                    recRsUsuariocadastroabertura = protocoloModel.PRT_ATENDENTE,
+                };
+                var apiUrl = $"{_baseApiUrl}ressarcimento/v1";
+                return await httpClient.PostAsJsonAsync(apiUrl, payload);
+            }
             else if (protocoloModel.PRT_ASSUNTO == 8)//Jari
             {
                 var payload = new

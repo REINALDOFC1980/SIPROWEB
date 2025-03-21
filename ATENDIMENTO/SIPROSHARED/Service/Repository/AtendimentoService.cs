@@ -148,34 +148,43 @@ namespace SIPROSHARED.Service.Repository
                 dbParametro.Add("@Age_Cod_Assunto", agendaModel.Age_Cod_Assunto);
                 dbParametro.Add("@Age_Cod_Origem", agendaModel.Age_Cod_Origem);
 
+
+
                 using (var connection = _context.CreateConnection())
                 {                   
 
                     // Insere o novo registro
                     string insertQuery = @"
-                    INSERT INTO Agendamento
-                    (      
-                        Age_Dt_Programada,
-                        Age_AIT,
-                        Age_Doc_Solicitante,
-                        Age_Cod_Assunto,
-                        Age_Cod_Geral,
-                        Age_Cod_Origem,
-                        Age_Abertura,
-                        Age_Tipo)
-                    select 
-                        GETDATE(),       
-                        @Age_AIT,              
-                        @Age_Doc_Solicitante, 
-                        @Age_Cod_Assunto, 
-                        00, -- Coloque um comentário para explicar este valor
-                        @Age_Cod_Origem, 
-                        GETDATE(),
-                        'Presencial'
-	                    WHERE NOT EXISTS ( SELECT 1 
-                                             FROM Agendamento 
-                                            WHERE Age_AIT = @Age_AIT 
-                                              AND Age_Cod_Assunto = @Age_Cod_Assunto);";
+        
+
+                        -- Deleta o registro caso já exista
+                        DELETE FROM Agendamento 
+                        WHERE Age_AIT = @Age_AIT 
+                          AND Age_Cod_Assunto = @Age_Cod_Assunto;
+
+                        -- Insere o novo registro
+                        INSERT INTO Agendamento
+                        (      
+                            Age_Dt_Programada,
+                            Age_AIT,
+                            Age_Doc_Solicitante,
+                            Age_Cod_Assunto,
+                            Age_Cod_Geral,
+                            Age_Cod_Origem,
+                            Age_Abertura,
+                            Age_Tipo
+                        )
+                        SELECT 
+                            GETDATE(),       
+                            @Age_AIT,              
+                            @Age_Doc_Solicitante, 
+                            @Age_Cod_Assunto, 
+                            00, -- Coloque um comentário para explicar este valor
+                            @Age_Cod_Origem, 
+                            GETDATE(),
+                            'Presencial';
+
+";
 
                     await connection.ExecuteAsync(insertQuery, dbParametro);
                 }
@@ -416,22 +425,34 @@ namespace SIPROSHARED.Service.Repository
 
                                 -- Dando baixa no agendamento
                                 UPDATE agendamento
-                                SET Age_Situacao = 'Atendido'
-                                WHERE Age_AIT = @PRT_AIT
-                                AND Age_Cod_Assunto = @PRT_ASSUNTO
-                                AND Age_Doc_Solicitante = @PRT_CPF_SOLICITANTE;
+                                   SET Age_Situacao = 'Atendido'
+                                 WHERE Age_AIT = @PRT_AIT
+                                   AND Age_Cod_Assunto = @PRT_ASSUNTO
+                                   AND Age_Doc_Solicitante = @PRT_CPF_SOLICITANTE;
 
-                                -- Adicionando movimentação
+                                
+                              -- Adicionando movimentação
                                 INSERT INTO Movimentacao_Processo (
-                                    MOVPRO_PRT_NUMERO, MOVPRO_USUARIO_ORIGEM, MOVPRO_SETOR_ORIGEM, 
-                                    MOVPRO_ACAO_ORIGEM, MOVPRO_DATA_ORIGEM, MOVPRO_SETOR_DESTINO, 
-                                    MOVPRO_PRTDOC_ID, MOVPRO_STATUS
+                                       MOVPRO_PRT_NUMERO, 
+									   MOVPRO_USUARIO_ORIGEM, 
+									   MOVPRO_SETOR_ORIGEM, 
+                                       MOVPRO_ACAO_ORIGEM, 
+									   MOVPRO_DATA_ORIGEM, 
+									   MOVPRO_SETOR_DESTINO, 
+                                       MOVPRO_PRTDOC_ID, 
+									   MOVPRO_STATUS
                                 )
                                 VALUES (
-                                    @PRT_NUMERO, @PRT_ATENDENTE, @PRT_ORIGEM, 
-                                    'Abertura de processo realizada com sucesso.', GETDATE(), 
-                                    109, NULL, 'ABERTURA'
+                                    @PRT_NUMERO, 
+									@PRT_ATENDENTE,
+									49,
+                                    'Abertura de processo realizada com sucesso.', 
+									GETDATE(), 
+                                    109,
+									NULL, 
+									'ABERTURA'
                                 );
+
                             END;
 
                     
@@ -667,7 +688,7 @@ namespace SIPROSHARED.Service.Repository
 		                      ,Case when MOVPRO_SETOR_DESTINO = 0 then 'Tramitação Automática' else D.SETSUB_NOME end AS MOVPRO_SETOR_DESTINO  
 		                      ,MOVPRO_PRTDOC_ID
                           FROM Movimentacao_Processo inner join SetorSub O on (MOVPRO_SETOR_ORIGEM = O.SETSUB_ID)
-													  inner join SetorSub D on (MOVPRO_SETOR_DESTINO = D.SETSUB_ID)
+												     inner join SetorSub D on (MOVPRO_SETOR_DESTINO = D.SETSUB_ID)
 
                          WHERE MOVPRO_PRT_NUMERO = @vloBusca and MOVPRO_PRTDOC_ID is null
                          order by MOVPRO_ID asc  ";

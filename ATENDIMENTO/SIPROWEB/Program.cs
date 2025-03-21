@@ -15,7 +15,7 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 // Configuração da sessão
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(120); // Tempo de expiração da sessão
+    options.IdleTimeout = TimeSpan.FromMinutes(240); // Tempo de expiração da sessão
     options.Cookie.HttpOnly = true; // Cookie acessível apenas via HTTP
     options.Cookie.IsEssential = true; // Necessário para conformidade com GDPR
 });
