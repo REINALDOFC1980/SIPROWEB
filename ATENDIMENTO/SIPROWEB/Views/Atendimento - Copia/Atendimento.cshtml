@@ -13,16 +13,16 @@
                             <div class="row">
                             <div class="col-md-8 ">
                                 <div></div>
-                               @*  <div class="float-right">
-                                    <div class="tooltip-demo"> *@
+                                <div class="float-right">
+                                    <div class="tooltip-demo">
                                  
                                      @*    <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="" data-original-title="Mark as important"><i class="fa fa-print"></i></button> *@
-                              @*               <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Mark as important" id="printButton">
+                                            <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Mark as important" id="printButton">
                                                 <i class="fa fa-print"></i>
                                             </button>
                                         <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="" data-original-title="Excluir"><i class="fa fa-trash-o"></i> </button>
                                     </div>
-                                </div> *@
+                                </div>
 
                                 <h2><i class="fa fa-file-text fa-1x"></i><string> Protocolo </string></h2>
                                 <form role="form_atendimento" id="form_atendimento">
@@ -35,24 +35,23 @@
                                         <input type="hidden" class="form-control"  value="@Model.PRT_OBSERVACAO"        id="PRT_OBSERVACAO"        name="PRT_OBSERVACAO">           @*PRT_OBSERVACAO*@
                                         <input type="hidden" class="form-control"  value="@Model.PRT_RESTRICAO"         id="PRT_RESTRICAO"         name="PRT_RESTRICAO">            @*PRT_RESTRICAO*@
 
-                                        <div class="form-group col-md-3 has-warning"><label>Serviço</label> <input type="text" class="form-control" value="@Model.PRT_NOME_ASSUNTO" id="PRT_NOME_ASSUNTO" name="PRT_NOME_ASSUNTO" required readonly></div>
-                                        <div class="form-group col-md-5"><label>Nome do Solicitante</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_NOME_SOLICITANTE" id="PRT_NOME_SOLICITANTE" name="PRT_NOME_SOLICITANTE" readonly></div>
-                                        <div class="form-group col-md-2"><label>CPF do Solicitante</label> <input type="text" placeholder="" class="form-control" data-mask="000.000.000=00" value="@Model.PRT_CPF_SOLICITANTE" id="PRT_CPF_SOLICITANTE" name="PRT_CPF_SOLICITANTE" readonly></div>
-
+                                        <div class="form-group col-md-4 has-warning"><label>Serviço</label> <input type="text" class="form-control" value="@Model.PRT_NOME_ASSUNTO" id="PRT_NOME_ASSUNTO" name="PRT_NOME_ASSUNTO" required readonly></div>
+                                        <div class="form-group col-md-4"><label>Nome do solicitante</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_NOME_SOLICITANTE" id="PRT_NOME_SOLICITANTE" name="PRT_NOME_SOLICITANTE" readonly></div>
+                                          
        @*                                  <div class="form-group col-md-2"><label>Data Postagem</label> <input type="text" class="form-control" data-mask="99/99/9999" placeholder="" id="PRT_DT_POSTAGEM" name="PRT_DT_POSTAGEM" readonly></div> *@
                                             <div class="form-group col-md-2">
                                                 <div class="form-group" id="data_1">
-                                                    <label class="font-normal">Data de Postagem/Protocolo</label>
+                                                    <label class="font-normal">Data de abertura</label>
                                                     <div class="input-group date">
                                                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" value="03/04/2014">
                                                     </div>
                                                 </div>
                                             </div>
-@* 
+
                                             <div class="form-group col-md-2">
                                                 <label>Processo GEP</label> 
                                                 <input type="text" placeholder="" class="form-control" id="Rec_Proc_GEP" name="Rec_Proc_GEP" >
-                                            </div> *@
+                                            </div>
                                          
 
                                         @*  <div class="form-group col-md-2"><label>Data Postagem</label> <input type="text" placeholder="" class="form-control"></div> *@
@@ -62,20 +61,11 @@
                                     <h2> <i class="fa fa-exclamation-triangle fa-1x"></i><string> Infração</string></h2>
                                     <div class="row">
 
-                                            <div class="form-group col-md-2 has-warning">
-                                                <label>AIT</label>
-                                                <div class="input-group">
-                                                    <input type="text" class="form-control" value="@Model.PRT_AIT" id="PRT_AIT" name="PRT_AIT" required readonly>
-                                                    <button type="button" class="btn btn-primary" id="btnbuscar_ait">
-                                                        <i class="fa fa-search"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                        <div class="form-group col-md-3"><label>Situação</label> <input type="text" class="form-control" value="@Model.PRT_AIT_SITUACAO" id="PRT_AIT_SITUACAO" name="PRT_AIT_SITUACAO" required readonly></div>
+                                        <div class="form-group col-md-2 has-warning "><label>AIT</label> <input type="text" class="form-control" value="@Model.PRT_AIT" id="PRT_AIT" name="PRT_AIT" required readonly></div>
+                                        <div class="form-group col-md-3"><label>Situacao</label> <input type="text" class="form-control" value="@Model.PRT_AIT_SITUACAO" id="PRT_AIT_SITUACAO" name="PRT_AIT_SITUACAO" required readonly></div>
                                         <div class="form-group col-md-2 has-warning"><label>Placa</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_PLACA" id="PRT_PLACA" name="PRT_PLACA" required readonly></div>
-                                        <div class="form-group col-md-2"><label>Data da Infração</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_DT_COMETIMENTO" id="PRT_DT_COMETIMENTO" name="PRT_DT_COMETIMENTO" required readonly></div>
-                                        <div class="form-group col-md-3"><label>Prazo para Abertura</label><input type="text" class="form-control" value="@Model.PRT_DT_PRAZO" id="PRT_DT_PRAZO" name="PRT_DT_PRAZO" required readonly>
+                                        <div class="form-group col-md-2"><label>Cometimento</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_DT_COMETIMENTO" id="PRT_DT_COMETIMENTO" name="PRT_DT_COMETIMENTO" required readonly></div>
+                                        <div class="form-group col-md-3"><label>Prazo para abertura</label><input type="text" class="form-control" value="@Model.PRT_DT_PRAZO" id="PRT_DT_PRAZO" name="PRT_DT_PRAZO" required readonly>
                                         <span class="error-prazo" style="color:chocolate;"></span>
                                         </div>
                                     </div>
@@ -83,14 +73,13 @@
 
                                     <h2><i class="fa fa-user-circle" aria-hidden="true"></i><string> Proprietário</string></h2>
                                     <div class="row">
-                                        <div class="form-group col-md-2  has-warning"><label>CPF/CNPJ</label> <input type="text" class="form-control" value="@Model.PRT_CPFCNJ_PROPRIETARIO" id="PRT_CPFCNJ_PROPRIETARIO" name="PRT_CPFCNJ_PROPRIETARIO" required readonly></div>
-                                        <div class="form-group col-md-6">
-                                            <label>Nome do Proprietário</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_NOMEPROPRIETARIO" id="PRT_NOMEPROPRIETARIO" name="PRT_NOMEPROPRIETARIO" required readonly>
+                                        <div class="form-group col-md-2  has-warning"><label>CPF</label> <input type="text" class="form-control" value="@Model.PRT_CPFCNJ_PROPRIETARIO" id="PRT_CPFCNJ_PROPRIETARIO" name="PRT_CPFCNJ_PROPRIETARIO" required readonly></div>
+                                        <div class="form-group col-md-7">
+                                            <label>Nome do proprietário</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_NOMEPROPRIETARIO" id="PRT_NOMEPROPRIETARIO" name="PRT_NOMEPROPRIETARIO" required readonly>
                                        
                                         </div>
-                                            <div class="form-group col-md-3"><label>Cidade</label> <input type="text" class="form-control" value="@Model.PRT_CIDADE_PROPRIETARIO" id="PRT_CIDADE_PROPRIETARIO" name="PRT_CIDADE_PROPRIETARIO" readonly></div>
                                        @*  <div class="form-group col-md-3"><label>Endereço</label> <input type="text" class="form-control" value="@Model.PRT_ENDERECO_PROPRIETARIO" id="PRT_ENDERECO_PROPRIETARIO" name="PRT_ENDERECO_PROPRIETARIO" readonly></div> *@
-                                            <div class="form-group col-md-1"><label>UF</label> <input type="text" class="form-control" value="@Model.PRT_ENDERECO_PROPRIETARIO" id="PRT_ENDERECO_PROPRIETARIO" name="PRT_ENDERECO_PROPRIETARIO" readonly></div>
+                                        <div class="form-group col-md-3"><label>Cidade</label> <input type="text" class="form-control" value="@Model.PRT_CIDADE_PROPRIETARIO" id="PRT_CIDADE_PROPRIETARIO" name="PRT_CIDADE_PROPRIETARIO" readonly></div>
                                     </div>
 
                             
@@ -101,8 +90,8 @@
                                     {
                                                 <h2><i class="fa fa-user-circle-o"></i><string> Condutor</string></h2>
                                                 <div class="row" id="Fisico">
-                                                    <div class="form-group col-md-2">
-                                                        <label>CPF do Condutor</label>
+                                                    <div class="form-group col-md-3">
+                                                        <label>CPF do condutor</label>
                                                         <div class="input-group">
                                                             <input type="text" class="form-control" id="PRT_CPF_CONDUTOR" name="PRT_CPF_CONDUTOR" data-mask="000.000.000-00" value="@Model.PRT_CPF_CONDUTOR">
                                                             <span class="input-group-append">
@@ -114,10 +103,10 @@
                                                         <span class="error-message" style="color:chocolate;"></span>
                                                         <span class="error-PRT_TIPO_SOLICITANTE" style="color:chocolate;"></span>
                                                     </div>
-                                                    <div class="form-group col-md-6"><label>Nome do Condutor</label> <input type="text" class="form-control" id="PRT_NOME_CONDUTOR" name="PRT_NOME_CONDUTOR" value="@Model.PRT_NOME_CONDUTOR" required readonly></div>
-                                                    <div class="form-group col-md-2 has-warning"><label>N° CNH</label> <input type="text" class="form-control" id="PRT_NUMREGISTRO_CNH" name="PRT_NUMREGISTRO_CNH" value="@Model.PRT_NUMREGISTRO_CNH" required readonly></div>
+                                                    <div class="form-group col-md-4"><label>Nome do condutor</label> <input type="text" class="form-control" id="PRT_NOME_CONDUTOR" name="PRT_NOME_CONDUTOR" value="@Model.PRT_NOME_CONDUTOR" required readonly></div>
+                                                    <div class="form-group col-md-3 has-warning"><label>CNH</label> <input type="text" class="form-control" id="PRT_NUMREGISTRO_CNH" name="PRT_NUMREGISTRO_CNH" value="@Model.PRT_NUMREGISTRO_CNH" required readonly></div>
                                                     <div class="form-group col-md-2 has-warning">
-                                                        <label>Validade da CHN</label> <input type="text" class="form-control" id="PRT_DT_VALIDADE" name="PRT_DT_VALIDADE" value="@Model.PRT_DT_VALIDADE" required readonly>
+                                                        <label>Vencimento CHN</label> <input type="text" class="form-control" id="PRT_DT_VALIDADE" name="PRT_DT_VALIDADE" value="@Model.PRT_DT_VALIDADE" required readonly>
                                                         <span class="error-cnh" style="color:chocolate;"></span>
                                                     </div>
                                                 </div>
@@ -144,7 +133,7 @@
                                                 <h2><i class="fa fa-user-circle-o"></i><string> Dados Bancarios</string></h2>
                                                 <div class="row">
                                                     <div class="form-group col-md-2">
-                                                        <label>CPF do Condutor</label>
+                                                        <label>CPF do condutor</label>
                                                         <div class="input-group">
                                                             <input type="text" class="form-control" id="PRT_RESS_CPF" name="PRT_RESS_CPF" data-mask="000.000.000-00" value="@Model.PRT_RESS_CPF">
                                                             <span class="input-group-append">

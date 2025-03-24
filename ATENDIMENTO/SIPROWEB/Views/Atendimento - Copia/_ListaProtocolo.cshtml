@@ -1,0 +1,48 @@
+﻿<div class="table-responsive">
+
+    <table class="table table-striped table-hover">
+        <tbody>
+        @{
+            if (ViewBag.Protocolo == null)
+            {
+
+                    <tr><td colspan="5"> <i class="fa fa-twitch"></i>  Realize sua busca.</td></tr>
+             
+            }
+            else if (ViewBag.Protocolo.Count != 0)
+            {
+                @foreach (var item in ViewBag.Protocolo)
+                {
+                    <tr>
+                        <td class="contact-type"><i class="fa fa-car"> </i></td>
+                        <td><a href="#" class="client-link" onclick="AbirProtocolo('@item.PRT_NUMERO')">@item.PRT_NUMERO</a></td>
+                        <td><a href="#" class="client-link">@item.PRT_NOME_ASSUNTO</a></td>
+                        <td><a href="#" class="client-link">@item.PRT_AIT</a></td>
+         
+                       @* <td> @item.PRT_NOME_ORIGEM</td>
+                        <td> @item.PRT_PLACA</td>*@
+                            <td class="client-status">
+                                <span class="label @(item.PRT_ACAO == "ARQUIVADO!" ? "label-black-50" : "label-primary")">
+                                    @item.PRT_ACAO
+                                </span>
+                            </td>
+                         <td>
+                             <a href="#" class="client-link" id="link-@item.PRT_NUMERO" onclick="AbirProtocolo('@item.PRT_NUMERO', this)">
+                                  Visualizar
+                             </a>
+                         </td>
+                    </tr>
+                }
+            }
+            else  @if (ViewBag.Protocolo.Count == 0)
+            {
+
+
+                    <tr><td colspan="5"> <i class="fa fa-twitch"></i> Não foi localizado registro para esse pesquisa.</td></tr>
+              
+            }
+          
+            }
+        </tbody>
+    </table>
+</div>
