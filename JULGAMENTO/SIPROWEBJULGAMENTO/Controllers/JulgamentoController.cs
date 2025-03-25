@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Newtonsoft.Json;
 using SIPROSHARED.Filtro;
 using SIPROSHARED.Models;
 using SIPROSHAREDJULGAMENTO.Models;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
+
 
 namespace SIPROWEBJULGAMENTO.Controllers
 {
@@ -31,6 +33,16 @@ namespace SIPROWEBJULGAMENTO.Controllers
         {
             userMatrix = HttpContext.Items["UserMatrix"] as string;
             base.OnActionExecuting(context);
+        }
+
+
+        private async Task<JsonResult> HandleErrorResponse(HttpResponseMessage response)
+        {
+            var errorResponse = await response.Content.ReadAsStringAsync();
+            var errorData = JsonConvert.DeserializeObject<ErrorResponseModel>(errorResponse);
+            var errorMessage = errorData?.Errors?.FirstOrDefault() ?? "Erro ao processar sua solicitação.";
+            TempData["ErroMessage"] = errorMessage;
+            return Json(new { error = "BadRequest", message = errorMessage });
         }
 
         public async Task<IActionResult> Julgamento()
@@ -337,9 +349,21 @@ namespace SIPROWEBJULGAMENTO.Controllers
                
             var apiUrl = $"{_baseApiUrl}julgamento/encaminhar-processo-instrucao";
             var response = await _httpClient.PostAsJsonAsync(apiUrl, instrucaoProcesso);
-            
+
+
+            //tratamento de erro
             if (!response.IsSuccessStatusCode)
-                return Json(new { erro = true, retorno = "Erro ao inserir!" });
+            {
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    return Json(new { error = true });
+
+                else if (response.StatusCode == HttpStatusCode.BadRequest)
+                    return await HandleErrorResponse(response);
+
+                else if (response.StatusCode == HttpStatusCode.NoContent)
+                    return await HandleErrorResponse(response);
+
+            }
             
                 return Json(new { erro = false, retorno = "Operação realizada com sucesso!" });
            
@@ -359,8 +383,19 @@ namespace SIPROWEBJULGAMENTO.Controllers
                 var apiUrl = $"{_baseApiUrl}julgamento/inserir-voto-relator";
                 var response = await _httpClient.PostAsJsonAsync(apiUrl, julgamentoProcesso);
 
+                //tratamento de erro
                 if (!response.IsSuccessStatusCode)
-                    return Json(new { erro = true, retorno = "Erro ao inserir!" });
+                {
+                    if (response.StatusCode == HttpStatusCode.InternalServerError)
+                        return Json(new { error = true });
+
+                    else if (response.StatusCode == HttpStatusCode.BadRequest)
+                        return await HandleErrorResponse(response);
+
+                    else if (response.StatusCode == HttpStatusCode.NoContent)
+                        return await HandleErrorResponse(response);
+
+                }
 
                 return Json(new { erro = false, retorno = "Operação realizada com sucesso!" , Url = @Url.Action("Julgamento", "Julgamento") });
             }
@@ -375,7 +410,22 @@ namespace SIPROWEBJULGAMENTO.Controllers
                
                 var apiUrl = $"{_baseApiUrl}julgamento/inserir-voto-membro";
                 var response = await _httpClient.PostAsJsonAsync(apiUrl, julgamentoProcesso);
-               
+
+                //tratamento de erro
+                if (!response.IsSuccessStatusCode)
+                {
+                    if (response.StatusCode == HttpStatusCode.InternalServerError)
+                        return Json(new { error = true });
+
+                    else if (response.StatusCode == HttpStatusCode.BadRequest)
+                        return await HandleErrorResponse(response);
+
+                    else if (response.StatusCode == HttpStatusCode.NoContent)
+                        return await HandleErrorResponse(response);
+
+                }
+
+
                 if (!response.IsSuccessStatusCode)
                     return Json(new { erro = true, retorno = "Erro ao inserir!"});
                

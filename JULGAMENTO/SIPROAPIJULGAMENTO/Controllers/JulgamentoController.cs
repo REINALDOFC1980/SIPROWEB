@@ -87,9 +87,6 @@ namespace SIPROAPIJULGAMENTO.Controllers
         }
 
 
-
-
-
         [HttpGet]
         [Route("buscar-setor")]
         public async Task<IActionResult> BuscarSetor()

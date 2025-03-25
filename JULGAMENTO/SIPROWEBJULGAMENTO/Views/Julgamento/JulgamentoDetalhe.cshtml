@@ -79,10 +79,10 @@
                 <div class="tabs-container">
                     
                     <ul class="nav nav-tabs">
-                        <li><a class="nav-link active" data-toggle="tab" href="#tab-0"><i class="fa fa-legal"></i></a></li>
-                        <li><a class="nav-link" data-toggle="tab" href="#tab-1"><i class="fa fa-drivers-license-o"></i></a></li>
-                        <li><a class="nav-link" data-toggle="tab" href="#tab-4"><i class="fa fa-mail-forward"></i></a></li>
-                        <li><a class="nav-link" data-toggle="tab" href="#tab-5"><i class="fa fa-paperclip"></i></a></li>
+                        <li><a class="nav-link active" data-toggle="tab" href="#tab-0"><i class="fa fa-legal"></i>Parecer</a></li>
+                        <li><a class="nav-link" data-toggle="tab" href="#tab-1"><i class="fa fa-drivers-license-o"></i>Condutor</a></li>
+                        <li><a class="nav-link" data-toggle="tab" href="#tab-4"><i class="fa fa-mail-forward"></i>Encaminhar</a></li>
+                        <li><a class="nav-link" data-toggle="tab" href="#tab-5"><i class="fa fa-paperclip"></i>Anexos</a></li>
                       
                     </ul>
 
@@ -323,7 +323,7 @@
                                                  
                                                     <h3 class="m-t-none m-b">Instrução</h3>
 
-                                                    <textarea id="INSPRO_Parecer" name="INSPRO_Parecer" rows="2" class="form-control" required> </textarea>
+                                                    <textarea id="INSPRO_Parecer" name="INSPRO_Parecer" rows="5" class="form-control" required> </textarea>
                                                     <p><small>  <i class="fa fa-twitch"></i> Por favor, digite a instrução para o setor responsável de forma clara e objetiva, detalhando seu pedido. </small></p>
                                                                                                        
                                                     <div>
@@ -475,8 +475,20 @@
 
 <script>
 
-    $(document).ready(function () {        
-        $('#summernote').summernote();       
+
+
+
+    $(document).ready(function () {
+        $('#summernote').summernote({
+            toolbar: [
+                ['view', ['fullscreen']], // Apenas o botão de tela cheia
+                ['style', ['bold', 'italic', 'underline']], // Mantém apenas negrito, itálico e sublinhado
+                ['para', ['ul', 'ol', 'paragraph']] // Mantém listas e parágrafos
+
+            ],
+            tooltip: false // Desativa os tooltips
+        });
+
         var motivoVotoSelecionado = '@(ViewBag.ParecerRelator != null ? Html.Raw(ViewBag.ParecerRelator.Disjug_Parecer_Relatorio) : "")';
      
         $('#summernote').summernote('code', motivoVotoSelecionado);
@@ -550,6 +562,7 @@
 
         validarSummernote();
 
+
         if ($("#form_julgamento").valid()) {
             // Obtém os valores selecionados do campo Disjug_Membro1
             var selectedMembers = $("#Disjug_Membro1").val();
@@ -602,6 +615,8 @@
     function validarSummernote() {
         // Obter o conteúdo do Summernote (sem tags HTML)
         var conteudo = $('#summernote').summernote('isEmpty') ? '' : $('#summernote').summernote('code').trim();
+        
+        console.log(conteudo)
 
         if (!conteudo) {
             // Mostrar mensagem de erro

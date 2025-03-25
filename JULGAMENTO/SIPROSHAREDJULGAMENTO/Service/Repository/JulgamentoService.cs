@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using SIPROSHARED.DbContext;
 using SIPROSHARED.Models;
+using SIPROSHAREDHOMOLOGACAO.Validator;
 using SIPROSHAREDJULGAMENTO.Models;
 using SIPROSHAREDJULGAMENTO.Service.IRepository;
 using SIRPOEXCEPTIONS.ExceptionBase;
@@ -353,6 +354,15 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
         public async Task InserirVotoRelator(JulgamentoProcessoModel julgamentoProcesso)
         {
 
+
+            //validando a model agendamento 
+            var validator = new VotoRelatorValidator();
+            var result = validator.Validate(julgamentoProcesso);
+            if (result.IsValid == false)
+                throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
+            //fim
+
+
             var dbParametro = new DynamicParameters();
             dbParametro.Add("@Disjug_Dis_Id", julgamentoProcesso.Disjug_Dis_Id);  
             dbParametro.Add("@Disjug_Relator", julgamentoProcesso.Disjug_Relator);
@@ -438,6 +448,16 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
         public async Task InserirVotoMembro(JulgamentoProcessoModel julgamentoProcesso)
         {
+
+            //validando a model agendamento 
+            var validator = new VotoMembroValidator();
+            var result = validator.Validate(julgamentoProcesso);
+            if (result.IsValid == false)
+                throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
+            //fim
+
+
+
             var dbParametro = new DynamicParameters();
             dbParametro.Add("@Disjug_Dis_Id", julgamentoProcesso.Disjug_Dis_Id);
             dbParametro.Add("@Disjug_Relator", julgamentoProcesso.Disjug_Relator);   
