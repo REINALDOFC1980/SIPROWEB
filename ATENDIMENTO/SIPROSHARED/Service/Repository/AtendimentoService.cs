@@ -39,6 +39,7 @@ namespace SIPROSHARED.Service.Repository
                     ,Age_Cod_Assunto 
                     ,Age_Cod_Geral 
                     ,Age_Cod_Origem 
+                    ,Age_Placa 
                     ,Age_Abertura
                     ,Ass_Nome
                     ,Ori_Descricao  

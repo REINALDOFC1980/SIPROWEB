@@ -492,6 +492,11 @@ namespace SIPROWEB.Controllers
                     if (multa.defesanai == null)
                         return Json(new { retorno = "error", errorAPI = "Não encontramos registro desse <strong>AIT</strong> em nossa base de dados ou os dados estão incompletos, o que pode impactar a conclusão do processo.'" });
                 }
+
+                if (agendaModel.Age_Placa != multa.Rec_Veiculo_Placa)
+                {
+                    return Json(new { retorno = "error", errorAPI = "A PLACA informada não tem vÍnculo com o AIT digitado." });
+                }
             
                 string? cpf_proprietario = multa.cnh_cnpj_proprietario.TrimStart('0').TrimEnd('0');
                 string? cpfDigitado = null;                    

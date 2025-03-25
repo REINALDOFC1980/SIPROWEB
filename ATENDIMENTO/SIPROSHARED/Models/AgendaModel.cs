@@ -9,7 +9,7 @@
         public string? Age_Nome_Solicitante { get; set; }
         public int Age_Cod_Assunto  { get; set; }
         public int Age_Cod_Geral  { get; set; }
-        public int Age_Placa { get; set; }
+        public string? Age_Placa { get; set; }
         public int Age_Cod_Origem  { get; set; }
         public string? Age_Abertura { get; set; }
         public string? Ass_Nome { get; set; }
