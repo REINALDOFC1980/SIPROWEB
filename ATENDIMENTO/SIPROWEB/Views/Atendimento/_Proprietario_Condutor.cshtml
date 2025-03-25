@@ -2,21 +2,27 @@
 
 <ul class="list-group clear-list">
     <li class="list-group-item fist-item">
-        <br />
-        <p><small><strong>Dados do Proprietário:</strong></small></p>
+ 
         <span class="float-right"><strong> @Model?.PRT_NOMEPROPRIETARIO </strong></span>
-        Nome do Proprietário:
+        Nome Proprietário:
     </li>
     <li class="list-group-item">
         <span class="float-right"><strong> @Model?.PRT_CPFCNJ_PROPRIETARIO </strong></span>
         CPF/CNPJ:
     </li>
 
+
+
+
     <li class="list-group-item">
         <br />
-        <p><small><strong>Dados do Condutor Apresentado:</strong></small></p>
+        <h2>Dados do Condutor Apresentado:</h2>   
         <span class="float-right"><strong> @Model?.PRT_NOME_CONDUTOR </strong></span>
         Nome do Condutor:
+    </li>
+    <li class="list-group-item">
+        <span class="float-right"><strong> @Model?.PRT_CPF_CONDUTOR  </strong></span>
+        CPF:
     </li>
     <li class="list-group-item">
         <span class="float-right"><strong> @Model?.PRT_NUMREGISTRO_CNH  </strong></span>

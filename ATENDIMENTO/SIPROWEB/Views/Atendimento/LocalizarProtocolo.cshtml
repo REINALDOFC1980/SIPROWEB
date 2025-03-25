@@ -63,14 +63,14 @@
                             <div class="client-detail">
                                 <div class="row">
                                     <div class="col-sm-10">
-                                        <strong>Informações complementares</strong>
+                                        <h2> Dados do Processo:</h2>
                                     </div>
-                                    <div class="col-sm-2">
+                                    <div class="col-sm-2"> 
                                         <button class="btn btn-sm btn-outline btn-primary float-right" onclick="EmitirCopia()" id="btnIniciarAbertura" type="button">
                                             <i class="fa fa-print"></i> Cópia de Processo
-                                        </button>
+                                        </button> 
                                     </div>
-                                </div>
+                                </div> 
                                 <div class="full-height-scroll">
                                     <div id="div_detalheProtocolo">
                                         @await Html.PartialAsync("_DetalhamentoProtocolo")
@@ -83,7 +83,7 @@
                     <div id="tab-2" class="tab-pane">
                         <div class="panel-body">
                             <div class="client-detail">
-                                <strong>Informações complementares</strong>
+                                <h2>Dados do Proprietário:</h2>
                                 <div class="full-height-scroll">
                                     <div id="div_proprietario_condutor">
                                         @await Html.PartialAsync("_Proprietario_Condutor")
@@ -95,8 +95,8 @@
 
                     <div id="tab-3" class="tab-pane">
                         <div class="panel-body">
-                            <div class="client-detail">
-                                <strong>Informações complementares</strong>
+                            <div class="client-detail">                          
+                                <h2>Dados do Bancário:</h2>
                                 <div class="full-height-scroll">
                                     <div id="div_dados_bancario">
                                         @await Html.PartialAsync("_DadosBancario")
@@ -126,7 +126,7 @@
         </div>
     </div>
 </div>
-<a class=" floating-btn" href="~/Home/Index">+</a>
+
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js">
 
@@ -206,6 +206,13 @@
         var vlobusca = $('#Vlo_Busca').val();
         event.preventDefault();
         LocalizarProtocolo(vlobusca);
+    });
+
+    $('#Vlo_Busca').keydown(function (event) {
+        if (event.keyCode === 13) { 
+            event.preventDefault();
+            $('#btmLocalizarProtocolo').click(); 
+        }
     });
 
     $('#Vlo_Busca').on('input', function () {

@@ -3,9 +3,7 @@
 
 <ul class="list-group clear-list">
     <li class="list-group-item fist-item">
-        <br />
-        <p><small><strong>Dados do Processo:</strong></small></p>
-
+      
         @*<span class="float-right"><strong class="h6">@Model?.PRT_NUMERO</strong></span>*@
         <span class="float-right label label-success"><strong class="h6">@Model?.PRT_NUMERO</strong></span>
         <input type="hidden" class="form-control" value="@Model?.PRT_NUMERO" id="PRT_NUMERO" name="PRT_NUMERO">
@@ -33,7 +31,7 @@
     </li>
     <li class="list-group-item">
         <br />
-        <p><small><strong>Dados da Infração:</strong></small></p>
+        <h2> Dados da Infração:</h2>
         <span class="float-right label label-success"><strong class="h6">@Model?.PRT_AIT</strong></span>
         
         AIT:
@@ -47,7 +45,7 @@
 
     <li class="list-group-item">
         <br />
-        <p><small><strong>Dados do julgamento</strong></small></p>
+        <h2>  Dados do julgamento </h2>
         <span class="float-right">
             <strong> @Model?.PRT_RESULTADO </strong></span>
         Resultado: 
