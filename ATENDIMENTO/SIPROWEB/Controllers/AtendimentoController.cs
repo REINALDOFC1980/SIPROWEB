@@ -207,6 +207,7 @@ namespace SIPROWEB.Controllers
                     //Buscando dados do AIT
                     apiUrl = $"{_baseSipApiUrl}ait/v1/{Agendamento.Age_AIT}";
                     response = await _httpClient.GetAsync(apiUrl);
+                   
                     if (!response.IsSuccessStatusCode)
                     {
                         TempData["ErroMessage"] = response.StatusCode + " - ait/v1..";                        

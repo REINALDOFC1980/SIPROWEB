@@ -88,9 +88,10 @@
 
                     <div class="tab-content">
                         <div id="tab-0" class="tab-pane active">
-                            <div class="panel-body">
+                            <div class="panel-body d-flex flex-column min-vh-100">
+                                <div class="client-detail flex-grow-1">
 
-                                <div class="client-detail">
+                                @* <div class="client-detail"> *@
                                     <div class="full-height-scroll">
                                         <h2>Parecer do Relator</h2>
 
@@ -179,13 +180,7 @@
                                                     </div>
 
                                                   
-                                                    <div class="col-lg-3">
-                                                        <br />
-                                                      
-                                                        <button type="button" class="btn btn-block btn-sm btn-outline btn-primary" onclick="RealizarJulgamento('D')" >Deferido</button>
-                                                        <button type="button" class="btn btn-block btn-sm btn-outline btn-danger" onclick="RealizarJulgamento('I')">Indeferido</button>
-                                                        <button type="button" class="btn btn-block btn-sm btn-outline btn-dark" onclick="RealizarJulgamento('O')"  >Advertencia</button>
-                                                    </div>
+                                                    
 
 
                                                 </div>
@@ -203,6 +198,23 @@
 
                                     </div>
                                 </div>
+
+                                <!-- 🔹 Contêiner dos botões -->
+                                <div class="mt-auto d-flex justify-content-between">
+                                    <button type="button" class="btn btn-sm btn-primary text-white shadow-sm"
+                                            style="border: 2px ; width: 150px;"
+                                            onclick="RealizarJulgamento('D')">
+                                        Deferido
+                                    </button>
+
+                                    <button type="button" class="btn btn-sm btn-danger text-white shadow-sm"
+                                            style="width: 150px;"
+                                            onclick="RealizarJulgamento('I')">
+                                        Indeferido
+                                    </button>
+                                </div>
+
+
 
                             </div>
                         </div>
@@ -445,7 +457,7 @@
                             <br />                           
                             <br />
                             <br />
-                            <h2><i class="fa fa-exclamation"></i> Observação do SETAP</h2>
+                            <h2><i class="fa fa-exclamation"></i> Observação do Atendimento</h2>
                             <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" rows="12" cols="45" class="form-control" readonly>@Model?.PRT_OBSERVACAO</textarea>
 
                             <br />
