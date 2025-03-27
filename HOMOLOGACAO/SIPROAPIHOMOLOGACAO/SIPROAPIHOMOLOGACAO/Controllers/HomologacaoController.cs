@@ -172,8 +172,8 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
         }
 
         [HttpPost]
-        [Route("retificar-voto")]
-        public async Task<IActionResult> RetificarVoto(RetificacaoModel retificacaoModel)
+        [Route("retornar-julgamento")]
+        public async Task<IActionResult> RetornarJulgamento(RetificacaoModel retificacaoModel)
         {
             using (var connection = _context.CreateConnection())
             {
@@ -184,7 +184,7 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
                 using (var transaction = connection.BeginTransaction())
                 {
                     
-                        await _homologacaoService.RetificarVoto(retificacaoModel, connection, transaction);
+                        await _homologacaoService.RetornarJulgamento(retificacaoModel, connection, transaction);
 
 
                         transaction.Commit();

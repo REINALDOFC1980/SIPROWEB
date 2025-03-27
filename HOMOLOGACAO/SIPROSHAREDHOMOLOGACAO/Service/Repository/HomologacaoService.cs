@@ -298,7 +298,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
            
         }
 
-        public async Task RetificarVoto(RetificacaoModel retificacaoModel, IDbConnection connection, IDbTransaction transaction)
+        public async Task RetornarJulgamento(RetificacaoModel retificacaoModel, IDbConnection connection, IDbTransaction transaction)
         {
             //validando a model agendamento 
             var validator = new RetificacaoValidator();
@@ -337,19 +337,18 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                             FROM Protocolo_Distribuicao_Julgamento pd INNER JOIN #Processo ap ON (pd.DISJUG_DIS_ID = ap.DIS_ID)
 
                           UPDATE MP
-                             SET MOVPRO_STATUS = 'HOMOLOGADO->REFITICAR'
+                             SET MOVPRO_STATUS = 'HOMOLOGADO->DEVOLVIDO'
                             FROM Movimentacao_Processo MP where MOVPRO_ID = @MOVPRO_ID
 
 
                         --Mudando o status dos processo distribuido
                           UPDATE PD
                              SET DIS_DESTINO_STATUS = 'RECEBIDO',
-                                 DIS_RETORNO = 1
                             FROM Protocolo_Distribuicao PD INNER JOIN #Processo P ON (pd.DIS_MOV_ID = p.DIS_MOV_ID)
                      
 
                           UPDATE P
-                             SET PRT_ACAO = 'RETIFICAR VOTO',  
+                             SET PRT_ACAO = NULL,  
 	                             PRT_DT_JULGAMENTO = NULL,  
 	                             PRT_RESULTADO = NULL,  
                                  PRT_DT_HOMOLOGACAO = NULL  
@@ -363,7 +362,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                                  @MOVPRO_USUARIO_ORIGEM, 
                                  GETDATE(),
                                  @MOVPRO_PARECER_ORIGEM, -- Observação ou parecer!
-                                'Processo devolvido para refiticar voto.',
+                                'Processo devolvido para o Relator.',
                                  SetorDestino,
                                 'RECEBIDO->DISTRIBUIDO',
                                  NULL,

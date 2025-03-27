@@ -30,12 +30,10 @@ namespace SIPROSHARED.Validator
                 .Length(10).WithMessage("O AIT deve ter exatamente 10 caracteres.");
 
             RuleFor(user => user.Age_Cod_Assunto)
-               .NotEmpty().WithMessage("O código do assunto não foi fornecido.")
-               .GreaterThan(0).WithMessage("O código do assunto deve ser maior que 0.");
+               .NotEmpty().WithMessage("O assunto não foi fornecido.");
 
             RuleFor(user => user.Age_Cod_Origem)
-               .NotEmpty().WithMessage("o código da origem não foi fornecido.")
-               .GreaterThan(0).WithMessage("O código da origem deve ser maior que 0.");
+               .NotEmpty().WithMessage("A origem não foi fornecida.");
 
             //RuleFor(user => user.Ass_Nome)
             //  .NotEmpty().WithMessage("O Assunto é obrigatório.");

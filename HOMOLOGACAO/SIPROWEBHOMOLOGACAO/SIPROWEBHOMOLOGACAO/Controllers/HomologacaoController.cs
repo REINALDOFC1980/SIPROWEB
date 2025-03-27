@@ -293,7 +293,7 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
                 retificacaoModel.MOVPRO_USUARIO_ORIGEM = userMatrix;
             }
 
-            string apiUrl = $"{_baseApiUrl}homologacao/retificar-voto";
+            string apiUrl = $"{_baseApiUrl}homologacao/retornar-julgamento";
             var response = await _httpClient.PostAsJsonAsync(apiUrl, retificacaoModel);
 
             if (response.StatusCode == HttpStatusCode.BadRequest)

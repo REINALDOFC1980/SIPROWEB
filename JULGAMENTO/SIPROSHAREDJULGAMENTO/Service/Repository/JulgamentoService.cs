@@ -423,6 +423,15 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                         where DIS_ID = @Disjug_Dis_Id
 
 
+                        --Atualizando Protocolo 
+                        Declare @NumeroProcesso varchar(20) = (SELECT TOP 1 MOVPRO_PRT_NUMERO 
+								                                 FROM Protocolo_Distribuicao inner join Movimentacao_Processo 
+									                               on (DIS_MOV_ID = MOVPRO_ID) and DIS_ID = @Disjug_Dis_Id)
+
+                        Update Protocolo
+                        Set PRT_ACAO = 'EM JULGAMENTO'
+                        Where PRT_NUMERO = @NumeroProcesso
+
 
                     ";
 

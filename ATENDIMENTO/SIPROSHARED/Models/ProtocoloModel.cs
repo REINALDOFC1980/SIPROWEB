@@ -24,6 +24,8 @@ namespace SIPROSHARED.Models
         public string? PRT_ENDERECO_PROPRIETARIO { get; set; }
         public string? PRT_CIDADE_PROPRIETARIO { get; set; }
 
+        public string? PRT_UF_PROPRIETARIO{ get; set; }
+
 
         //CONDUTOR
         public string? PRT_CPF_CONDUTOR { get; set; }

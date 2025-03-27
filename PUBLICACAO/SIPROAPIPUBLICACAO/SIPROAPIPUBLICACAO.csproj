@@ -11,7 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PUBLICACAO\SIPROSHAREDPUBLICACAO\SIPROSHAREDPUBLICACAO.csproj" />
+    <ProjectReference Include="..\..\ATENDIMENTO\SIPROSHARED\SIPROSHARED.csproj" />
+    <ProjectReference Include="..\SIPROSHAREDPUBLICACAO\SIPROSHAREDPUBLICACAO.csproj" />
   </ItemGroup>
 
 </Project>

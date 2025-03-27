@@ -210,24 +210,7 @@
                                                         </tr>
 
 
-                                                            @* <tr class="gradeX" style="@(processo.PRT_STATUS == "INSTRUCAO" ? "background-color: #f9e79f;" : "")">
-                                           
-                                                                    <td>@processo.DIS_ID</td>
-                                                                    <td>@processo.PRT_NUMERO</td>
-                                                                    <td>@processo.PRT_AIT</td>
-                                                                    <td>@processo.PRT_ASSUNTO</td>
-                                                                    <td>@processo.PRT_USUARIO</td>
-                                                                    <td>@processo.PRT_STATUS</td>
-                                                                    <td>
-                                                                        <a href="#" class="btn btn-white btn-sm @(processo.PRT_STATUS == "INSTRUCAO" ? "" : "retirar-processo")"
-                                                                           data-id="@processo.DIS_ID">
-                                                                            <i class="fa @(processo.PRT_STATUS == "INSTRUCAO" ? "fa-lock" : "fa-minus-square-o")"></i>
-                                                                                         @(processo.PRT_STATUS == "INSTRUCAO" ? "Bloqueado" : "Retirar")
-                                                                        </a>
-                                                                    </td>
-
-                                                                  
-                                                                </tr> *@
+                                                        
                                                             }
                                                         </tbody>
                                                     </table>

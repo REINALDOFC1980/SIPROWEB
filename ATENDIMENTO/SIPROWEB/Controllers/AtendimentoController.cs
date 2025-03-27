@@ -49,7 +49,9 @@ namespace SIPROWEB.Controllers
         {
             var errorResponse = await response.Content.ReadAsStringAsync();
             var errorData = JsonConvert.DeserializeObject<ErrorResponseModel>(errorResponse);
-            var errorMessage = errorData?.Errors?.FirstOrDefault() ?? "Erro ao processar sua solicitação.";
+            var errorMessage = errorData?.Errors != null && errorData.Errors.Count > 0
+                ? errorData.Errors[0].ToString()
+                : "Erro ao processar sua solicitação.";
             TempData["ErroMessage"] = errorMessage;
             return Json(new { error = "BadRequest", message = errorMessage });
         }
@@ -210,6 +212,7 @@ namespace SIPROWEB.Controllers
                    
                     if (!response.IsSuccessStatusCode)
                     {
+
                         TempData["ErroMessage"] = response.StatusCode + " - ait/v1..";                        
                         return RedirectToAction("InternalServerError", "Home"); 
                     }  
@@ -245,6 +248,7 @@ namespace SIPROWEB.Controllers
                         protocolo.PRT_CPFCNJ_PROPRIETARIO = multa.cnh_cnpj_proprietario;
                         protocolo.PRT_NOMEPROPRIETARIO = multa.proprietario;
                         protocolo.PRT_CIDADE_PROPRIETARIO = multa.rec_veiculo_municipio;
+                        protocolo.PRT_UF_PROPRIETARIO = multa.rec_veiculo_uf;
 
                         DateTime defesaNaiDate = DateTime.Parse(multa.defesanai);
                         protocolo.PRT_DT_PRAZO = defesaNaiDate.ToString("dd/MM/yyyy");          
@@ -550,26 +554,36 @@ namespace SIPROWEB.Controllers
                     return Json(new { retorno = "error", errorAPI = "Erro interno!" });
 
             //cadastrando abertura na tabela agendamento
-            apiUrl = $"{_baseApiUrl}atendimento/aberturapresencial";
+                apiUrl = $"{_baseApiUrl}atendimento/aberturapresencial";
                 
-                response = await _httpClient.PostAsJsonAsync(apiUrl, agendaModel);
+                    response = await _httpClient.PostAsJsonAsync(apiUrl, agendaModel);
                
-                if (!response.IsSuccessStatusCode)
-                {
+                    if (!response.IsSuccessStatusCode)
+                    {
                     var content = await response.Content.ReadAsStringAsync();
-                    return Json(new { retorno = "error", errorAPI = content });
-                }                    
+                    dynamic errorData = JsonConvert.DeserializeObject<dynamic>(content);
+
+                    // Extrai os erros e junta em uma string
+                    var errorMessage = errorData?.errors != null
+                        ? string.Join(". ", errorData.errors.ToObject<List<string>>()) + "."
+                        : "Erro ao processar sua solicitação.";
+
+                    return Json(new { retorno = "error", errorAPI = errorMessage });
+                    }                    
                 
-                ViewBag.Analise = analisarAbertura;
+                    ViewBag.Analise = analisarAbertura;
             
-                if (cpf_proprietario == cpfDigitado)
-                    return Json(new { retorno = "Proprietario", cpf });
-                else
-                    return Json(new { retorno = "Desconhecido", cpf });                 
-            }
+                    if (cpf_proprietario == cpfDigitado)
+                        return Json(new { retorno = "Proprietario", cpf });
+                    else
+                        return Json(new { retorno = "Desconhecido", cpf });                 
+                }
             else                              
             {
-                return Json(new { retorno = "error", errorAPI = response.StatusCode + " - ait/v1.." });         
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                    return Json(new { retorno = "error", errorAPI = "A NA digitada não foi localizada na base de dados." });
+                   else
+                    return Json(new { retorno = "error", errorAPI = response.StatusCode + " Erro Desconhecido!" });
             }           
             
         }
