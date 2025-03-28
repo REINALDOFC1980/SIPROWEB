@@ -569,6 +569,7 @@ namespace SIPROSHARED.Service.Repository
                        ,PRT_CNH_VALIDADE as PRT_DT_VALIDADE
                        ,UPPER(c.PES_UFCNH) AS PRT_UF_CNH
                        ,PRT_RESTRICAO 
+                       ,RES_NOME as PRT_RESTRICAO_NOME
 
                        ,PRT_DT_JULGAMENTO
                        ,case when PRT_RESULTADO = 'D' then 'Deferido'  when PRT_RESULTADO = 'I' then 'Indeferido'  else 'Aguardando' end as PRT_RESULTADO 
@@ -588,6 +589,7 @@ namespace SIPROSHARED.Service.Repository
                        ,PRT_CNH_ESTRANGEIRA_PAIS 
                         FROM  Protocolo inner join Origem O on(PRT_ORIGEM = O.ORI_CODIGO)
 										inner join Assunto A on (PRT_ASSUNTO = A.ASS_ID)
+                                        inner join TipoRestricao on(PRT_RESTRICAO = RES_ID)
 										Left join Pessoa as S on(PRT_CPF_SOLICITANTE = S.PES_CPF)										
 									    Left join Pessoa as C on(PRT_CPF_CONDUTOR = C.PES_CPF)
 	                         	 WHERE Prt_Numero = @PRT_NUMERO
@@ -646,6 +648,7 @@ namespace SIPROSHARED.Service.Repository
                        ,PRT_LOTE
 
                        ,PRT_RESTRICAO 
+                       ,RES_NOME as PRT_RESTRICAO_NOME
                        ,PRT_RESS_BANCO
                        ,PRT_RESS_TIPO
                        ,PRT_RESS_TITULAR
@@ -659,6 +662,7 @@ namespace SIPROSHARED.Service.Repository
                        ,PRT_CNH_ESTRANGEIRA_PAIS 
                    FROM Protocolo inner join Origem O on(PRT_ORIGEM = O.ORI_CODIGO)
 								  inner join Assunto A on (PRT_ASSUNTO = A.ASS_ID)
+                                  inner join TipoRestricao on(PRT_RESTRICAO = RES_ID)
 								  left join Pessoa as S on(PRT_CPF_SOLICITANTE = S.PES_CPF)										
 							      left join Pessoa as C on(PRT_CPF_CONDUTOR = C.PES_CPF)
 	                         	 WHERE (Prt_Numero  = @vloBusca or Prt_AIT = @vloBusca  )

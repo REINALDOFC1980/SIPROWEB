@@ -3,8 +3,6 @@
 
 <ul class="list-group clear-list">
     <li class="list-group-item fist-item">
-      
-        @*<span class="float-right"><strong class="h6">@Model?.PRT_NUMERO</strong></span>*@
         <span class="float-right label label-success"><strong class="h6">@Model?.PRT_NUMERO</strong></span>
         <input type="hidden" class="form-control" value="@Model?.PRT_NUMERO" id="PRT_NUMERO" name="PRT_NUMERO">
         Processo: 
@@ -13,12 +11,21 @@
         <span class="float-right"><strong>@Model?.PRT_NOME_ASSUNTO </strong></span>
         Serviço: 
     </li>
+    <li class="list-group-item">
+        <span class="float-right"><strong><span class="@(@Model?.PRT_RESTRICAO == 1 ? "text-black-50" : "text-danger")">@Model?.PRT_RESTRICAO_NOME</span> </strong></span>
+        Restrição:
+    </li>
+    <li class="list-group-item">
+         <span class="float-right "><strong>Atendente: @Model?.PRT_ATENDENTE  | Abertura:  @Model?.PRT_DT_ABERTURA </strong></span>
+
+        Atendimento:
+    </li>
 
     <li class="list-group-item">
         <span class="float-right">
             <strong>
                 Origem: @Model?.PRT_NOME_ORIGEM |
-                Abertura: @Model?.PRT_DT_ABERTURA |
+                Postagem: @Model?.PRT_DT_POSTAGEM |
                 Situação: <span class="@(Model?.PRT_ACAO == "ARQUIVADO!" ? "text-black-50" : "text-primary")">@Model?.PRT_ACAO</span>
             </strong>
         </span>
@@ -26,14 +33,11 @@
         Outros: 
     </li>
     <li class="list-group-item">
-        <span class="float-right">   </span>
+        <span class="float-right"> </span>
         Observação do SETAP: <small><strong>@Model?.PRT_OBSERVACAO</strong></small>
     </li>
     <li class="list-group-item">
-        <br />
-        <h2> Dados da Infração:</h2>
         <span class="float-right label label-success"><strong class="h6">@Model?.PRT_AIT</strong></span>
-        
         AIT:
     </li>
     <li class="list-group-item">
@@ -44,11 +48,11 @@
 
 
     <li class="list-group-item">
-        <br />
+
         <h2>  Dados do julgamento </h2>
         <span class="float-right">
             <strong> @Model?.PRT_RESULTADO </strong></span>
-        Resultado: 
+        Resultado do julgamento: 
     </li>
     <li class="list-group-item">
         <span class="float-right"><strong>@Model?.PRT_DT_JULGAMENTO </strong></span>
