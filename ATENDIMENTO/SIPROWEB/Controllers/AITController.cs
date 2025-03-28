@@ -117,6 +117,10 @@ namespace SIPROWEB.Controllers
                     protocoloModel.PRT_NOME_CONDUTOR = apiAitModel.rec_Trocainf_Nomecond;
                     protocoloModel.PRT_NUMREGISTRO_CNH = apiAitModel.rec_Trocainf_Registro;
                     protocoloModel.PRT_RETORNO_DETRAN = apiAitModel.rec_Retornodetran;
+                    protocoloModel.PRT_ENDERECO_CONDUTOR = apiAitModel.rec_TrocaInf_Endereco + ", " +
+                                                           apiAitModel.rec_Trocainf_Bairro + ", " +
+                                                           apiAitModel.rec_TrocaInf_Municipio + ", " +
+                                                           apiAitModel.rec_TrocaInf_UF;
 
                     return PartialView("_Condutor", protocoloModel);
                 }

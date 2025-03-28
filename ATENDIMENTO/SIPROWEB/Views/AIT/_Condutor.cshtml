@@ -47,10 +47,10 @@
                 <span class="float-right"><strong> @Model?.PRT_DT_ABERTURA </strong></span>
                 Data da abertura:
             </li>
-            <li class="list-group-item">
+@*             <li class="list-group-item">
                 <span class="float-right"><strong> @Model?.PRT_ATENDENTE </strong></span>
                 Atendente:
-            </li>
+            </li> *@
             <li class="list-group-item">
                 <span class="float-right"><strong> @Model?.PRT_NOME_CONDUTOR  </strong></span>
                 Nome do Condutor:
@@ -58,6 +58,10 @@
             <li class="list-group-item">
                 <span class="float-right"><strong> @Model?.PRT_NUMREGISTRO_CNH  </strong></span>
                 CNH:
+            </li>
+            <li class="list-group-item row">
+                <span class="col text-start">Endereço:</span>
+                <strong class="col text-end">@Model?.PRT_ENDERECO_CONDUTOR</strong>
             </li>
             <li class="list-group-item">
                 <br />

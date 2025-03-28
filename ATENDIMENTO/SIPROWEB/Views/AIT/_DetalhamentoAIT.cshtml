@@ -26,18 +26,23 @@
         <span class="float-right"><strong> @Model?.rec_veiculo_renavan</strong></span>
         Renavan:
     </li>
-    <li class="list-group-item">
-        <span class="float-right"> </span>
-        Infração: <small><strong>@Model?.infracao - @Model?.infracaodescricao</strong></small>
+
+    <li class="list-group-item row">
+        <span class="col text-start">Infração:</span>
+        <strong class="col text-end">@Model?.infracao - @Model?.infracaodescricao</strong>
     </li>
+
+
     <li class="list-group-item">
         <span class="float-right"><strong> @Model?.situacao</strong></span>
         Situação:
     </li>  
-    <li class="list-group-item">
-        <span class="float-right"> </span>
-        Local: <small><strong> @Model?.localinfracao</strong></small>
+
+    <li class="list-group-item row">
+        <span class="col text-start">Local:</span>
+        <strong class="col text-end">@Model?.localinfracao</strong>
     </li>
+
     <li class="list-group-item">
         <span class="float-right"> <strong>@Model?.rec_veiculo_municipio</strong></span>
         Município:
