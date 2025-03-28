@@ -33,7 +33,7 @@
     <div class="ibox-content">
         <h3><i class="fa fa-retweet"></i> Distribuição de Processos para o Relator </h3>
         <br />
-        @*   <button type="button" class="btn btn-block btn-outline btn-primary"><i class="fa fa-plus"> </i>  Distribuir processo especifico</button> *@
+        @*   <button type="button" class="btn btn-block  btn-primary"><i class="fa fa-plus"> </i>  Distribuir processo especifico</button> *@
 
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -41,7 +41,7 @@
                     <ul class="user-data-container" style="display: flex; justify-content: space-between; list-style-type: none; padding: 10px; border-bottom: 1px solid #ddd;">
                         <li class="user-info" style="flex: 3;">
                             <a data-toggle="collapse" data-parent="#accordion" href="#DIS_DESTINO_USUARIO">
-                                <button type="button" class="btn btn-block btn-outline btn-primary">  Distribuir processo especifico <i class="fa fa-angle-double-down"> </i> </button>
+                                <button type="button" class="btn btn-block  btn-primary">  Distribuir processo especifico <i class="fa fa-angle-double-down"> </i> </button>
                             </a>
                         </li>
                     </ul>
@@ -201,7 +201,7 @@
                                                             <td>@processo.PRT_STATUS</td>
                                                             <td>@processo.SETSUB_NOME</td>
                                                             <td>
-                                                                <a href="#" class="btn btn-white btn-sm @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "" : "retirar-processo")"
+                                                                <a href="#" class="btn btn-danger btn-sm @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "" : "retirar-processo")"
                                                                     data-id="@processo.DIS_ID">
                                                                     <i class="fa @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "fa-lock" : "fa-minus-square-o")"></i>
                                                                                   @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "Bloqueado" : "Retirar")
@@ -240,13 +240,13 @@
                         <li class="text-center" style="flex: 1; text-align: center;">
                        
                             <div class="input-group bootstrap-touchspin">
-                                <button type="button" class="btn btn-block btn-outline btn-primary" id="getAddBtn">Distribuir</button>
+                                <button type="button" class="btn btn-block  btn-primary" id="getAddBtn">Distribuir</button>
                             </div>
                         </li>
                         <li class="text-center" style="flex: 1; text-align: center;">
                        
                             <div class="input-group bootstrap-touchspin">
-                                <button type="button" class="btn btn-block btn-outline btn-danger" id="getRemoverBtn" style="margin-left: 10px;">Retirar</button>
+                                <button type="button" class="btn btn-block  btn-danger" id="getRemoverBtn" style="margin-left: 10px;">Retirar</button>
                             </div>
                         </li>
                     </ul>
