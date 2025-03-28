@@ -13,6 +13,9 @@
         public string? PRT_CPFCNJ_PROPRIETARIO { get; set; }
         public string? PRT_NOMEPROPRIETARIO { get; set; }
         public string? PRT_AIT { get; set; }
+
+        public string? PRT_RESTRICAO { get; set; }
+        public string? PRT_RESTRICAO_NOME { get; set; }
         public string? PRT_PLACA { get; set; }
         public string? PRT_SITUACAO { get; set; }
         public int DIS_ID { get; set; }

@@ -85,8 +85,8 @@ namespace SIPROSHARED.Validator
                 .Matches(@"^\(?\d{2}\)?\s?\d{5}-\d{4}$")
                 .WithMessage("O número de celular informado não é válido.");
 
-            RuleFor(user => user.pes_Celular)
-                .Matches(@"^\(?\d{2}\)?\s?\d{5}-\d{4}$")
+            RuleFor(user => user.pes_Telefone)
+                .Matches(@"^\(?\d{2}\)?\s?\d{4}-\d{4}$")
                 .WithMessage("O número de celular informado não é válido.");
 
             //RuleFor(user => user.pes_Pais)

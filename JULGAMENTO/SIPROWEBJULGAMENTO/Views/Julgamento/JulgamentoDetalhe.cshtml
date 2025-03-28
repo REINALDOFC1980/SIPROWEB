@@ -38,6 +38,10 @@
                                         Serviço:
                                     </li>
                                     <li class="list-group-item">
+                                        <span class="float-right"><strong> @Model?.PRT_RESTRICAO_NOME</strong></span>
+                                       Restrição:
+                                    </li>
+                                    <li class="list-group-item">
                                         <span class="float-right"><strong>@Model?.PRT_DT_ABERTURA </strong></span>
                                         Data da Abertura: 
                                     </li>
@@ -179,20 +183,8 @@
                                                         </div>
                                                     </div>
 
-                                                  
-                                                    
-
-
-                                                </div>
-                                          
-                                                
-
-
-
-
+                                                </div>       
                                             </div>
-
-
 
                                         </form>
 
@@ -228,11 +220,8 @@
                                         <hr />
                                         <div class="row">
                                             <div class="col-lg-8">
-                                                <div class="client">
-                                           
-                                                    <h3 class="m-t-none m-b">Dados do Condutor</h3>
-                                                    <br />
-                                                    <br />
+                                                <div class="client">                 
+                                                    <br />                                                 
                                                     <ul class="list-group clear-list">
                                                         <li class="list-group-item fist-item">
                                                             <span class="float-right"> </span>
@@ -248,8 +237,7 @@
                                                             Registro da CNH:
                                                         </li>
                                                         <br />
-                                                        <small><strong>Endereço</strong> </small>
-                                                        <br />
+            
                                                         <li class="list-group-item">
                                                             <span class="float-right"> <strong>@ViewBag.Condutor?.rec_TrocaInf_CEP</strong> </span>
                                                             CEP
@@ -267,9 +255,8 @@
                                                             UF
                                                         </li>
                                                     </ul>
-                                                   @*  <hr>
-                                                    <h4>Observação do Agente infrator</h4>
-                                                    <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" value="@ViewBag.Condutor?.rec_TrocaInf_Infracao" rows="2" class="form-control"></textarea> *@
+                                                    <br />
+                                                    <small><i class="fa fa-twitch"></i> Caso não haja informações sobre o condutor, os dados do mesmo não serão apresentados.</small>
                                                 </div>
                                             </div>
                                             <div class="col-lg-4">
@@ -288,10 +275,7 @@
                                                         <a href="/img/semimg.png" title="Image from Unsplash" data-gallery="">
                                                             <img src="/img/semimg.png" style="width: 100%; height: 100%; object-fit: cover;">
                                                         </a>
-
                                                     </div>
-
-
                                                 </div>
                                             </div>
                                         </div>

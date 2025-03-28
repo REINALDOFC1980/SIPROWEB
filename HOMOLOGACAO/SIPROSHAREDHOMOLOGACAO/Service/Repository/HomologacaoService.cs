@@ -223,6 +223,85 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
         }
 
+
+        public async Task HomologarTodos(HomologacaoModel homologacaoModel, IDbConnection connection, IDbTransaction transaction)
+        {
+
+            ////validando a model agendamento 
+            //var validator = new HomologarValidator();
+            //var result = validator.Validate(homologacaoModel);
+            //if (result.IsValid == false)
+            //    throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
+            ////fim
+
+
+            try
+            {
+                var dbParametro = new DynamicParameters();
+
+                dbParametro.Add("@USUARIOORIGEM", homologacaoModel.PRT_HOMOLOGADOR);
+                dbParametro.Add("@PRT_RESULTADO", homologacaoModel.PRT_RESULTADO);
+                dbParametro.Add("@SETORDESTINO", homologacaoModel.SETSUB_ID);
+
+
+                var query = @"
+	            
+                     Select Movpro_id,       
+                            PRT_NUMERO        
+                       into #temp_Movimentacao
+                       From Protocolo inner join Movimentacao_Processo on (prt_numero = MOVPRO_PRT_NUMERO)
+                                      inner join Assunto on (PRT_ASSUNTO = ASS_ID)  
+			                          inner join SetorSub on(SETSUB_ID = MOVPRO_SETOR_ORIGEM)
+                      Where MOVPRO_SETOR_ORIGEM = @SETORDESTINO
+                        and MOVPRO_STATUS = 'HOMOLOGAR'
+                        and PRT_RESULTADO like Case when @PRT_RESULTADO = 'Todos' then '%' else @PRT_RESULTADO end
+ 
+
+                     UPDATE MP
+                        Set MOVPRO_STATUS = 'HOMOLOGADO->PUBLICAR'
+                       from #temp_Movimentacao TM, Movimentacao_Processo MP
+                      WHERE MP.MOVPRO_ID = TM.Movpro_id
+
+
+                     insert into Movimentacao_Processo
+                     Select MOVPRO_PRT_NUMERO, 
+                            MOVPRO_SETOR_DESTINO as SETORORIGEM,
+                            @USUARIOORIGEM,
+                            Getdate(),
+                            null,
+                            'Processo homologado e encaminhado para publicação.',
+                            @SETORDESTINO,
+                            'PUBLICAR',
+                            null,   
+                            null
+                       from Movimentacao_Processo MP inner join #temp_Movimentacao TM on(MP.MOVPRO_ID = TM.Movpro_id)
+
+
+                     update Protocolo  
+                        set PRT_HOMOLOGADOR = @USUARIOORIGEM,  
+                            PRT_DT_HOMOLOGACAO = GETDATE(),  
+                            PRT_ACAO = 'PUBLICAR'
+                    from  #temp_Movimentacao TM, Protocolo P		
+                      Where TM.PRT_NUMERO = P.PRT_NUMERO 
+
+                ";
+                await connection.ExecuteAsync(query, dbParametro, transaction);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
+
+          
+
+
+
+        }
+
+
+
         public async Task<JulgamentoModel> BuscarParecer(string processo)
         {
            

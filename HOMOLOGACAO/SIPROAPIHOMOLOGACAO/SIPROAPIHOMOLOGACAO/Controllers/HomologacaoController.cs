@@ -172,6 +172,33 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
         }
 
         [HttpPost]
+        [Route("homologacao-todos")]
+        public async Task<IActionResult> HomologarTodos(HomologacaoModel homologacaoModel)
+        {
+
+            using (var connection = _context.CreateConnection())
+            {
+                // Abrir a conexão
+                connection.Open();
+
+                // Iniciar a transação
+                using (var transaction = connection.BeginTransaction())
+                {
+                    await _homologacaoService.HomologarTodos(homologacaoModel, connection, transaction);
+
+                    transaction.Commit();
+
+                    return Ok();
+
+
+                }
+            }
+
+
+
+        }
+
+        [HttpPost]
         [Route("retornar-julgamento")]
         public async Task<IActionResult> RetornarJulgamento(RetificacaoModel retificacaoModel)
         {

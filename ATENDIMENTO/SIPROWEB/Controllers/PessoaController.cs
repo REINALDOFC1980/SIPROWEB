@@ -27,7 +27,7 @@ namespace SIPROWEB.Controllers
             var errorData = JsonConvert.DeserializeObject<ErrorResponseModel>(errorResponse);
             var errorMessage = errorData?.Errors?.FirstOrDefault() ?? "Erro ao processar sua solicitação.";
 
-            return Json(new { error = "BadRequest",  retorno = errorMessage });
+            return Json(new { error = "BadRequest", message = errorMessage });
         }
 
 

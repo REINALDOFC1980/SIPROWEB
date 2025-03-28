@@ -294,10 +294,6 @@
                                                 </div>
                                                 <br />
 
-                                                <div id="mensagem1" class="alert alert-danger text-center" style="display: none;">
-                                                    Teste
-                                                </div>
-                               
                                                 <button class="btn btn-success btn-lg btn-block  " data-toggle="tooltip" data-placement="left" id="BtnGerarProtocolo" title="Gerar Processo" disabled> <i class="fa fa-file"> </i>  Gerar Processo </button>
 
                                                 </div>
@@ -564,7 +560,7 @@
         //Notificação em caso de Intepestividade no campo prazo
         if (intepestividade == "Sim" && ["1", "2", "39", "59"].includes(codservico)) {
             inputElement.classList.add('text-danger');
-            Addiconeerro(".error-prazo", " Fora do prazo (Intespetivo!).");//add um icone antes da imagem
+            Addiconeerro(".error-prazo", "AIT Fora do prazo (Intepestivo!).");//add um icone antes da imagem
             radioElement.checked = true;
         } else {
             Removeiconeerro(".error-cnh");

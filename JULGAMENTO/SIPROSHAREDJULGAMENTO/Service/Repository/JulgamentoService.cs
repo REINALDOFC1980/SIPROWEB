@@ -35,6 +35,8 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 		                          ,PRT_CPFCNJ_PROPRIETARIO
 		                          ,PRT_NOMEPROPRIETARIO							  
 								  ,PRT_AIT
+                                  ,PRT_RESTRICAO
+                                  ,RES_NOME AS PRT_RESTRICAO_NOME
                                   ,PRT_PLACA
                                   ,'Julgar' AS  PRT_SITUACAO
                                   ,PRT_OBSERVACAO
@@ -42,6 +44,8 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 				                             inner join Protocolo_distribuicao on (MOVPRO_ID = DIS_MOV_ID)
 				                             inner join Assunto on (PRT_ASSUNTO = ASS_ID)
 				                             inner join Origem on(PRT_ORIGEM = ORI_CODIGO)
+                                             inner join TipoRestricao on(PRT_RESTRICAO = RES_ID)
+
 							WHERE DIS_DESTINO_USUARIO = @usuario
                               and PRT_AIT like case when @vlobusca = 'Todos' then '%' else @vlobusca end
 							  and DIS_DESTINO_STATUS = 'RECEBIDO'
@@ -71,6 +75,8 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                                   ,PRT_CPFCNJ_PROPRIETARIO
                                   ,PRT_NOMEPROPRIETARIO							  
 	                              ,PRT_AIT
+                                  ,PRT_RESTRICAO
+                                  ,RES_NOME AS PRT_RESTRICAO_NOME
                                   ,PRT_PLACA
                                   ,DIS_DESTINO_STATUS	
                                   ,'Assinar' AS  PRT_SITUACAO
@@ -80,6 +86,8 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 				                             inner join Protocolo_Distribuicao_Julgamento on (DIS_ID = DISJUG_DIS_ID)
                                              inner join Assunto on (PRT_ASSUNTO = ASS_ID)
                                              inner join Origem on(PRT_ORIGEM = ORI_CODIGO)
+                                             inner join TipoRestricao on(PRT_RESTRICAO = RES_ID)
+
                             WHERE DISJUG_RELATOR = @usuario
                               and PRT_AIT like case when @vlobusca = 'Todos' then '%' else @vlobusca end
                               and DIS_DESTINO_STATUS in('JULGANDO')
@@ -107,6 +115,8 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 		                          ,PRT_CPFCNJ_PROPRIETARIO
 		                          ,PRT_NOMEPROPRIETARIO							  
 								  ,PRT_AIT
+                                  ,PRT_RESTRICAO
+                                  ,RES_NOME AS PRT_RESTRICAO_NOME
                                   ,PRT_PLACA
                                   ,'Julgar' AS  PRT_SITUACAO
                                   ,PRT_OBSERVACAO
@@ -114,6 +124,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 				                             inner join Protocolo_distribuicao on (MOVPRO_ID = DIS_MOV_ID)
 				                             inner join Assunto on (PRT_ASSUNTO = ASS_ID)
 				                             inner join Origem on(PRT_ORIGEM = ORI_CODIGO)
+                                             inner join TipoRestricao on(PRT_RESTRICAO = RES_ID)
 							WHERE DIS_DESTINO_USUARIO = @usuario
                               and PRT_AIT like case when @vlobusca = 'Todos' then '%' else @vlobusca end
 							  and DIS_DESTINO_STATUS = 'RECEBIDO'
@@ -143,6 +154,8 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                                   ,PRT_CPFCNJ_PROPRIETARIO
                                   ,PRT_NOMEPROPRIETARIO							  
 	                              ,PRT_AIT
+                                  ,PRT_RESTRICAO
+                                  ,RES_NOME AS PRT_RESTRICAO_NOME
                                   ,PRT_PLACA
  	                              ,DIS_ID
                                   ,PRT_OBSERVACAO
@@ -150,6 +163,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 			                          inner join Protocolo_distribuicao on (MOVPRO_ID = DIS_MOV_ID)
 			                          inner join Assunto on (PRT_ASSUNTO = ASS_ID)
 			                          inner join Origem on(PRT_ORIGEM = ORI_CODIGO)
+                                      inner join TipoRestricao on(PRT_RESTRICAO = RES_ID)
 			                    WHERE 
 			                    PRT_AIT = @vlobusca
 			                      and DIS_DESTINO_STATUS IN('RECEBIDO','JULGANDO')
@@ -712,15 +726,15 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                 List<AnexoModel> anexoModel = new List<AnexoModel>();
 
                 using (var connection = _context.CreateConnection())
-                {
-                    // Agora, você pode recuperar as imagens da tabela temporária
-                    string selectQuery = @"    SELECT 
-                                           PRTDOC_ID,
-                                           PRTDOC_PRT_NUMERO,
-                                           PRTDOC_OBSERVACAO,
-                                           PRTDOC_IMAGEM
-                                    FROM Protocolo_Documento_Imagem 
-                                    WHERE REPLACE(PRTDOC_PRT_NUMERO, '/', '') = @prt_numero";
+                {                   
+                    string selectQuery = @"   SELECT 
+                                              PRTDOC_ID,
+                                              PRTDOC_PRT_NUMERO,
+                                              PRTDOC_OBSERVACAO,
+                                              PRTDOC_IMAGEM,
+                                              PRTDOC_PRT_SETOR
+                                         FROM Protocolo_Documento_Imagem 
+                                        WHERE REPLACE(PRTDOC_PRT_NUMERO, '/', '') = @prt_numero";
 
                     using (var selectCommand = connection.CreateCommand())
                     {
@@ -741,7 +755,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                                 var imagemBase64 = Convert.ToBase64String(imagemBytes);
                                 var nomeArquivo = reader["PRTDOC_OBSERVACAO"].ToString();
                                 int prtdoc_id = reader.GetInt32(reader.GetOrdinal("PRTDOC_ID"));
-
+                                int prtdoc_prt_setor = reader.GetInt32(reader.GetOrdinal("PRTDOC_PRT_SETOR"));
 
                                 // Cria uma nova instância de AnexoModel
                                 var anexo = new AnexoModel
@@ -751,6 +765,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                                     caminhohref = $"data:image/jpeg;base64,{imagemBase64}",
                                     prtdoc_id = prtdoc_id,
                                     prt_numero = prt_numero,
+                                    prtdoc_prt_setor = prtdoc_prt_setor,
                                 };
                                 // Adiciona o objeto AnexoModel à lista
                                 anexoModel.Add(anexo);

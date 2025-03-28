@@ -6,6 +6,7 @@ using SIPROSHARED.Models;
 using SIPROSHAREDHOMOLOGACAO.Models;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 
 namespace SIPROWEBHOMOLOGACAO.Controllers
@@ -146,6 +147,8 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
            
         }
 
+
+
         [HttpGet]
         public async Task<PartialViewResult> BuscarParecer(string prt_numero)
         {
@@ -275,6 +278,27 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
         
             return PartialView("_ListaHomologacao");
 
+
+        }
+
+
+        //buscando os documentos necessários
+        [HttpPost]
+        public async Task<IActionResult> HomologarTodos(int setor, string resultado)
+        {
+            HomologacaoModel homologacaoModel = new HomologacaoModel();
+
+            homologacaoModel.PRT_HOMOLOGADOR = userMatrix;
+            homologacaoModel.SETSUB_ID = setor;
+            homologacaoModel.PRT_RESULTADO = resultado;
+
+            string apiUrl = $"{_baseApiUrl}homologacao/homologacao-todos";
+            var response = await _httpClient.PostAsJsonAsync(apiUrl, homologacaoModel);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+                ViewBag.Protocolo = await BuscarListaProtocolo(homologacaoModel.SETSUB_ID, "Todos");
+
+            return PartialView("_ListaHomologacao");
 
         }
 

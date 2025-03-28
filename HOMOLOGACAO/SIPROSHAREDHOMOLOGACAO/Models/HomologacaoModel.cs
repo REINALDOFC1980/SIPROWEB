@@ -29,6 +29,8 @@ namespace SIPROSHAREDHOMOLOGACAO.Models
         public string? PRT_TIPO_SOLICITANTE { get; set;}
         public string? PRT_OBSERVACAO { get; set; }
         public string? PRT_RESULTADO { get; set; }
+
+        public string? PRT_HOMOLOGADOR { get; set; }
         public string? SETSUB_NOME { get; set; }
 
     }

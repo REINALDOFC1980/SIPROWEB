@@ -16,6 +16,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Models
         public string? Disjug_Resultado_Data { get; set; }
         public string? Disjug_Parecer_Relatorio { get; set; }
         public string? Disjug_Homologador { get; set; }
+        public string? Disjug_Tipo{ get; set; }       
         public int Disjul_SetSub_Id { get; set; }
 
     }

@@ -149,7 +149,7 @@ namespace SIPROAPI.Controllers
                     ProtocoloDocImgModel protocoloDocImg = new ProtocoloDocImgModel();
                     protocoloDocImg.PRTDOC_PRT_NUMERO = protocoloModel.PRT_NUMERO;
                     protocoloDocImg.PRTDOC_PRT_AIT = protocoloModel.PRT_AIT;
-                    protocoloDocImg.PRTDOC_PRT_SETOR = protocoloModel.PRT_ORIGEM;                   
+                    protocoloDocImg.PRTDOC_PRT_SETOR = 48;  /*Ver forma de buscar com o usuario logado*/                
 
                     //inserindo imagem no banco
                     string folderPath = @"C:\TempAnexoProtocolo";                  

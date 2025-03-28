@@ -28,6 +28,8 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.IRepository
 
         Task RealizarHomologacao(JulgamentoModel julgamentoModel, IDbConnection connection, IDbTransaction transaction);
 
+        Task HomologarTodos(HomologacaoModel homologacaoModel, IDbConnection connection, IDbTransaction transaction);
+
         Task RetornarJulgamento(RetificacaoModel retificacaoModel , IDbConnection connection, IDbTransaction transaction);
         
     }

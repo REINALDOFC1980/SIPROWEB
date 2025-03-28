@@ -38,6 +38,10 @@
                                         Serviço:
                                     </li>
                                     <li class="list-group-item">
+                                        <span class="float-right"><strong> @Model?.PRT_RESTRICAO_NOME</strong></span>
+                                        Restrição:
+                                    </li>
+                                    <li class="list-group-item">
                                         <span class="float-right"><strong>@Model?.PRT_DT_ABERTURA </strong></span>
                                         Data da Abertura: 
                                     </li>
@@ -81,16 +85,14 @@
                     <ul class="nav nav-tabs">
                         <li><a class="nav-link active" data-toggle="tab" href="#tab-0"><i class="fa fa-legal"></i></a></li>
                         <li><a class="nav-link" data-toggle="tab" href="#tab-1"><i class="fa fa-drivers-license-o"></i></a></li>
-                        <li><a class="nav-link" data-toggle="tab" href="#tab-4"><i class="fa fa-mail-forward"></i></a></li>
-                        <li><a class="nav-link" data-toggle="tab" href="#tab-5"><i class="fa fa-paperclip"></i></a></li>
+                        <li><a class="nav-link" data-toggle="tab" href="#tab-2"><i class="fa fa-paperclip"></i></a></li>
                       
                     </ul>
 
                     <div class="tab-content">
                         <div id="tab-0" class="tab-pane active">
                             <div class="panel-body">
-
-                                <div class="client-detail">
+                                <div class="client-detail" style="pointer-events: none;">
                                     <div class="full-height-scroll">
                                         <h2>Parecer do Relator</h2>
 
@@ -139,32 +141,53 @@
                                                 <div id="summernote" class="summernote"></div>
                                                 <span id="erroSummernote" style="color:#cc5965 ; display: none;">Este campo é obrigatório.</span>
                                             <br> 
-                                                  
+                                              @*     
                                                 <div class="row">                                                  
                                                           
                                                     <div class="col-lg-12">
                                                         <br />
-                                                      
-                                                        <button type="button" class="btn btn-block btn-sm btn-outline btn-primary" onclick="RealizarJulgamento('D')" >Deferido</button>
-                                                        <button type="button" class="btn btn-block btn-sm btn-outline btn-danger" onclick="RealizarJulgamento('I')">Indeferido</button>
-                                                        <button type="button" class="btn btn-block btn-sm btn-outline btn-dark" onclick="RealizarJulgamento('O')"  >Advertencia</button>
+                                                        <br />
+                                                        <button type="button" class="btn btn-block btn-sm  btn-primary" onclick="RealizarJulgamento('D')" >Deferido</button>
+                                                        <button type="button" class="btn btn-block btn-sm  btn-danger" onclick="RealizarJulgamento('I')">Indeferido</button>
                                                     </div>
 
                                                 </div>
-                                          
+                                           *@
                                                 
 
 
 
 
                                             </div>
+                                            <br />
+                                            <br />
+                                            <br />
 
+                                           
 
 
                                         </form>
 
                                     </div>
+
                                 </div>
+
+                                <!-- 🔹 Contêiner dos botões -->
+                                <div class="mt-auto d-flex justify-content-between">
+                                    <button type="button" class="btn btn-sm btn-primary text-white shadow-sm"
+                                            style="border: 2px ; width: 150px;"
+                                            onclick="RealizarJulgamento('D')">
+                                        Deferido
+                                    </button>
+
+                                    <button type="button" class="btn btn-sm btn-danger text-white shadow-sm"
+                                            style="width: 150px;"
+                                            onclick="RealizarJulgamento('I')">
+                                        Indeferido
+                                    </button>
+                                </div>
+                               
+
 
                             </div>
                         </div>
@@ -252,85 +275,8 @@
 
                             </div>
                         </div>
-                        <div id="tab-4" class="tab-pane">
-                            <div class="panel-body">
-
-                                <div class="client-detail">
-                                    <div class="full-height-scroll">
-                                        <h2>Encaminhar processo para instrução</h2>
-
-                                        <hr />
-
-                                        <div class="row">
-                                            <div class="col-sm-12 b-r">
-                                                <h3 class="m-t-none m-b"> Destino desejado</h3>
-                                                
-                                                <form role="form" id="form_instrucao">
-                                                    <input type="hidden" id="INSPRO_Dis_id" name="INSPRO_Dis_id" value="@Model?.DIS_ID">
-                                                    <select class="select2_demo_3 form-control" style="width:100%;" id="INSPRO_Setor_destino" name="INSPRO_Setor_destino" required>
-
-                                                        <option></option>
-                                                        @if(ViewBag.Setor != null)
-                                                        {
-                                                            foreach (var setor in ViewBag.Setor)
-                                                            {
-                                                                <option value="@setor.SETSUB_ID">@setor.SETSUB_NOME</option>
-                                                            }
-                                                        }
-                                                       
-                                                    </select>
-                                                    <p><small> <i class="fa fa-twitch"></i> Selecione o setor para o qual deseja solicitar uma instrução.</small></p>
-
-                                                 
-                                                 
-                                                    <h3 class="m-t-none m-b">Instrução</h3>
-
-                                                    <textarea id="INSPRO_Parecer" name="INSPRO_Parecer" rows="2" class="form-control" required> </textarea>
-                                                    <p><small>  <i class="fa fa-twitch"></i> Por favor, digite a instrução para o setor responsável de forma clara e objetiva, detalhando seu pedido. </small></p>
-                                                                                                       
-                                                    <div>
-                                                        <br />
-                                                        <button class="btn btn-sm btn-primary float-right m-t-n-xs" type="button" id="btn_instrucao"><strong>Encaminhar Processo</strong></button>
-
-                                                    </div>
-                                                    <br />
-                                                 <br />
-                                                    <h4> <i class="fa fa-history"></i> Historico de Instrução</h4>
-                                                    <div class="ibox-content">
-                                                        <div class="feed-activity-list">
-
-                                                            @if (ViewBag.instrucao != null)
-                                                            {
-                                                                foreach (var item in ViewBag.instrucao)
-                                                                {
-                                                                    <div class="feed-element">
-                                                                        <div>
-                                                                            <small class="float-right text-navy">Origem: @item.INSPRO_Setor_origem </small>
-
-                                                                            <div><small><strong>@item.INSPRO_Usuario_origem: </strong></small> @item.INSPRO_Parecer </div>
-                                                                            <small class="float-right text-navy">Destino: @item.INSPRO_Setor_destino</small>
-                                                                            <small class="text-muted"><strong>Enviado:</strong> às @item.INSPRO_DATA_ORIGEM</small>
-                                                                            <br />
-                                                                            @if (!string.IsNullOrEmpty(item.INSPRO_Arquivo))
-                                                                            {
-                                                                                <i class="fa fa-file-pdf-o"></i> <strong>@item.INSPRO_Arquivo</strong>
-                                                                            }
-                                                                        </div>
-                                                                    </div>
-                                                                }
-                                                            }                                                          
-
-                                                        </div>
-                                                    </div>
-
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="tab-5" class="tab-pane">
+ 
+                        <div id="tab-2" class="tab-pane">
                             <div class="panel-body">
                                 <div class="client-detail">
                                     <div class="full-height-scroll">

@@ -17,6 +17,7 @@
                     <h3><i class="fa fa-list-ul"></i>  Lista de Processos para serem homologados </h3>
                     <small>Selecione um setor e o resultado do julgamento.</small>
 
+                    <form id="form_buscar">
                     <div class="form-group row">
 
                         <div class="col-sm-8">
@@ -56,13 +57,14 @@
                             <div class="row">
 
                                 <span class="input-group-append">
-                                    <button type="button" class="btn btn btn-primary" id="btmLocalizarProtocolo"> <i class="fa fa-search"></i> Localizar</button>
+                                    <button type="button" class="btn btn-primary" id="btmLocalizarProtocolo"> <i class="fa fa-search"></i> Localizar</button>                               
                                 </span>
                             </div>
                         </div>
+                       
 
                     </div>
-
+                    </form>
                     <div class="clients-list">
                         <div class="full-height-scroll">
                             <div id="div_listaHomologacao">
@@ -91,9 +93,7 @@
                         <div id="tab-1" class="tab-pane active show"> 
                         <div class="panel-body">
                             <div class="client-detail">
-                                <div class="full-height-scroll">
-                                <strong>Dados do julgamento</strong>
-                        
+                                <div class="full-height-scroll">                        
                                     <div id="div_ParecerRelator">
                                           @await Html.PartialAsync("_ParecerRelator")
                                     </div>
@@ -108,19 +108,23 @@
                             <div class="client-detail">
                                 <div class="row">
                                     <div class="col-sm-10">
-                                        <strong>Informações complementares</strong>
+                                        <h2>Dados do Processo:</h2>
                                     </div>
                                     <div class="col-sm-2">
-                                        <button class="btn btn-sm btn-outline btn-primary float-right" onclick="EmitirCopia()" id="btnIniciarAbertura" type="button">
-                                            <i class="fa fa-print"></i> Cópia de Processo
-                                        </button>
+                                       
                                     </div>
                                 </div>
                                 <div class="full-height-scroll">
                                     <div id="div_Homologacao">
                                         @await Html.PartialAsync("_DetalhamentoProtocolo")
                                     </div>
+                                    <br />
+                                    <br />
+                                    <button class="btn btn-sm btn-primary  btn-block float-right" onclick="EmitirCopia()" id="btnIniciarAbertura" type="button">
+                                        <i class="fa fa-print"></i> Cópia de Processo
+                                    </button>
                                 </div>
+                               
                             </div>
                         </div>
                     </div>
@@ -339,6 +343,52 @@
         );
 
     });
+
+    $(document).on('click', '#btn_homologacao_todos', function () {
+
+        var formData = $("#form_buscar").serialize();
+
+        Notiflix.Confirm.Show(
+            'Aviso!',
+            'Tem certeza que deseja homologar todos os processos?',
+            'Sim',
+            'Não',
+            async function okCb() {
+                if (isProcessing) return;
+                isProcessing = true;
+
+                Notiflix.Loading.Standard('Aguarde...');
+
+                $.ajax({
+                    url: '@Url.Action("HomologarTodos", "Homologacao")',
+                    type: 'POST',
+                    data: formData,
+
+                    success: function (response) {
+
+                        Notiflix.Loading.Remove();
+                        if (response.error == 'BadRequest') {
+                            Notiflix.Notify.Failure(response.message);
+                            return false;
+                        };
+
+                        Notiflix.Notify.Success("Homologação realizada com sucesso!");
+                        $('#div_listaHomologacao').html(response);
+                    },
+                    error: function (xhr, status, error) {
+                        Notiflix.Loading.Remove();
+                        Notiflix.Notify.Failure("Erro interno!");
+                    }
+                });
+            },
+            function cancelCb() {
+                Notiflix.Loading.Remove();
+            }
+        );
+
+
+    });
+
 
 
     $(document).on('click', '#btn_retificar', function () {

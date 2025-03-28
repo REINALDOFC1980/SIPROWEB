@@ -7,6 +7,7 @@
         public string? caminhohref { get; set; }
         public string? caminhosrc { get; set; }
         public string? nome { get; set; }
+        public int prtdoc_prt_setor { get; set; }
 
 
     }
