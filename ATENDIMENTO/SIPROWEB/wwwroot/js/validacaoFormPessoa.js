@@ -29,7 +29,7 @@
 
             },
             PES_Telefone: {
-                minlength: 14
+                minlength: 13
 
             },
             PES_Email: {
@@ -67,7 +67,7 @@
                 minlength: "Minimo de 14 caracteres."
             },
             PES_Telefone: {
-                minlength: "Minimo de 14 caracteres ou vazio."
+                minlength: "Minimo de 13 caracteres ou vazio."
             },
             PES_Email: {
                 required: "Por favor, insira seu e-mail.",
