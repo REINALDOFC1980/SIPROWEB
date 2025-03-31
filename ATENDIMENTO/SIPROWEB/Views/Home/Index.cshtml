@@ -192,15 +192,15 @@
                    
                     <div class="row">
                         <div class="form-group col-md-5">
-                            <label>CNH <span style="color: red;">*</span></label>
+                            <label>CNH </label>
                             <input type="text" placeholder="" class="form-control" data-mask="00000000000" id="PES_NumRegistroCNH" name="PES_NumRegistroCNH" ></div>
                         <div class="form-group col-md-5">
-                            <label>Validade CNH <span style="color: red;">*</span></label>
+                            <label>Validade CNH </label>
                             <input type="text" placeholder="" data-mask="99/99/9999" class="form-control" id="PES_DT_Validade" name="PES_DT_Validade" >
                             <span class="error-cnh" style="color:chocolate;"></span>
                         </div>
                         <div class="form-group col-md-2">
-                            <label>UF CNH<span style="color: red;">*</span></label>
+                            <label>UF CNH</label>
                             <input type="text" placeholder="" class="form-control input-mixed" id="PES_UFCNH" name="PES_UFCNH" maxlength="2" style="text-transform: uppercase;"></div>
                     </div>
                     <div class="row">
@@ -483,10 +483,10 @@
                             window.location.href = '@Url.Action("InternalServerError", "Home")';
                         }
                         else if (response.error == 'BadRequest') {
-                            Notiflix.Notify.Failure(response.retorno);
+                            Notiflix.Notify.Failure(response.message);
                         } 
                         else { 
-                        Notiflix.Notify.Success(response.retorno);
+                        Notiflix.Notify.Success(response.message);
                             $('#Modal2').modal('hide');
                         }
                     },
