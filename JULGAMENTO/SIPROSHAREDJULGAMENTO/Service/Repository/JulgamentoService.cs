@@ -472,30 +472,28 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
         public async Task InserirVotoMembro(JulgamentoProcessoModel julgamentoProcesso)
         {
 
-            //validando a model agendamento 
-            var validator = new VotoMembroValidator();
-            var result = validator.Validate(julgamentoProcesso);
-            if (result.IsValid == false)
-                throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
-            //fim
 
 
 
             var dbParametro = new DynamicParameters();
             dbParametro.Add("@Disjug_Dis_Id", julgamentoProcesso.Disjug_Dis_Id);
             dbParametro.Add("@Disjug_Relator", julgamentoProcesso.Disjug_Relator);   
-            dbParametro.Add("@Disjug_Resultado", julgamentoProcesso.Disjug_Resultado);     
+   
 
             var query = @"
 
                     Declare @SetoroOrigem int, @qtd INT
-                    Set @SetoroOrigem = (Select top 1 
+                         Set @SetoroOrigem = (Select top 1 
 						                SETSUBUSU_SETSUB_ID 
 					                from SetorSubXUsuario 
 					            where SETSUBUSU_USUARIO = @Disjug_Relator)
 
 
-                    
+                      Declare @Disjug_Resultado varchar(1) 
+                          Set @Disjug_Resultado = (Select top 1 DISJUG_RESULTADO 
+							                     	 from Protocolo_Distribuicao_Julgamento 
+								                    where Disjug_Dis_Id = @Disjug_Dis_Id  
+                                                      and DISJUG_RESULTADO_DATA IS NOT NULL order by DISJUG_DATA asc)
 
                     Update Protocolo_Distribuicao_Julgamento
                        set DISJUG_RESULTADO = @Disjug_Resultado,
@@ -557,7 +555,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                                GETDATE(),
                                NULL,
                                'Processo julgado e encaminhado para homologação',
-                               48, --Setor SETAP porem poder ser alterado futuramente
+                               48, --Setor SETAP porem poder ser alterado futuramente // criar um tabela para puxar essa informação
                                'HOMOLOGAR',
                                NULL
                         from Movimentacao_Processo mp, #temp_julgado tj
@@ -595,7 +593,8 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 		                        Case when DISJUG_RESULTADO = 'I' then 'INDEFERIDO'
 		                          when DISJUG_RESULTADO IN('D','O') then 'DEFERIDO' 
 		                       ELSE 'AGUARDANDO...' END AS DISJUG_RESULTADO,
-		                        Case when DISJUG_PARECER_RELATORIO is null then 'MEMBRO' else 'PRESIDENTE' END AS DISJUG_TIPO
+		                        Case when DISJUG_PARECER_RELATORIO is null then 'MEMBRO' else 'RELATOR' END AS Disjul_tipo 
+
                          from Protocolo_Distribuicao_Julgamento
                          where DISJUG_DIS_ID = @vlobusca ";
 

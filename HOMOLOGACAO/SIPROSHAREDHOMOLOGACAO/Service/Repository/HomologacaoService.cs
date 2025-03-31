@@ -150,13 +150,13 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
            
                 var query = @"  select 
-                                    MOVPRO_ID,
+                                    MOVPRO_ID, 
 		                            DISJUG_RELATOR,
                                     FORMAT(DISJUG_RESULTADO_DATA, 'dd/MM/yyyy HH:mm') AS DISJUG_RESULTADO_DATA,
 		                            Case when DISJUG_RESULTADO = 'I' then 'INDEFERIDO'
 		                            when DISJUG_RESULTADO IN('D','O') then 'DEFERIDO' 
 		                            ELSE 'AGUARDANDO...' END AS DISJUG_RESULTADO,
-		                            Case when DISJUG_PARECER_RELATORIO is null then 'MEMBRO' else 'PRESIDENTE' END AS DISJUG_TIPO
+		                            Case when DISJUG_PARECER_RELATORIO is null then 'MEMBRO' else 'RELATOR' END AS DISJUG_TIPO
                               from  Protocolo_Distribuicao_Julgamento 
                                     inner join Protocolo_Distribuicao on(DISJUG_DIS_ID = DIS_ID)
 	                                inner join Movimentacao_Processo on (DIS_MOV_ID = MOVPRO_ID) 

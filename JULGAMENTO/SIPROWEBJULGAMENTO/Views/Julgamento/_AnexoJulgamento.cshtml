@@ -16,22 +16,15 @@
                             <br>
 
                         </div>
-                    </a> @if (@imagemHtml.prtdoc_prt_setor != 49)
-                    {
-                    <div class="text-center">
-                        <a href="" class="text-danger retirar-anexo" data-id="@imagemHtml.prtdoc_id,@imagemHtml.prt_numero">
-                            <i class="fa fa-trash text-danger"></i>
-                           
-                               
-                                    <small class="text-danger">Apagar anexo</small>
-                               
-                           
-                        </a>
-                        <br>
-                    </div>
-                     }
-                         
-
+                    </a> @if (@imagemHtml.prtdoc_prt_setor != 48)
+                        {
+                        <div class="text-center">
+                            <a href="" class="text-danger retirar-anexo" data-id="@imagemHtml.prtdoc_id,@imagemHtml.prt_numero">
+                                <i class="fa fa-trash text-danger"></i> <small class="text-danger">Apagar anexo</small>                                                         
+                            </a>
+                            <br>
+                        </div>
+                         }                       
                 </div>
             </div>
 

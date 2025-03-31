@@ -327,7 +327,8 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                                            PRTDOC_ID,
                                            PRTDOC_PRT_NUMERO,
                                            PRTDOC_OBSERVACAO,
-                                           PRTDOC_IMAGEM
+                                           PRTDOC_IMAGEM,
+                                           PRTDOC_PRT_SETOR
                                     FROM Protocolo_Documento_Imagem 
                                     WHERE REPLACE(PRTDOC_PRT_NUMERO, '/', '') = @prt_numero
                                     and PRTDOC_PRT_SETOR not in(64) "; //Passar o id do setor futuramente

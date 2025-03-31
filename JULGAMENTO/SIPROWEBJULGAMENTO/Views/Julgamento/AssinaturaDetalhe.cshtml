@@ -6,7 +6,7 @@
 
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
-        <h2>Julgamento do Processo</h2>
+        <h2>Assinatura do Processo</h2>
     </div>
 </div>
 <div class="wrapper wrapper-content  animated fadeInRight">
@@ -92,7 +92,7 @@
                     <div class="tab-content">
                         <div id="tab-0" class="tab-pane active">
                             <div class="panel-body">
-                                <div class="client-detail" style="pointer-events: none;">
+                                <div class="client-detail" >
                                     <div class="full-height-scroll">
                                         <h2>Parecer do Relator</h2>
 
@@ -109,9 +109,9 @@
                                                     if (ViewBag.ParecerRelator != null)
                                                     {
                                                         // Valor salvo no banco de dados
-                                                        var motivoVotoSelecionado = ViewBag.ParecerRelator?.Disjug_Motivo_Voto;                                                  
+                                                        var motivoVotoSelecionado = ViewBag.ParecerRelator?.Disjug_Motivo_Voto;
 
-                                                        <select class="select2_demo_3 form-control" style="width:100%;" id="Disjug_Motivo_Voto" name="Disjug_Motivo_Voto" required>
+                                                        <select class="select2_demo_3 form-control" style="width:100%;" id="Disjug_Motivo_Voto" name="Disjug_Motivo_Voto" required disabled>
                                                             <option></option>
                                                             @{
                                                             if (ViewBag.MotivoVoto != null)
@@ -138,32 +138,37 @@
                                             <div class="ibox">
 
                                                 <label><strong>Parecer</strong></label>
-                                                <div id="summernote" class="summernote"></div>
+                                                <div id="summernote" class="summernote" ></div>
                                                 <span id="erroSummernote" style="color:#cc5965 ; display: none;">Este campo é obrigatório.</span>
                                             <br> 
-                                              @*     
+                                                  
                                                 <div class="row">                                                  
                                                           
                                                     <div class="col-lg-12">
-                                                        <br />
-                                                        <br />
-                                                        <button type="button" class="btn btn-block btn-sm  btn-primary" onclick="RealizarJulgamento('D')" >Deferido</button>
-                                                        <button type="button" class="btn btn-block btn-sm  btn-danger" onclick="RealizarJulgamento('I')">Indeferido</button>
+                                                        <br />                                                       
+                                                        <button type="button" class="btn btn-block btn-sm  btn-primary" onclick="RealizarJulgamento()">  <i class="fa fa-thumbs-up"></i> Concordar com o voto do Relator</button>                                                       
                                                     </div>
 
                                                 </div>
-                                           *@
-                                                
-
-
-
 
                                             </div>
-                                            <br />
-                                            <br />
-                                            <br />
+                               
 
-                                           
+                                            <!-- 🔹 Contêiner dos botões -->
+                                           @*  <div class="mt-auto d-flex justify-content-between">
+                                                <button type="button" class="btn btn-sm btn-primary text-white shadow-sm"
+                                                        style="border: 2px ; width: 150px;"
+                                                        onclick="RealizarJulgamento('D')">
+                                                    Deferido
+                                                </button>
+
+                                                <button type="button" class="btn btn-sm btn-danger text-white shadow-sm"
+                                                        style="width: 150px;"
+                                                        onclick="RealizarJulgamento('I')">
+                                                    Indeferido
+                                                </button>
+                                            </div>
+ *@
 
 
                                         </form>
@@ -172,21 +177,7 @@
 
                                 </div>
 
-                                <!-- 🔹 Contêiner dos botões -->
-                                <div class="mt-auto d-flex justify-content-between">
-                                    <button type="button" class="btn btn-sm btn-primary text-white shadow-sm"
-                                            style="border: 2px ; width: 150px;"
-                                            onclick="RealizarJulgamento('D')">
-                                        Deferido
-                                    </button>
-
-                                    <button type="button" class="btn btn-sm btn-danger text-white shadow-sm"
-                                            style="width: 150px;"
-                                            onclick="RealizarJulgamento('I')">
-                                        Indeferido
-                                    </button>
-                                </div>
-                               
+                              
 
 
                             </div>
@@ -368,10 +359,23 @@
 <script>
 
     $(document).ready(function () {        
-        $('#summernote').summernote();       
+        $('#summernote').summernote({
+            height: 290,
+            toolbar: [
+                ['view', ['fullscreen']] // Mantém apenas o botão de tela cheia
+            ],
+            tooltip: false // Desativa os tooltips
+        });       
+     
+        
         var motivoVotoSelecionado = '@(ViewBag.ParecerRelator != null ? Html.Raw(ViewBag.ParecerRelator.Disjug_Parecer_Relatorio) : "")';
      
         $('#summernote').summernote('code', motivoVotoSelecionado);
+        // Desativa a edição, mas mantém os botões ativos
+         setTimeout(function() {
+        $('.note-editable').attr('contenteditable', false); // Bloqueia edição do conteúdo
+        $('.note-toolbar').removeClass('disabled'); // Garante que os botões fiquem ativos
+    }, 500);
 
         //caso ja tenha descrição do voto deve ficar ocuto
         if (motivoVotoSelecionado != '') {
@@ -404,37 +408,7 @@
         });
     });
 
-    // $('#btn_instrucao').click(function () {
-
-      
-    //     inicializarValidacaoFormulario("#form_instrucao");
-
-    //     if ($("#form_instrucao").valid()) {
-
-    //         var formData = $("#form_instrucao").serialize();
-    //         Notiflix.Loading.Standard('Aguarde...');
-    //         $.ajax({
-    //             url: '@Url.Action("EncaminharProcessoInstrucao", "Julgamento")',
-    //             type: 'POST',
-    //             data: formData,
-    //             success: function (response) {
-    //                 Notiflix.Loading.Remove();
-    //                 if (response.erro == false) {
-    //                     Notiflix.Notify.Success("Instrução enviada com sucesso!");
-    //                     window.location.href = '@Url.Action("Julgamento", "Julgamento")';
-    //                 }
-    //                 else
-    //                     Notiflix.Notify.Failure("Não foi possível enviar a instrução!");
-    //             },
-    //             error: function (xhr, status, error) {
-    //                 Notiflix.Notify.Success("Erro interno!");
-    //                 Notiflix.Loading.Remove();
-    //             }
-    //         });
-
-
-    //     }
-    // });
+   
 
     function RealizarJulgamento(resultado) {
 
@@ -474,7 +448,7 @@
                                     window.location.href = response.url;
                                 }, 1000);
                             } else {
-                                Notiflix.Notify.Failure(response.retorno);
+                                Notiflix.Notify.Failure(response.message);
                             }
                         },
                         error: function (xhr, status, error) {

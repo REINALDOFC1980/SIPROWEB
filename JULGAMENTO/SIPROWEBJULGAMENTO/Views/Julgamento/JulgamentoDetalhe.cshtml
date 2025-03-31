@@ -6,7 +6,7 @@
 
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
-        <h2>Assinar Processo</h2>
+        <h2>Julgamento de Processo</h2>
     </div>
 </div>
 <div class="wrapper wrapper-content  animated fadeInRight">
@@ -256,7 +256,7 @@
                                                         </li>
                                                     </ul>
                                                     <br />
-                                                    <small><i class="fa fa-twitch"></i> Caso não haja informações sobre o condutor, os dados do mesmo não serão apresentados.</small>
+                                                    <small><i class="fa fa-twitch"></i> Caso não haja informações sobre o condutor, os dados do mesmo não serão exibidos.</small>
                                                 </div>
                                             </div>
                                             <div class="col-lg-4">
@@ -476,6 +476,7 @@
 
     $(document).ready(function () {
         $('#summernote').summernote({
+            height: 200,
             toolbar: [
                 ['view', ['fullscreen']], // Apenas o botão de tela cheia
                 ['style', ['bold', 'italic', 'underline']], // Mantém apenas negrito, itálico e sublinhado
