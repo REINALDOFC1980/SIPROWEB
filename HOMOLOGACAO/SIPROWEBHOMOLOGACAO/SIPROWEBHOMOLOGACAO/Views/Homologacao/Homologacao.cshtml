@@ -90,7 +90,7 @@
       
 
                 <div class="tab-content">
-                        <div id="tab-1" class="tab-pane active show"> 
+                   <div id="tab-1" class="tab-pane active show"> 
                         <div class="panel-body">
                             <div class="client-detail">
                                 <div class="full-height-scroll">                        
@@ -128,7 +128,6 @@
                             </div>
                         </div>
                     </div>
-
 
                     <div id="tab-3" class="tab-pane">
                         <div class="panel-body">
@@ -228,12 +227,30 @@
             data: { setor: Setor, resultado: Resultado }, // Corrigido '=' para ':'
             success: function (result) {
                 $('#div_listaHomologacao').html(result);
+                AbrirHomologacao("/", "");
+                TabIndex();
             },
             error: function (xhr, status, error) {
                 Notiflix.Notify.Failure("Erro na busca do protocolo");
             }
         });
     }
+
+
+    function TabIndex() {
+        // Remove active class from all tabs
+        document.querySelectorAll('.nav-link').forEach(function (tab) {
+            tab.classList.remove('active', 'show');
+        });
+        document.querySelectorAll('.tab-pane').forEach(function (pane) {
+            pane.classList.remove('active', 'show');
+        });
+
+        // Add active class to tab 1
+        document.querySelector('.nav-link[href="#tab-1"]').classList.add('active', 'show');
+        document.getElementById('tab-1').classList.add('active', 'show');
+    }
+
 
     $('#btmLocalizarProtocolo').click(function (event) {
         var Setor = $('#Setor').val();
@@ -289,6 +306,7 @@
         ];
         await Promise.all(urls.map(({ url, elementId }) => fetchAndUpdate(url, elementId)));
 
+        TabIndex();
         Notiflix.Loading.Remove();
 
     }
@@ -299,9 +317,11 @@
       
         var formData = $("#form_homologacao").serialize();
 
+        var prt_numero = $('#MovPro_Prt_Numero').val();
+
         Notiflix.Confirm.Show(
             'Aviso!',
-            'Tem certeza que deseja homologar esse processo?',
+            'Tem certeza que deseja homologar esse processo: ' + prt_numero +' ? ',
             'Sim',
             'Não',
             async function okCb() {
@@ -389,8 +409,6 @@
 
     });
 
-
-
     $(document).on('click', '#btn_retificar', function () {
 
 
@@ -400,6 +418,7 @@
         
 
     });
+    
     $(document).on('click', '#btnDevolver', function () {
         
         $('#myModal').modal('hide');

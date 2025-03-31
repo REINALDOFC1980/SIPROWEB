@@ -404,80 +404,99 @@
         });
     });
 
-    $('#btn_instrucao').click(function () {
+    // $('#btn_instrucao').click(function () {
 
       
-        inicializarValidacaoFormulario("#form_instrucao");
+    //     inicializarValidacaoFormulario("#form_instrucao");
 
-        if ($("#form_instrucao").valid()) {
+    //     if ($("#form_instrucao").valid()) {
 
-            var formData = $("#form_instrucao").serialize();
-            Notiflix.Loading.Standard('Aguarde...');
-            $.ajax({
-                url: '@Url.Action("EncaminharProcessoInstrucao", "Julgamento")',
-                type: 'POST',
-                data: formData,
-                success: function (response) {
-                    Notiflix.Loading.Remove();
-                    if (response.erro == false) {
-                        Notiflix.Notify.Success("Instrução enviada com sucesso!");
-                        window.location.href = '@Url.Action("Julgamento", "Julgamento")';
-                    }
-                    else
-                        Notiflix.Notify.Failure("Não foi possível enviar a instrução!");
-                },
-                error: function (xhr, status, error) {
-                    Notiflix.Notify.Success("Erro interno!");
-                    Notiflix.Loading.Remove();
-                }
-            });
+    //         var formData = $("#form_instrucao").serialize();
+    //         Notiflix.Loading.Standard('Aguarde...');
+    //         $.ajax({
+    //             url: '@Url.Action("EncaminharProcessoInstrucao", "Julgamento")',
+    //             type: 'POST',
+    //             data: formData,
+    //             success: function (response) {
+    //                 Notiflix.Loading.Remove();
+    //                 if (response.erro == false) {
+    //                     Notiflix.Notify.Success("Instrução enviada com sucesso!");
+    //                     window.location.href = '@Url.Action("Julgamento", "Julgamento")';
+    //                 }
+    //                 else
+    //                     Notiflix.Notify.Failure("Não foi possível enviar a instrução!");
+    //             },
+    //             error: function (xhr, status, error) {
+    //                 Notiflix.Notify.Success("Erro interno!");
+    //                 Notiflix.Loading.Remove();
+    //             }
+    //         });
 
 
-        }
-    });
+    //     }
+    // });
 
     function RealizarJulgamento(resultado) {
 
-        inicializarValidacaoFormulario("#form_julgamento");
+        Notiflix.Confirm.Show(
+            'Aviso!',
+            'Tem certeza que deseja assinar esse processo ? ',
+            'Sim',
+            'Não',
+            async function okCb() {
+                inicializarValidacaoFormulario("#form_julgamento");
 
-        validarSummernote();
+                validarSummernote();
 
-        if ($("#form_julgamento").valid()) {
+                if ($("#form_julgamento").valid()) {
 
 
 
-                var parecerContent = $('#summernote').summernote('code');
+                    var parecerContent = $('#summernote').summernote('code');
 
-                // Serializa o formulário e adiciona os campos separados para name1 e name2
-                var formData = $("#form_julgamento").serializeArray();
-                formData.push({ name: "Disjug_Resultado", value: resultado });
-                formData.push({ name: "Disjug_Parecer_Relatorio", value: parecerContent });
+                    // Serializa o formulário e adiciona os campos separados para name1 e name2
+                    var formData = $("#form_julgamento").serializeArray();
+                    formData.push({ name: "Disjug_Resultado", value: resultado });
+                    formData.push({ name: "Disjug_Parecer_Relatorio", value: parecerContent });
 
-                Notiflix.Loading.Standard('Aguarde...');
+                    Notiflix.Loading.Standard('Aguarde...');
 
-                $.ajax({
-                    url: '@Url.Action("InserirVotoRelator", "Julgamento")',
-                    type: 'POST',
-                    data: $.param(formData), // Converte o array para uma string serializada
-                    success: function (response) {
-                        Notiflix.Loading.Remove();
-                        if (response.erro == false) {
-                            Notiflix.Notify.Success("Assinatura realizada com sucesso!");
-                            // Atraso de 2 segundos antes do redirecionamento
-                            setTimeout(function () {
-                                window.location.href = response.url;
-                            }, 1000);
-                        } else {
-                            Notiflix.Notify.Failure(response.retorno);
+                    $.ajax({
+                        url: '@Url.Action("InserirVotoRelator", "Julgamento")',
+                        type: 'POST',
+                        data: $.param(formData), // Converte o array para uma string serializada
+                        success: function (response) {
+                            Notiflix.Loading.Remove();
+                            if (response.erro == false) {
+                                Notiflix.Notify.Success("Assinatura realizada com sucesso!");
+                                // Atraso de 2 segundos antes do redirecionamento
+                                setTimeout(function () {
+                                    window.location.href = response.url;
+                                }, 1000);
+                            } else {
+                                Notiflix.Notify.Failure(response.retorno);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            Notiflix.Notify.Failure("Erro interno!");
+                            Notiflix.Loading.Remove();
                         }
-                    },
-                    error: function (xhr, status, error) {
-                        Notiflix.Notify.Failure("Erro interno!");
-                        Notiflix.Loading.Remove();
-                    }
-                });
-            
-        }
+                    });
+
+                }
+            },
+            function cancelCb() {
+                Notiflix.Loading.Remove();
+            },
+            {
+                // Configurações adicionais (opcional)
+            }
+        );
+
+
+
+
+      
     };
 
 
