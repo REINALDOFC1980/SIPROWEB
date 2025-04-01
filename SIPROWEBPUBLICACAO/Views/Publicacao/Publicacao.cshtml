@@ -2,7 +2,7 @@
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <h2 class="m-b-xxs">Publicação do processo.</h2>
-        <small>Após a entrada do CPF, o sistema automaticamente verificará se há um agendamento existente para o solicitante.</small>
+        <small>Processos prontos para serem publicado em lotes.</small>
 
        
     </div>
@@ -72,29 +72,14 @@
                                          </tr>
                                     </thead>
                                     <tbody>
+                                       
                                         <tr>
                                             <td><div class="icheckbox_square-green checked" style="position: relative;"><input type="checkbox" checked="" class="i-checks" name="input[]" style="position: absolute; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td>
                                             <td>LT1/2025</td>
                                             <td>26/06/2024 12:44</td>
                                             <td>ROSEICLEIDERF</td>
-                                            <td>89</td>
-                                            <td><a href="#"><i class="fa fa-check text-navy"></i> Visualizar</a></td>
-                                        </tr>
-                                        <tr>
-                                            <td><div class="icheckbox_square-green checked" style="position: relative;"><input type="checkbox" checked="" class="i-checks" name="input[]" style="position: absolute; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td>
-                                            <td>LT2/2025</td>
-                                            <td>26/06/2024 12:44</td>
-                                            <td>ROSEICLEIDERF</td>
-                                            <td>200</td>
-                                            <td><a href="#"><i class="fa fa-check text-navy"></i> Visualizar</a></td>
-                                        </tr>
-                                        <tr>
-                                            <td><div class="icheckbox_square-green checked" style="position: relative;"><input type="checkbox" checked="" class="i-checks" name="input[]" style="position: absolute; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div></td>
-                                            <td>LT3/2025</td>
-                                            <td>26/06/2024 12:44</td>
-                                            <td>ROSEICLEIDERF</td>
                                             <td>234</td>
-                                    <td><a href="#" data-toggle="modal" data-target="#myModal"><i class="fa fa-check text-navy"></i> Visualizar</a></td>
+                                            <td><a href="#" data-toggle="modal" data-target="#myModal"><i class="fa fa-eye"></i> Visualizar</a></td>
 
                                         </tr>
                                     </tbody>
@@ -116,9 +101,13 @@
         <div class="modal-content animated bounceInRight">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <i class="fa fa-share-square-o modal-icon"></i>
-                <h4 class="modal-title">Lote Gerado</h4>
-                <small class="">Dados do lote gerado  para envio do arquivo para o <strong>Encaminhar DOM</strong></small>
+
+                <i class="fa fa-tags modal-icon"></i>
+                <h2 class="modal-title">Lote Gerado: <strong>LT1/2025</strong>     </h2>
+                <br />
+                <button type="button" class="btn btn-primary btn-xs text-center"><i class="fa fa-print"></i> Imprimir DOM </button>
+              
+             
             </div>
 
 
@@ -134,7 +123,7 @@
                                 <input placeholder="" type="text" class="form-control form-control-sm" value="LT1/2025" readonly>
                                 <span class="input-group-append">
                                     <button type="button" class="btn btn-sm btn-danger">
-                                        Desfazer Lote
+                                        <i class="fa fa-trash-o"></i> Excluir Lote
                                     </button>
                                 </span>
                             </div>
@@ -155,27 +144,24 @@
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Quantidade:</label>
                         <div class="col-lg-8"><input type="text" class="form-control" id="PRT_ASSUNTO" value="80"  readonly></div>
-                    </div>
+                    </div>   
+              
+                    <hr />
 
                     <div class="form-group row">
-                        <label class="col-lg-4 col-form-label text-right">Data de Publicação :</label>
-                        <div class="col-lg-8">
-                            <div class="input-group">
-                                <input placeholder="" type="text" class="form-control form-control-sm">
-                                <span class="input-group-append">
-                                    <button type="button" class="btn btn-sm btn-primary">
-                                        Gravar Publicação
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
+                        <label class="col-lg-4 col-form-label text-right">Número DOM:</label>
+                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_DT_ABERTURA"></div>
                     </div>
-
-
+                    <div class="form-group row">
+                        <label class="col-lg-4 col-form-label text-right">Data de Publicação:</label>
+                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_DT_ABERTURA" data-mask="99/99/9999"></div>
+                    </div>
+                                      
                 </form>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-white me-3" data-dismiss="modal">Gerar arquivo DOM</button>
-                @*     <button type="button" class="btn btn-danger" id="btnDistribuir">Desfazer Lote</button> *@
+        
+                <div class="modal-footer">                    
+                    <br />
+                    <button type="button" class="btn btn-block btn-primary " data-dismiss="modal"><i class="fa fa-print"></i> Gravar Publicação do DOM </button>
                 </div>
 
                 

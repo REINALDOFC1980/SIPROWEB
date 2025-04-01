@@ -11,4 +11,8 @@
     <ProjectReference Include="..\PUBLICACAO\SIPROSHAREDPUBLICACAO\SIPROSHAREDPUBLICACAO.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>

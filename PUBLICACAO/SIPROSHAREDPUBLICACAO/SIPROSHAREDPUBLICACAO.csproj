@@ -10,4 +10,8 @@
     <Folder Include="Models\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\ATENDIMENTO\SIPROSHARED\SIPROSHARED.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -57,7 +57,7 @@
                             GR+
                         </div>
                     </li>
-                    @{
+                @{
                     var roles = Context.Items["UserRoles"] as string;
 
                     var atendimento = new[] { "ATENDIMENTO_1", "ADM", "ATENDIMENTO_ADM" };
@@ -140,14 +140,24 @@
                     }                   
      
                    
-                        var homologacao = new[] { "HOMOLOGACAO_ADM", "HOMOLOGACAO_1", "ADM", "ATENDIMENTO_ADM" };
+                    var homologacao = new[] { "HOMOLOGACAO_ADM", "HOMOLOGACAO_1", "ADM", "ATENDIMENTO_ADM" };
                     if (homologacao.Contains(roles))
                     {
                         <li>
                             <a asp-controller="Homologacao" asp-action="Homologacao"><i class="fa fa-external-link"></i> <span class="nav-label">Homologação</span></a>
                         </li>
                     }
+
+               
+                    var publicar = new[] { "JULGAMENTO_1", "JULGAMENTO_ADM", "ADM" };
+                        if (publicar.Contains(roles))
+                    {
+                        <li>
+                                <a asp-controller="Publicacao" asp-action="Publicacao"><i class="fa fa-cloud-upload"></i> <span class="nav-label">Publicação</span></a>
+                        </li>
                     }
+
+                }
                 </ul>          
 
             </div>
