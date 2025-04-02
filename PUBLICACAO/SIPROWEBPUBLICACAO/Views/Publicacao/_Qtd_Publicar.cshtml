@@ -1,0 +1,28 @@
+﻿@model SIPROSHAREDPUBLICACAO.Model.PublicacaoModel
+
+<div class="ibox ">
+    <div class="ibox-content">
+        <div class="row">
+            <div class="col-sm-12">
+                <h2 class="m-t-none m-b">Gerar Lote</h2>
+                <ul class="list-group clear-list m-t">
+                    <li class="list-group-item fist-item">
+
+                        <span class="float-right">
+                           <h2 class="no-margins"><strong>@Model?.PRT_PUBLICACAO_QDT</strong></h2> 
+                        </span>
+
+                        <h3> Processos aguardando para serem publicados:</h3>
+                    </li>
+                </ul>
+                <br />
+                <br />
+                <div class="input-group">
+                    <button type="button" class="btn btn-primary btn-block" onclick="gerarLote()"> Gerar lote para envio  </button>
+                    <br />
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

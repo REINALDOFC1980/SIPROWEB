@@ -7,12 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ATENDIMENTO\SIPROSHARED\SIPROSHARED.csproj" />
-    <ProjectReference Include="..\PUBLICACAO\SIPROSHAREDPUBLICACAO\SIPROSHAREDPUBLICACAO.csproj" />
+    <Folder Include="Controllers\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <ProjectReference Include="..\..\ATENDIMENTO\SIPROSHARED\SIPROSHARED.csproj" />
+    <ProjectReference Include="..\SIPROSHAREDPUBLICACAO\SIPROSHAREDPUBLICACAO.csproj" />
   </ItemGroup>
 
 </Project>
