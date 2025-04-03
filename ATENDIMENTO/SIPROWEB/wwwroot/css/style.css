@@ -823,8 +823,8 @@ h6 {
 h1,
 h2,
 h3 {
-  margin-top: 20px;
-  margin-bottom: 10px;
+  margin-top: 10px;
+  margin-bottom: 9px;
 }
 h1 {
   font-size: 30px;
@@ -2416,7 +2416,7 @@ a.list-group-item.active:focus {
   padding: 15px 25px;
 }
 .element-detail-box {
-  padding: 25px;
+  padding: 18px;
 }
 /* FLOT CHART  */
 .flot-chart {

@@ -44,15 +44,31 @@ namespace SIPROAPIPUBLICACAO.Controllers
 
 
         [HttpPost]
-        [Route("gerar-lote/{usuario}")] // Permite que o parâmetro seja opcional
-        public async Task<IActionResult> RetirarProcesso(string usuario)
+        [Route("gerar-lote/{usuario}")] 
+        public async Task<IActionResult> GerarLote(string usuario)
         {
             if (string.IsNullOrEmpty(usuario))
-                return BadRequest("Usuário não informado."); // Tratamento de erro
+                return BadRequest("Usuário não informado.");
 
             await _publicacao.GerarLote(usuario);
 
             return Ok();
         }
+
+
+        [HttpGet]
+        [Route("buscar-lote/{usuario}")]
+        public async Task<IActionResult> BuscarLotes(string usuario)
+        {
+
+            var processo = await _publicacao.BuscarLotes(usuario);
+
+            if (processo == null)
+                return NoContent();
+
+            return Ok(processo);
+
+        }
+
     }
 }

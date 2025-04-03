@@ -50,14 +50,25 @@ namespace SIPROWEBPUBLICACAO.Controllers
         {
             PublicacaoModel publicacaoModel = new PublicacaoModel();
 
+
+            //Buscando QTD de processos
             string apiUrl = $"{_baseApiUrl}publicacao/quantidade-processo/{userMatrix}";
             var response = await _httpClient.GetAsync(apiUrl); // Aguarda a resposta
-
-
             if (response.StatusCode == HttpStatusCode.OK)
                 publicacaoModel = await response.Content.ReadFromJsonAsync<PublicacaoModel>();
 
-            return View(publicacaoModel);
+
+            //Buscando os lotes gerados!
+            ViewBag.LoteGerado = new List<PublicacaoModel>();
+            apiUrl = $"{_baseApiUrl}publicacao/buscar-lote/{userMatrix}";
+            response = await _httpClient.GetAsync(apiUrl);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                List<PublicacaoModel> result = await response.Content.ReadFromJsonAsync<List<PublicacaoModel>>();
+                ViewBag.LoteGerado = result;
+            }
+
+             return View(publicacaoModel);
         }
 
         [HttpPost]
@@ -66,17 +77,12 @@ namespace SIPROWEBPUBLICACAO.Controllers
 
             PublicacaoModel publicacaoModel = new PublicacaoModel();
 
-
-            //Gerando o Lote
-            if (string.IsNullOrEmpty(userMatrix))
-                return PartialView("_ErrorPartialView");
-
+            //Gerando Lote
             string apiUrl = $"{_baseApiUrl}publicacao/gerar-lote/{userMatrix}";
             var response = await _httpClient.PostAsync(apiUrl, null); 
 
             if (!response.IsSuccessStatusCode)
                 return PartialView("_ErrorPartialView");
-
 
             
             //Buscando os novos valores
@@ -88,6 +94,22 @@ namespace SIPROWEBPUBLICACAO.Controllers
 
             if (response.StatusCode == HttpStatusCode.OK)
                 publicacaoModel = await response.Content.ReadFromJsonAsync<PublicacaoModel>();
+
+
+
+            //Buscando os lotes gerados!
+            ViewBag.LoteGerado = new List<PublicacaoModel>();
+            apiUrl = $"{_baseApiUrl}publicacao/buscar-lote/{userMatrix}";
+            response = await _httpClient.GetAsync(apiUrl);
+
+            if (response.StatusCode == HttpStatusCode.InternalServerError)
+                return PartialView("_ErrorPartialView");
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                List<PublicacaoModel> result = await response.Content.ReadFromJsonAsync<List<PublicacaoModel>>();
+                ViewBag.LoteGerado = result;
+            }
 
             return PartialView("_Qtd_Publicar", publicacaoModel);
         }

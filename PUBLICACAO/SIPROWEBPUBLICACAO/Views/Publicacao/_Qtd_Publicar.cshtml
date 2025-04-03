@@ -1,27 +1,98 @@
 ﻿@model SIPROSHAREDPUBLICACAO.Model.PublicacaoModel
 
-<div class="ibox ">
-    <div class="ibox-content">
-        <div class="row">
-            <div class="col-sm-12">
-                <h2 class="m-t-none m-b">Gerar Lote</h2>
-                <ul class="list-group clear-list m-t">
-                    <li class="list-group-item fist-item">
+<div class="row">
+    <div class="col-lg-5">
+        <div class="ibox ">
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h2 class="m-t-none m-b">Gerar Lote</h2>
+                        <ul class="list-group clear-list m-t">
+                            <li class="list-group-item fist-item">
 
-                        <span class="float-right">
-                           <h2 class="no-margins"><strong>@Model?.PRT_PUBLICACAO_QDT</strong></h2> 
-                        </span>
+                                <span class="float-right">
+                                    <h2 class="no-margins"><strong>@Model?.PRT_PUBLICACAO_QDT</strong></h2>
+                                </span>
 
-                        <h3> Processos aguardando para serem publicados:</h3>
-                    </li>
-                </ul>
-                <br />
-                <br />
-                <div class="input-group">
-                    <button type="button" class="btn btn-primary btn-block" onclick="gerarLote()"> Gerar lote para envio  </button>
-                    <br />
+                                <h3> Processos aguardando para serem publicados:</h3>
+                            </li>
+                        </ul>
+                        <br />
+                        <br />
+                        <div class="input-group">
+                            <button type="button" class="btn btn-primary btn-block" onclick="gerarLote()"> Gerar lote para envio  </button>
+                            <br />
+                        </div>
+
+                    </div>
                 </div>
+            </div>
+        </div>
 
+
+    </div>
+    <div class="col-lg-7">
+        <div class="ibox ">
+
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h2 class="m-t-none m-b">Lotes Gerados</h2>
+                        <div class="input-group">
+                            <input placeholder="Buscar Lote" type="text" class="form-control form-control-sm"> <span class="input-group-append">
+                                <button type="button" class="btn btn-sm btn-primary">
+                                    Buscar
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+
+                                <th>Lote </th>
+                                <th>Data da Geração </th>
+                                <th>Quantidade</th>
+                                <th>Visualizar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                if (ViewBag.LoteGerado == null)
+                                {
+                                    <tr>
+                                        <td colspan="5"> <i class="fa fa-twitch"></i> Realize sua busca.</td>
+                                    </tr>
+                                }
+                                else if (ViewBag.LoteGerado.Count != 0)
+                                {
+                                    @foreach (var item in ViewBag.LoteGerado)
+                                    {
+                                        <tr>
+
+                                            <td>@item.PRT_LOTE</td>
+                                            <td>@item.PRT_DT_LOTE</td>
+                                            <td>@item.PRT_PUBLICACAO_QDT</td>
+                                            <td><a href="#" data-toggle="modal" data-target="#myModal"><i class="fa fa-eye"></i> Visualizar</a></td>
+
+                                        </tr>
+                                    }
+                                }
+                                else if (ViewBag.LoteGerado.Count == 0)
+                                {
+                                    <tr>
+                                        <td colspan="5"> <i class="fa fa-twitch"></i> Não foi localizado registro para essa pesquisa.</td>
+                                    </tr>
+                                }
+                            }
+
+
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

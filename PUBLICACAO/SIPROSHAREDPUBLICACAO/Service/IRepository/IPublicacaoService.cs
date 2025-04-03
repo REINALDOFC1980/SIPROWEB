@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SIPROSHAREDPUBLICACAO.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,5 +12,7 @@ namespace SIPROSHAREDPUBLICACAO.Service.IRepository
         Task<int> QuantidadeProcesso(string usuario);
 
         Task GerarLote(string usuario);
+
+        Task <List<PublicacaoModel>> BuscarLotes(string usuario);
     }
 }

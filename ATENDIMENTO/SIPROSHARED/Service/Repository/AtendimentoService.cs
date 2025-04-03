@@ -418,8 +418,8 @@ namespace SIPROSHARED.Service.Repository
                                     @PRT_PLACA, @PRT_RESS_BANCO, @PRT_RESS_TIPO, @PRT_RESS_TITULAR, @PRT_RESS_CPF, @PRT_RESS_AGENCIA, 
                                     @PRT_RESS_CONTA, @PRT_RESS_OPERACAO, @PRT_DT_POSTAGEM, @PRT_RESTRICAO, @PRT_CNH_ESTRANGEIRA, 
                                     @PRT_CNH_ESTRANGEIRA_NOME, @PRT_CNH_ESTRANGEIRA_PAIS, @PRT_NUMERO_GEP, @PRT_AIT_SITUACAO,
-                                    CASE WHEN @PRT_RESTRICAO NOT IN (1,5) THEN 'ARQUIVADO!'END,
-                                    CASE WHEN @PRT_RESTRICAO NOT IN (1,5) THEN 'ARQUIVADO!' END,
+                                    CASE WHEN @PRT_RESTRICAO NOT IN (1,5) AND @PRT_ASSUNTO = 1 THEN 'ARQUIVADO!'END,
+                                    CASE WHEN @PRT_RESTRICAO NOT IN (1,5) AND @PRT_ASSUNTO = 1 THEN 'ARQUIVADO!' END,
                                     CASE WHEN @PRT_RESTRICAO NOT IN (1,5) THEN GETDATE() ELSE NULL END,
                                     CASE WHEN @PRT_RESTRICAO NOT IN (1,5) THEN @PRT_USUARIOARQUIVO ELSE NULL END
                                 );

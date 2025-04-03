@@ -1,7 +1,9 @@
 ﻿using Dapper;
 using SIPROSHARED.DbContext;
+using SIPROSHAREDPUBLICACAO.Model;
 using SIPROSHAREDPUBLICACAO.Service.IRepository;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -118,6 +120,29 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
 
         }
 
+        public async Task<List<PublicacaoModel>> BuscarLotes(string usuario)
+        {
 
+            var query = @"
+                        Select PRT_LOTE, 
+                               Convert(date,PRT_DT_LOTE,103) as PRT_DT_LOTE , 
+                               COUNT(1) AS PRT_PUBLICACAO_QDT,  
+                               PRT_PUBLICACAO_DOM, 
+	                           convert(date,PRT_DT_PUBLICACAO,103) as PRT_DT_PUBLICACAO 
+                        from Protocolo
+                        where PRT_DT_LOTE is not null
+                        group by PRT_LOTE, 
+                                 Convert(date,PRT_DT_LOTE,103),
+		                         PRT_PUBLICACAO_DOM, 
+		                         convert(date,PRT_DT_PUBLICACAO,103)
+                         ";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parametros = new { usuario };
+                var command = await connection.QueryAsync<PublicacaoModel>(query, parametros);
+                return command.ToList();
+            }
+        }
     }
 }

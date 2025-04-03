@@ -10,60 +10,8 @@
 </div>
 
 <div class="wrapper wrapper-content animated fadeInRight">
-    <div class="row">
-        <div class="col-lg-5">
-
-            <div id="Div_Publicar">
-                    @await Html.PartialAsync("_Qtd_Publicar")
-            </div>
-
-
-        </div>
-        <div class="col-lg-7">
-            <div class="ibox ">                        
-              
-                <div class="ibox-content">
-                    <div class="row">               
-                        <div class="col-sm-12">
-                                <h2 class="m-t-none m-b">Lotes Gerados</h2>
-                            <div class="input-group">
-                                <input placeholder="Buscar Lote" type="text" class="form-control form-control-sm"> <span class="input-group-append">
-                                    <button type="button" class="btn btn-sm btn-primary">
-                                        Buscar
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <hr />
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                
-                                    <th>Lote </th>
-                                    <th>Data da Geração </th>
-                                    <th>Usuário Responsável </th>
-                                    <th>Quantidade</th>
-                                    <th>Visualizar</th>
-                                    </tr>
-                            </thead>
-                            <tbody>
-                                       
-                                <tr>
-                                            
-                                    <td>LT1/2025</td>
-                                    <td>26/06/2024 12:44</td>
-                                    <td>ROSEICLEIDERF</td>
-                                    <td>234</td>
-                                    <td><a href="#" data-toggle="modal" data-target="#myModal"><i class="fa fa-eye"></i> Visualizar</a></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>                     
-            </div>
-        </div>
+    <div id="Div_Publicar">
+        @await Html.PartialAsync("_Qtd_Publicar")
     </div>
 </div>
 

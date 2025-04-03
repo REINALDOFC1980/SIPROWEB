@@ -124,7 +124,7 @@ namespace SIPROWEBDISTRIBUICAO.Controllers
 
             if (response.StatusCode == HttpStatusCode.OK)
                 return await response.Content.ReadFromJsonAsync<List<ProtocoloDistribuicaoModel>>();
-                //return processosUsuario ?? new List<ProtocoloDistribuicaoModel>();
+                
 
             return new List<ProtocoloDistribuicaoModel>();
         }

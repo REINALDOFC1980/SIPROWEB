@@ -41,7 +41,7 @@
 
 
 
-       @*                                  <div class="form-group col-md-2"><label>Data Postagem</label> <input type="text" class="form-control" data-mask="99/99/9999" placeholder="" id="PRT_DT_POSTAGEM" name="PRT_DT_POSTAGEM" readonly></div> *@
+                                        @*   <div class="form-group col-md-2"><label>Data Postagem</label> <input type="text" class="form-control" data-mask="99/99/9999" placeholder="" id="PRT_DT_POSTAGEM" name="PRT_DT_POSTAGEM" readonly></div> *@
                                             <div class="form-group col-md-2 ">
                                                 <div class="form-group" id="data_1">
                                                     <label class="font-normal">Data de Postagem</label>
@@ -178,22 +178,16 @@
 
 
                                 <div class="m-t-lg">
-                                    <p>
-                                       @*<span><i class="fa fa-paperclip"></i> Arquivos anexados </span> *@
+                            
                                        <h4><i class="fa fa-paperclip"></i><string> Arquivos anexados</string></h4>                                            
-                                    </p>
+                                  
 
                                     <div class="attachment">
                                         <div id="div_anexos">
                                             @await Html.PartialAsync("_Anexos")
                                         </div>
 
-                                        <div class="clearfix"></div>
-                                        @*
-                                        Fim do laço
-                                        *@
-                                           
-                                     
+                                        <div class="clearfix"></div>                                    
                                     </div>
                                 </div>
                             </div>
@@ -203,7 +197,7 @@
 
                             <div class="col-md-4">
                                 <div class=" col-auto">
-                                    <div class="col-auto">
+                              
                                         <div class="ibox ">
                                             <div class="ibox-content">
                                                 <h2><string> Dados do Protocolo</string></h2>
@@ -215,10 +209,7 @@
                                                     <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="" data-original-title="Mark as important"> <i class="fa fa-edit"></i> </button><br />
                                                     <span>Data da Abertura: <strong>@dataAtual</strong></span>
                                                 </div>
-                                        </div>
-                                    </div>
-                                        <div class="col-auto">
-                                        <div class="ibox ">
+                                    
                                             <div class="ibox-content">
                                                 <h2>Documentos Necessários</h2>
                                                 <i class="fa fa-print"></i>  <small class="text-alert-dark"> Favor colocar os documentos no scaaner na seguinte ordem: </small>
@@ -249,7 +240,7 @@
                                                 <span class="error-checkbox" style="color:chocolate;"></span>
                                             </div>
                                         </div>
-                                    </div>
+                                   
                             
                                     <div class="col-auto">
                                         <div class="ibox ">
@@ -265,32 +256,34 @@
                                                         <div>
                                                             <label><input type="radio" value="2" id="optionsRadios1" name="optionsRadios"> Doc. sem autenticidade</label>
                                                         </div>
-                                                        <div>
+ @*                                                        <div>
                                                             <label><input type="radio" value="3" id="optionsRadios2" name="optionsRadios"> Jurídico sem condutor</label>
-                                                        </div>
+                                                        </div> *@
                                                         <div>
                                                             <label><input type="radio" value="4" id="optionsRadios3" name="optionsRadios"> Sem doc. do solicitante</label>
                                                         </div>
-                                                        <div>
+      @*                                                   <div>
                                                             <label><input type="radio" value="5" id="optionsRadios4" name="optionsRadios"> CNH Estrangeiro</label>
-                                                        </div>
+                                                        </div> *@
                                                         <div>
                                                             <label><input type="radio" value="6" id="optionsRadios5" name="optionsRadios"> Doc. incompleta</label>
                                                         </div>
                                                         <div>
-                                                            <label><input type="radio" value="7" id="optionsRadios6" name="optionsRadios"> AIT Penalizado</label>
+                                                            <label><input type="radio" value="7" id="optionsRadios6" name="optionsRadios"> AIT Intepestivo</label>
 
                                                         </div>
                                                     </div>
                                                     <div class="col-sm-7">
                                                         <h2>Observação</h2>
-                                                            <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" rows="8" cols="45" class="form-control"></textarea>
+                                                            <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" rows="5" cols="45" class="form-control"></textarea>
                                                     </div>
                                                 </div>
                                                 <br />
-
+                                                    <div id="mensagem1" class="alert alert-danger text-center" style="display: none;"> </div>
+                                                    <br />
                                                 <button class="btn btn-success btn-lg btn-block  " data-toggle="tooltip" data-placement="left" id="BtnGerarProtocolo" title="Gerar Processo" disabled> <i class="fa fa-file"> </i>  Gerar Processo </button>
-
+                        
+                                  
                                                 </div>
                                         </div>
                                      
@@ -555,7 +548,7 @@
         //Notificação em caso de Intepestividade no campo prazo
         if (intepestividade == "Sim" && ["1", "2", "39", "59"].includes(codservico)) {
             inputElement.classList.add('text-danger');
-            Addiconeerro(".error-prazo", "AIT Fora do prazo (Intepestivo!).");//add um icone antes da imagem
+            Addiconeerro(".error-prazo", "AIT (Intepestivo!).");//add um icone antes da imagem
             radioElement.checked = true;
         } else {
             Removeiconeerro(".error-cnh");
@@ -742,18 +735,15 @@
 
                         if (response.error == 'InternalServerError') {
                             window.location.href = '@Url.Action("InternalServerError", "Home")'
-                        } else
-                            if (response.errorAPI !== undefined) {
-                                return false;
-                            }
-                            else if (response.error == false) {
-                                window.location.href = '@Url.Action("Finalizar_Atendimento", "Atendimento")?protocolo=' + encodeURIComponent(response.protocolo);
+                        } 
+                        else if (response.error == 'BadRequest') {
+                            mensagem1.innerHTML = '<i class="fa fa-twitch"></i> ' + response.message;
+                            mensagem1.style.display = "block";
+                        }
+                        else if (response.error == false) {
+                            window.location.href = '@Url.Action("Finalizar_Atendimento", "Atendimento")?protocolo=' + encodeURIComponent(response.protocolo);
+                        }
 
-                            } else {
-                                // alert(response.message); //add um icone antes da imagem
-                                mensagem1.innerHTML = '<i class="fa fa-twitch"></i> ' + response.message;
-                                mensagem1.style.display = "block";
-                            }
                     },
                     error: function (xhr, status, error) {
                         Notiflix.Loading.Remove();
@@ -847,8 +837,6 @@
         });
 
         function buscarcondutor() {
-
-
 
 
             // Limpa os campos preenchidos após confirmar o formulário do condutor
