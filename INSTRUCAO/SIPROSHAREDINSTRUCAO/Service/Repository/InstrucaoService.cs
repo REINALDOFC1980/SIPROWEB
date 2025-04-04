@@ -313,74 +313,53 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                
             }
         }
-
-        public async Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero)
+        public async Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero, string usuario)
         {
             try
             {
-                List<AnexoModel> anexoModel = new List<AnexoModel>();
-
                 using (var connection = _context.CreateConnection())
                 {
-                    // Agora, você pode recuperar as imagens da tabela temporária
-                    string selectQuery = @"    SELECT 
-                                           PRTDOC_ID,
-                                           PRTDOC_PRT_NUMERO,
-                                           PRTDOC_OBSERVACAO,
-                                           PRTDOC_IMAGEM,
-                                           PRTDOC_PRT_SETOR
-                                    FROM Protocolo_Documento_Imagem 
-                                    WHERE REPLACE(PRTDOC_PRT_NUMERO, '/', '') = @prt_numero
-                                    and PRTDOC_PRT_SETOR not in (64) "; //Passar o id do setor futuramente
+                    string selectQuery = @"
+                                SELECT 
+                                    PRTDOC_ID,
+                                    PRTDOC_PRT_NUMERO,
+                                    PRTDOC_OBSERVACAO,
+                                    PRTDOC_IMAGEM,
+                                    PRTDOC_PRT_SETOR
+                                FROM Protocolo_Documento_Imagem 
+                                WHERE REPLACE(PRTDOC_PRT_NUMERO, '/', '') = @prt_numero
+                                AND PRTDOC_PRT_SETOR IN (
+                                                        SELECT TOP 1 SETSUBUSU_SETSUB_ID 
+                                                        FROM SetorSubXUsuario 
+                                                        WHERE SETSUBUSU_USUARIO = @usuario
+                                                        );";
 
-                    using (var selectCommand = connection.CreateCommand())
-                    {
-                        connection.Open();
-
-                        selectCommand.CommandText = selectQuery;
-                        var param = selectCommand.CreateParameter();
-                        param.ParameterName = "@prt_numero";
-                        param.Value = prt_numero;
-                        selectCommand.Parameters.Add(param);
-
-                        // Executa a consulta SELECT
-                        using (var reader = selectCommand.ExecuteReader())
+                    var anexos = (await connection.QueryAsync(selectQuery, new { prt_numero, usuario }))
+                        .Select(row => new AnexoModel
                         {
-                            while (reader.Read())
-                            {
-                                var imagemBytes = (byte[])reader["PRTDOC_IMAGEM"];
-                                var imagemBase64 = Convert.ToBase64String(imagemBytes);
-                                var nomeArquivo = reader["PRTDOC_OBSERVACAO"].ToString();
-                                int prtdoc_id = reader.GetInt32(reader.GetOrdinal("PRTDOC_ID"));
-                                int prtdoc_prt_setor = reader.GetInt32(reader.GetOrdinal("PRTDOC_PRT_SETOR"));
+                            prtdoc_id = row.PRTDOC_ID,
+                            prt_numero = row.PRTDOC_PRT_NUMERO,
+                            nome = row.PRTDOC_OBSERVACAO?.ToString(),
+                            prtdoc_prt_setor = row.PRTDOC_PRT_SETOR,
+                            caminhosrc = row.PRTDOC_IMAGEM != null
+                                ? $"<img src='data:image/jpeg;base64,{Convert.ToBase64String((byte[])row.PRTDOC_IMAGEM)}' alt='Imagem' style=\"width: 100%; height: 150px;\">"
+                                : "",
+                            caminhohref = row.PRTDOC_IMAGEM != null
+                                ? $"data:image/jpeg;base64,{Convert.ToBase64String((byte[])row.PRTDOC_IMAGEM)}"
+                                : ""
+                        })
+                        .ToList();
 
-                                // Cria uma nova instância de AnexoModel
-                                var anexo = new AnexoModel
-                                {
-                                    nome = nomeArquivo,
-                                    caminhosrc = $"<img src='data:image/jpeg;base64,{imagemBase64}' alt='Imagem' style=\"width: 100%; height: 150px;\">",
-                                    caminhohref = $"data:image/jpeg;base64,{imagemBase64}",
-                                    prtdoc_id = prtdoc_id,
-                                    prt_numero = prt_numero,
-                                    prtdoc_prt_setor = prtdoc_prt_setor,
-                                };
-                                // Adiciona o objeto AnexoModel à lista
-                                anexoModel.Add(anexo);
-                            }
-                        }
-                    }
-
-                    return anexoModel;
+                    return anexos;
                 }
             }
             catch (Exception ex)
             {
-
-                throw;
+                Console.WriteLine($"Erro ao buscar anexos: {ex.Message}");
+                return new List<AnexoModel>(); // Retorna lista vazia em caso de erro
             }
-
-
         }
+
 
         public async Task ExcluirAnexo(int prtdoc_id)
         {

@@ -155,11 +155,11 @@ namespace SIPROAPIINSTRUCAO.Controllers
 
 
         [HttpGet]
-        [Route("buscar-anexo-banco/{prt_numero}")]
-        public async Task<IActionResult> BuscarAnexosBanco(string prt_numero)
+        [Route("buscar-anexo-banco/{prt_numero}/{usuario}")]
+        public async Task<IActionResult> BuscarAnexosBanco(string prt_numero, string usuario)
         {
 
-            var anexos = await _instrucao.BuscarAnexosBanco(prt_numero);
+            var anexos = await _instrucao.BuscarAnexosBanco(prt_numero, usuario);
 
             if (anexos == null)
             {

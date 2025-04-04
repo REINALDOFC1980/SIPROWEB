@@ -190,7 +190,7 @@ namespace SIPROWEBINSTRUCAO.Controllers
         {
             //buscando os documentos necessários
             var protocolo = prt_numero.Replace("/", "");
-            var apiUrl = $"{_baseApiUrl}instrucao/buscar-anexo-banco/{protocolo}";
+            var apiUrl = $"{_baseApiUrl}instrucao/buscar-anexo-banco/{protocolo}/{userMatrix}";
 
             var response = await _httpClient.GetAsync(apiUrl);
 
