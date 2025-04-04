@@ -1,4 +1,4 @@
-﻿@model SIPROSHAREDPUBLICACAO.Model.PublicacaoModel
+﻿
 
 <div class="row">
     <div class="col-lg-5">
@@ -11,7 +11,7 @@
                             <li class="list-group-item fist-item">
 
                                 <span class="float-right">
-                                    <h2 class="no-margins"><strong>@Model?.PRT_PUBLICACAO_QDT</strong></h2>
+                                    <h2 class="no-margins"><strong>@Model?.prt_publicacao_qtd</strong></h2>
                                 </span>
 
                                 <h3> Processos aguardando para serem publicados:</h3>
@@ -20,7 +20,7 @@
                         <br />
                         <br />
                         <div class="input-group">
-                            <button type="button" class="btn btn-primary btn-block" onclick="gerarLote()"> Gerar lote para envio  </button>
+                            <button type="button" class="btn btn-primary btn-block gerarlote"> Gerar lote para envio  </button>
                             <br />
                         </div>
 
@@ -60,34 +60,38 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @{
-                                if (ViewBag.LoteGerado == null)
+                        @{
+                            if (ViewBag.LoteGerado == null)
+                            {
+                                <tr>
+                                    <td colspan="5"> <i class="fa fa-twitch"></i> Realize sua busca.</td>
+                                </tr>
+                            }
+                            else if (ViewBag.LoteGerado.Count != 0)
+                            {
+                                @foreach (var item in ViewBag.LoteGerado)
                                 {
                                     <tr>
-                                        <td colspan="5"> <i class="fa fa-twitch"></i> Realize sua busca.</td>
-                                    </tr>
-                                }
-                                else if (ViewBag.LoteGerado.Count != 0)
-                                {
-                                    @foreach (var item in ViewBag.LoteGerado)
-                                    {
-                                        <tr>
 
-                                            <td>@item.PRT_LOTE</td>
-                                            <td>@item.PRT_DT_LOTE</td>
-                                            <td>@item.PRT_PUBLICACAO_QDT</td>
-                                            <td><a href="#" data-toggle="modal" data-target="#myModal"><i class="fa fa-eye"></i> Visualizar</a></td>
+                                            <td>@item.prt_lote</td>
+                                            <td>@item.prt_dt_lote</td>
+                                            <td>@item.prt_publicacao_qtd</td>
+                                        <td>
+                                                <a href="#" class="btn btn-white btn-sm lote" data-id="@item.prt_lote">
+                                                <i class="fa fa-eye"></i> Visualizar
+                                            </a>
+                                        </td>                                          
 
-                                        </tr>
-                                    }
-                                }
-                                else if (ViewBag.LoteGerado.Count == 0)
-                                {
-                                    <tr>
-                                        <td colspan="5"> <i class="fa fa-twitch"></i> Não foi localizado registro para essa pesquisa.</td>
                                     </tr>
                                 }
                             }
+                            else if (ViewBag.LoteGerado.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="5"> <i class="fa fa-twitch"></i> Não foi localizado registro para essa pesquisa.</td>
+                                </tr>
+                            }
+                        }
 
 
                         </tbody>

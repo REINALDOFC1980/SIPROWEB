@@ -23,10 +23,7 @@ namespace SIPROAPIPUBLICACAO.Controllers
             _publicacao = distribuicao;
             _httpClientFactory = httpClientFactory;
             _context = context;
-
-
         }
-
 
 
         [HttpGet]
@@ -37,7 +34,7 @@ namespace SIPROAPIPUBLICACAO.Controllers
 
             var processo = await _publicacao.QuantidadeProcesso(usuario);
 
-            publicar_model.PRT_PUBLICACAO_QDT = processo;
+            publicar_model.prt_publicacao_qtd = processo;
 
             return Ok(publicar_model);
         }
@@ -57,17 +54,38 @@ namespace SIPROAPIPUBLICACAO.Controllers
 
 
         [HttpGet]
-        [Route("buscar-lote/{usuario}")]
+        [Route("buscar-lotes/{usuario}")]
         public async Task<IActionResult> BuscarLotes(string usuario)
         {
+            var result = await _publicacao.BuscarLotes(usuario);
 
-            var processo = await _publicacao.BuscarLotes(usuario);
-
-            if (processo == null)
+            if (result == null)
                 return NoContent();
 
-            return Ok(processo);
+            return Ok(result);
+        }
 
+
+        [HttpGet]
+        [Route("buscar-lote/{lote}")]
+        public async Task<IActionResult> Buscar_Lote(string lote)
+        {
+            var result = await _publicacao.Buscar_Lote(lote);
+
+            if (result == null)
+                return NoContent();
+
+            return Ok(result);
+        }
+
+
+        [HttpGet]
+        [Route("atualizar-publicacao")]
+        public async Task<IActionResult> AtualizarPublicacao(PublicacaoModel publicacaoModel)
+        {
+            await _publicacao.AtualizarPublicacao(publicacaoModel);
+
+            return Ok();
         }
 
     }

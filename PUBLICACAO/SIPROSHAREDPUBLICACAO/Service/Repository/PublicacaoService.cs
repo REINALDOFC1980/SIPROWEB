@@ -1,7 +1,11 @@
 ﻿using Dapper;
+using FluentValidation;
 using SIPROSHARED.DbContext;
+using SIPROSHARED.Models;
+using SIPROSHARED.Validator;
 using SIPROSHAREDPUBLICACAO.Model;
 using SIPROSHAREDPUBLICACAO.Service.IRepository;
+using SIRPOEXCEPTIONS.ExceptionBase;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -33,7 +37,7 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
                          where SETSUBUSU_USUARIO = @usuario  and SETSUBUSU_PERFIL = 'Presidente'  
   
 
-                        select COUNT(distinct(prt_numero)) as PRT_PUBLICACAO_QDT 
+                        select COUNT(distinct(prt_numero)) as Prt_publicacao_qtd 
                                    from Protocolo as a   
                                    join Movimentacao_Processo as b on (a.PRT_NUMERO = b.MOVPRO_PRT_NUMERO)  
                                    join SetorSub as c on (c.SETSUB_ID = b.MOVPRO_SETOR_DESTINO)  
@@ -120,21 +124,44 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
 
         }
 
+        public async Task<PublicacaoModel> Buscar_Lote(string Lote)
+        {
+            var query = @"
+                        Select 
+                            prt_lote, 
+                            Convert(varchar(10), PRT_DT_LOTE, 103) as prt_dt_lote, 
+                            COUNT(1) AS prt_publicacao_qtd,  
+                            ISNULL(PRT_PUBLICACAO_DOM, '') as prt_publicacao_dom, 
+                            ISNULL(Convert(varchar(10), PRT_DT_PUBLICACAO, 103), '') as prt_dt_publicacao
+                        from Protocolo
+                        where REPLACE(PRT_LOTE, '/', '') = @Lote
+                        group by PRT_LOTE, PRT_DT_LOTE, PRT_PUBLICACAO_DOM, PRT_DT_PUBLICACAO
+                         ";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parametros = new { Lote };
+                var command = await connection.QueryFirstOrDefaultAsync<PublicacaoModel>(query, parametros);
+                return command;
+            }
+
+        }
         public async Task<List<PublicacaoModel>> BuscarLotes(string usuario)
         {
 
             var query = @"
-                        Select PRT_LOTE, 
-                               Convert(date,PRT_DT_LOTE,103) as PRT_DT_LOTE , 
-                               COUNT(1) AS PRT_PUBLICACAO_QDT,  
+                            Select 
+                            prt_lote, 
+                            Convert(varchar(10), PRT_DT_LOTE, 103) as prt_dt_lote, 
+                            COUNT(1) AS prt_publicacao_qtd,  
+                            ISNULL(PRT_PUBLICACAO_DOM, '') as prt_publicacao_dom, 
+                            ISNULL(Convert(varchar(10), PRT_DT_PUBLICACAO, 103), '') as prt_dt_publicacao
+                          from Protocolo
+                         where PRT_DT_LOTE is not null
+                         group by PRT_LOTE, 
+                               PRT_DT_LOTE,
                                PRT_PUBLICACAO_DOM, 
-	                           convert(date,PRT_DT_PUBLICACAO,103) as PRT_DT_PUBLICACAO 
-                        from Protocolo
-                        where PRT_DT_LOTE is not null
-                        group by PRT_LOTE, 
-                                 Convert(date,PRT_DT_LOTE,103),
-		                         PRT_PUBLICACAO_DOM, 
-		                         convert(date,PRT_DT_PUBLICACAO,103)
+                               PRT_DT_PUBLICACAO
                          ";
 
             using (var connection = _context.CreateConnection())
@@ -144,5 +171,64 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
                 return command.ToList();
             }
         }
+
+        public async Task AtualizarPublicacao(PublicacaoModel publicacaoModel)
+        {
+
+            var dbParametro = new DynamicParameters();
+            dbParametro.Add("PRT_DT_PUBLICACAO", publicacaoModel.prt_dt_publicacao);
+            dbParametro.Add("PRT_PUBLICACAO_DOM", publicacaoModel.prt_publicacao_dom);
+            dbParametro.Add("PRT_LOTE", publicacaoModel.prt_lote);
+            dbParametro.Add("@Usuario", publicacaoModel.prt_usu_publicacao);
+
+
+            string query = @"
+                           
+                             UPDATE Protocolo  
+                                SET PRT_DT_PUBLICACAO = convert(datetime, @PRT_DT_PUBLICACAO, 103),  
+                                    PRT_PUBLICACAO_DOM = @PRT_PUBLICACAO_DOM,  
+                                    PRT_ACAO = 'ARQUIVADO',  
+                                    PRT_DT_ARQUIVO = GETDATE(),  
+                                    PRT_USUARIOARQUIVO = @Usuario  
+                             FROM Protocolo   
+                             WHERE PRT_DT_LOTE = @PRT_LOTE 
+  
+  
+                              Select Prt_Numero 
+                              Into #Temp_Arquivar
+                              from Protocolo where PRT_LOTE = @PRT_LOTE
+
+                              UPDATE MP
+                                 SET MOVPRO_STATUS = 'PUBLICADO/ARQUIVAR'
+	                            from #Temp_Arquivar TA INNER JOIN Movimentacao_Processo MP on( Prt_Numero = MOVPRO_PRT_NUMERO)
+                               WHERE MOVPRO_STATUS = 'PUBLICAR'
+
+                               Insert into Movimentacao_Processo
+	                            ( MOVPRO_PRT_NUMERO    
+	                              ,MOVPRO_SETOR_ORIGEM 
+	                              ,MOVPRO_USUARIO_ORIGEM                                                                                
+	                              ,MOVPRO_DATA_ORIGEM      
+   	                              ,MOVPRO_ACAO_ORIGEM                                                                                                                                                                                                                                               
+	                              ,MOVPRO_SETOR_DESTINO 
+	                              ,MOVPRO_STATUS)
+                            select MOVPRO_PRT_NUMERO,
+                                   MOVPRO_SETOR_ORIGEM,
+                                   MOVPRO_USUARIO_ORIGEM,
+	                               GETDATE(),
+	                               NULL
+	                              'Processo publicado no DOM e arquivado.',
+	                               0,
+	                              'ARQUIVADO',
+	                               NULL,
+	                               NULL
+                               from #Temp_Arquivar inner join Movimentacao_Processo MP on(PRT_NUMERO = MOVPRO_PRT_NUMERO) and MOVPRO_STATUS = 'PUBLICADO/ARQUIVAR'";
+
+
+            using (var connection = _context.CreateConnection())
+            {
+                await connection.ExecuteAsync(query, dbParametro);
+            }
+        }
+            
     }
 }

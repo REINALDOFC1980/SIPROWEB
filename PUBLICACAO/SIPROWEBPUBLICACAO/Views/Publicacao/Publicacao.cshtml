@@ -3,7 +3,7 @@
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <h2 class="m-b-xxs">Publicação do processo.</h2>
-        <small>Processos prontos para serem publicado em lotes.</small>       
+        <small>Processos prontos para serem publicado em lotes.</small>
     </div>
     <div class="col-lg-2">
     </div>
@@ -27,8 +27,8 @@
                 <h2 class="modal-title">Lote Gerado: <strong>LT1/2025</strong>     </h2>
                 <br />
                 <button type="button" class="btn btn-primary btn-xs text-center"><i class="fa fa-print"></i> Imprimir DOM </button>
-              
-             
+
+
             </div>
 
 
@@ -36,56 +36,56 @@
 
 
                 <form id="form_distribuicao">
-                    
+
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Lote:</label>
                         <div class="col-lg-8">
                             <div class="input-group">
-                                <input placeholder="" type="text" class="form-control form-control-sm" value="LT1/2025" readonly>
+                                <input placeholder="" id="PRT_LOTE" type="text" class="form-control form-control-sm" readonly>
                                 <span class="input-group-append">
                                     <button type="button" class="btn btn-sm btn-danger">
                                         <i class="fa fa-trash-o"></i> Excluir Lote
                                     </button>
                                 </span>
                             </div>
-                       
+
                         </div>
                     </div>
-                    
+
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Responsável:</label>
-                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_AIT" value="ROSEICLEIDERF" readonly></div>
+                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_USU_PUBLICACAO"  readonly></div>
                     </div>
-                    
+
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Date de Geração:</label>
-                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_DT_ABERTURA"  value="01/01/2025" readonly></div>
+                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_DT_LOTE" readonly></div>
                     </div>
 
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Quantidade:</label>
-                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_ASSUNTO" value="80"  readonly></div>
-                    </div>   
-              
+                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_PUBLICACAO_QTD" readonly></div>
+                    </div>
+
                     <hr />
 
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Número DOM:</label>
-                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_DT_ABERTURA"></div>
+                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_PUBLICACAO_DOM"></div>
                     </div>
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Data de Publicação:</label>
-                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_DT_ABERTURA" data-mask="99/99/9999"></div>
+                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_DT_PUBLICACAO" data-mask="99/99/9999"></div>
                     </div>
-                                      
+
                 </form>
-        
-                <div class="modal-footer">                    
+
+                <div class="modal-footer">
                     <br />
                     <button type="button" class="btn btn-block btn-primary " data-dismiss="modal"><i class="fa fa-print"></i> Gravar Publicação do DOM </button>
                 </div>
 
-                
+
             </div>
         </div>
     </div>
@@ -93,14 +93,15 @@
 
 
 
-<script>
 
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
 
 
-                        
-    async function gerarLote() {
+<script type="module">
 
+    $(document).on('click', '.gerarlote', function (e) {
 
         Notiflix.Confirm.Show(
             'Aviso!',
@@ -120,11 +121,11 @@
                     if (!response.ok) {
 
                         Notiflix.Loading.Remove();
-                        throw new Error(`Erro na requisição: ${response.statusText}`);                        
+                        throw new Error(`Erro na requisição: ${response.statusText}`);
                     }
 
                     Notiflix.Loading.Remove();
-                    const html = await response.text(); 
+                    const html = await response.text();
                     $('#Div_Publicar').html(html);
 
                 } catch (error) {
@@ -135,15 +136,56 @@
                 Notiflix.Loading.Remove();
             },
             {
-              
+
             }
         );
 
+    });
 
 
 
-        
-    }
+
+
+
+    //Buscar os dados para exibir na model de Area Trabalho
+    $(document).on('click', '.lote', function (e) {
+
+        e.preventDefault();
+        var valor = $(this).data('id');
+
+
+        $.ajax({
+            url: '@Url.Action("Buscar_Lote", "Publicacao")',
+            type: 'GET',
+            data: { lote: valor },
+            success: function (data) {
+
+                if (data.error == true) {
+                    Notiflix.Notify.Failure('Erro ao realizar a operação.');
+                    return false;
+                }
+
+                if (Array.isArray(data.publicacaoModel) && data.publicacaoModel.length > 0) {
+                    let publicacao = data.publicacaoModel[0];
+                    $('#PRT_LOTE').val(publicacao.prt_lote);
+                    $('#PRT_USU_PUBLICACAO').val(publicacao.prt_publicacao_dom);
+                    $('#PRT_DT_LOTE').val(publicacao.prt_dt_lote);
+                    $('#PRT_PUBLICACAO_QTD').val(publicacao.prt_publicacao_qtd);
+                } else {
+                    console.warn("Nenhum dado encontrado");
+                }
+
+                $('#myModal').modal('show');
+
+            },
+            error: function (xhr, status, error) {
+                // Lida com erros, se houver
+                console.log(xhr.responseText);
+            }
+        });
+    });
+
+
 
 
 </script>

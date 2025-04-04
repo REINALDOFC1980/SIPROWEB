@@ -331,7 +331,7 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                                            PRTDOC_PRT_SETOR
                                     FROM Protocolo_Documento_Imagem 
                                     WHERE REPLACE(PRTDOC_PRT_NUMERO, '/', '') = @prt_numero
-                                    and PRTDOC_PRT_SETOR not in(64) "; //Passar o id do setor futuramente
+                                    and PRTDOC_PRT_SETOR not in (64) "; //Passar o id do setor futuramente
 
                     using (var selectCommand = connection.CreateCommand())
                     {
@@ -352,7 +352,7 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                                 var imagemBase64 = Convert.ToBase64String(imagemBytes);
                                 var nomeArquivo = reader["PRTDOC_OBSERVACAO"].ToString();
                                 int prtdoc_id = reader.GetInt32(reader.GetOrdinal("PRTDOC_ID"));
-
+                                int prtdoc_prt_setor = reader.GetInt32(reader.GetOrdinal("PRTDOC_PRT_SETOR"));
 
                                 // Cria uma nova instância de AnexoModel
                                 var anexo = new AnexoModel
@@ -362,6 +362,7 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                                     caminhohref = $"data:image/jpeg;base64,{imagemBase64}",
                                     prtdoc_id = prtdoc_id,
                                     prt_numero = prt_numero,
+                                    prtdoc_prt_setor = prtdoc_prt_setor,
                                 };
                                 // Adiciona o objeto AnexoModel à lista
                                 anexoModel.Add(anexo);

@@ -73,23 +73,23 @@
                         <tbody>
 
                             @{
-                                if (ViewBag.ListaProcessosSetor != null)
+                            if (ViewBag.ListaProcessosSetor != null)
+                            {
+
+                                @foreach (var item in ViewBag.ListaProcessosSetor)
                                 {
+                                    <tr class="gradeX">
+                                        <td>@item.PRT_NUMERO</td>
+                                        <td>@item.PRT_AIT</td>
+                                        <td>
+                                            <a href="#" class="btn btn-white btn-sm ret_processo" data-id="@item.MOVPRO_ID">
+                                                <i class="fa fa-mail-forward"></i> Distribuir
+                                            </a>                                             
+                                        </td>
+                                    </tr>
 
-                                    @foreach (var item in ViewBag.ListaProcessosSetor)
-                                    {
-                                        <tr class="gradeX">
-                                            <td>@item.PRT_NUMERO</td>
-                                            <td>@item.PRT_AIT</td>
-                                            <td>
-                                                <a href="#" class="btn btn-white btn-sm ret_processo" data-id="@item.MOVPRO_ID">
-                                                    <i class="fa fa-mail-forward"></i> Distribuir
-                                                </a>                                             
-                                            </td>
-                                        </tr>
-
-                                    }
                                 }
+                            }
                             }
 
                         </tbody>

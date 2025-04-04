@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Newtonsoft.Json;
 using SIPROSHARED.Filtro;
+using SIPROSHARED.Models;
 using SIPROSHAREDPUBLICACAO.Model;
+using System.Diagnostics;
 using System.Net;
+using System.Text.Json;
 
 namespace SIPROWEBPUBLICACAO.Controllers
 {
@@ -27,48 +31,59 @@ namespace SIPROWEBPUBLICACAO.Controllers
             base.OnActionExecuting(context);
         }
 
+        private async Task<JsonResult> HandleErrorResponse(HttpResponseMessage response)
+        {
+            var errorResponse = await response.Content.ReadAsStringAsync();
+            var errorData = JsonConvert.DeserializeObject<ErrorResponseModel>(errorResponse);
+            var errorMessage = errorData?.Errors?.FirstOrDefault() ?? "Erro ao processar sua solicitação.";
+            TempData["ErroMessage"] = errorMessage;
+            return Json(new { error = "BadRequest", message = errorMessage });
+        }
 
         public async Task<PublicacaoModel> BuscarQtdPublicar(string usuario)
         {
-            PublicacaoModel publicacaoModel = new PublicacaoModel();
+            try
+            {
+                PublicacaoModel publicacaoModel = new PublicacaoModel();
 
-            string apiUrl = $"{_baseApiUrl}publicacao/quantidade-processo/{userMatrix}";
-            var response = await _httpClient.GetAsync(apiUrl); // Aguarda a resposta
+                string apiUrl = $"{_baseApiUrl}publicacao/quantidade-processo/{userMatrix}";
+                var response = await _httpClient.GetAsync(apiUrl); // Aguarda a resposta
 
 
-            if (response.StatusCode == HttpStatusCode.OK)
-                publicacaoModel = await response.Content.ReadFromJsonAsync<PublicacaoModel>();
+                if (response.StatusCode == HttpStatusCode.OK)
+                    publicacaoModel = await response.Content.ReadFromJsonAsync<PublicacaoModel>();
 
-            return publicacaoModel;
+                return publicacaoModel;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
+            
         }
-
-
-
 
         [HttpGet]
         public async Task<IActionResult> Publicacao() // Torna o método assíncrono
         {
-            PublicacaoModel publicacaoModel = new PublicacaoModel();
-
-
-            //Buscando QTD de processos
-            string apiUrl = $"{_baseApiUrl}publicacao/quantidade-processo/{userMatrix}";
-            var response = await _httpClient.GetAsync(apiUrl); // Aguarda a resposta
-            if (response.StatusCode == HttpStatusCode.OK)
-                publicacaoModel = await response.Content.ReadFromJsonAsync<PublicacaoModel>();
-
-
-            //Buscando os lotes gerados!
-            ViewBag.LoteGerado = new List<PublicacaoModel>();
-            apiUrl = $"{_baseApiUrl}publicacao/buscar-lote/{userMatrix}";
-            response = await _httpClient.GetAsync(apiUrl);
-            if (response.StatusCode == HttpStatusCode.OK)
+            try
             {
-                List<PublicacaoModel> result = await response.Content.ReadFromJsonAsync<List<PublicacaoModel>>();
-                ViewBag.LoteGerado = result;
+
+                PublicacaoModel publicacaoModel = new PublicacaoModel();
+
+                publicacaoModel = await Buscar_Qtd_Processo(userMatrix);
+
+                ViewBag.LoteGerado = await Buscar_Lotes(userMatrix);
+
+                return View(publicacaoModel);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
             }
 
-             return View(publicacaoModel);
         }
 
         [HttpPost]
@@ -84,34 +99,114 @@ namespace SIPROWEBPUBLICACAO.Controllers
             if (!response.IsSuccessStatusCode)
                 return PartialView("_ErrorPartialView");
 
-            
-            //Buscando os novos valores
-             apiUrl = $"{_baseApiUrl}publicacao/quantidade-processo/{userMatrix}";
-             response = await _httpClient.GetAsync(apiUrl);
+            publicacaoModel = await Buscar_Qtd_Processo(userMatrix);
 
-            if (response.StatusCode == HttpStatusCode.InternalServerError)
-                return PartialView("_ErrorPartialView");
+            ViewBag.LoteGerado = await Buscar_Lotes(userMatrix);
 
-            if (response.StatusCode == HttpStatusCode.OK)
-                publicacaoModel = await response.Content.ReadFromJsonAsync<PublicacaoModel>();
+            return PartialView("_Qtd_Publicar", publicacaoModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AtualizarPublicacao(PublicacaoModel publicacaoModel)
+        {
+            publicacaoModel.prt_usu_publicacao = userMatrix;
+
+            var apiUrl = $"{_baseApiUrl}publicacao/atualizar-publicacao";
+            var response = await _httpClient.PostAsJsonAsync(apiUrl, publicacaoModel);
+
+            //tratamento de erro
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    return Json(new { error = true });
+
+                else if (response.StatusCode == HttpStatusCode.BadRequest)
+                    return await HandleErrorResponse(response);
+
+                else if (response.StatusCode == HttpStatusCode.NoContent)
+                    return await HandleErrorResponse(response);
+
+            }
+
+             ViewBag.LoteGerado = Buscar_Lotes(userMatrix);
+            return PartialView("_Qtd_Publicar");
+        }
 
 
+        [HttpGet]
+        public async Task<List<PublicacaoModel>> Buscar_Lotes(string usuario)
+        {
 
             //Buscando os lotes gerados!
             ViewBag.LoteGerado = new List<PublicacaoModel>();
-            apiUrl = $"{_baseApiUrl}publicacao/buscar-lote/{userMatrix}";
-            response = await _httpClient.GetAsync(apiUrl);
-
-            if (response.StatusCode == HttpStatusCode.InternalServerError)
-                return PartialView("_ErrorPartialView");
+            var apiUrl = $"{_baseApiUrl}publicacao/buscar-lotes/{userMatrix}";
+            var response = await _httpClient.GetAsync(apiUrl);
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 List<PublicacaoModel> result = await response.Content.ReadFromJsonAsync<List<PublicacaoModel>>();
-                ViewBag.LoteGerado = result;
+                return result;
             }
 
-            return PartialView("_Qtd_Publicar", publicacaoModel);
+            return new List<PublicacaoModel>();
+
+        }
+
+
+        public async Task<IActionResult> Buscar_Lote(string lote)
+        {
+            try
+            {
+                List<PublicacaoModel> publicacaoModel = new List<PublicacaoModel>();
+
+                var valor = lote?.Replace("/", "") ?? "";
+
+                var apiUrl = $"{_baseApiUrl}publicacao/buscar-lotes/{valor}";
+                var response = await _httpClient.GetAsync(apiUrl);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    publicacaoModel = await response.Content.ReadFromJsonAsync<List<PublicacaoModel>>();
+
+                    if(publicacaoModel != null && publicacaoModel.Count > 0)
+{
+                        foreach (var item in publicacaoModel)
+                        {
+                            item.prt_publicacao_dom = userMatrix;
+                        }
+                    }
+
+
+                    return Json(new { error = false, publicacaoModel });
+                }
+
+                return Json(new { error = true, message = "Lote não encontrado" });
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
+            
+        }
+
+
+
+
+        [HttpGet]
+        public async Task<PublicacaoModel> Buscar_Qtd_Processo(string usuario)
+        {
+
+            //Buscando os novos valores
+           var apiUrl = $"{_baseApiUrl}publicacao/quantidade-processo/{userMatrix}";
+           var response = await _httpClient.GetAsync(apiUrl);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+               return await response.Content.ReadFromJsonAsync<PublicacaoModel>();
+
+            return new PublicacaoModel();
+
         }
 
     }

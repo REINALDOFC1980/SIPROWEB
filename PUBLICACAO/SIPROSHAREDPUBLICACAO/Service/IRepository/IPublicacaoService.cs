@@ -14,5 +14,9 @@ namespace SIPROSHAREDPUBLICACAO.Service.IRepository
         Task GerarLote(string usuario);
 
         Task <List<PublicacaoModel>> BuscarLotes(string usuario);
+
+        Task<PublicacaoModel> Buscar_Lote(string Lote);
+
+        Task AtualizarPublicacao(PublicacaoModel publicacaoModel);
     }
 }
