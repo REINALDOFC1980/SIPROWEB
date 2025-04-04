@@ -201,11 +201,12 @@ namespace SIPROWEBINSTRUCAO.Controllers
 
         }
 
+
+
         public async Task<IActionResult> ExcluirAnexo(int prodoc_id, string? prt_numero)
         {
             ViewBag.Anexo = new List<Anexo_Model>();
 
-            var usuariomatrix = userMatrix;
             var apiUrl = $"{_baseApiUrl}instrucao/excluir-anexo/{prodoc_id}";
             var response = await _httpClient.PostAsJsonAsync(apiUrl, prodoc_id);
 

@@ -18,5 +18,10 @@ namespace SIPROSHAREDPUBLICACAO.Service.IRepository
         Task<PublicacaoModel> Buscar_Lote(string Lote);
 
         Task AtualizarPublicacao(PublicacaoModel publicacaoModel);
+
+        Task ExcluirLote (string lote);  
+
+        
+
     }
 }

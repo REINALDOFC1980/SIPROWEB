@@ -192,22 +192,22 @@
                                                             @foreach (var processo in itens)
                                                             {
                                                     //  <tr class="gradeX" style="@(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "background-color: #f9e79f;" : "")">
-                                                      <tr class="gradeX" style="@(processo.PRT_STATUS == "INSTRUCAO" ? "background-color: #f9e79f;" : processo.PRT_STATUS == "JULGANDO" ? "background-color: #b3ad96;" : "")">
-                                                            <td>@processo.DIS_ID</td>
-                                                            <td>@processo.PRT_NUMERO</td>
-                                                            <td>@processo.PRT_AIT</td>
-                                                            <td>@processo.PRT_ASSUNTO</td>
-                                                            <td>@processo.PRT_USUARIO</td>
-                                                            <td>@processo.PRT_STATUS</td>
-                                                            <td>@processo.SETSUB_NOME</td>
-                                                            <td>
-                                                                <a href="#" class="btn btn-danger btn-sm @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "" : "retirar-processo")"
-                                                                    data-id="@processo.DIS_ID">
-                                                                    <i class="fa @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "fa-lock" : "fa-minus-square-o")"></i>
-                                                                                  @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "Bloqueado" : "Retirar")
-                                                                </a>
-                                                            </td>
-                                                        </tr>
+                                                                <tr class="gradeX" style="@(processo.PRT_STATUS == "INSTRUCAO" ? "background-color: #f9e79f;" : processo.PRT_STATUS == "JULGANDO" ? "background-color: #b3ad96;" : "")">
+                                                                    <td>@processo.DIS_ID</td>
+                                                                    <td>@processo.PRT_NUMERO</td>
+                                                                    <td>@processo.PRT_AIT</td>
+                                                                    <td>@processo.PRT_ASSUNTO</td>
+                                                                    <td>@processo.PRT_USUARIO</td>
+                                                                    <td>@processo.PRT_STATUS</td>
+                                                                    <td>@processo.SETSUB_NOME</td>
+                                                                    <td>
+                                                                        <a href="#" class="btn btn-danger btn-sm @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "" : "retirar-processo")"
+                                                                            data-id="@processo.DIS_ID">
+                                                                            <i class="fa @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "fa-lock" : "fa-minus-square-o")"></i>
+                                                                                          @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "Bloqueado" : "Retirar")
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
 
 
                                                         

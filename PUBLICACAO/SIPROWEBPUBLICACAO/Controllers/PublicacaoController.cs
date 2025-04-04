@@ -132,7 +132,6 @@ namespace SIPROWEBPUBLICACAO.Controllers
             return PartialView("_Qtd_Publicar");
         }
 
-
         [HttpGet]
         public async Task<List<PublicacaoModel>> Buscar_Lotes(string usuario)
         {
@@ -151,7 +150,6 @@ namespace SIPROWEBPUBLICACAO.Controllers
             return new List<PublicacaoModel>();
 
         }
-
 
         public async Task<IActionResult> Buscar_Lote(string lote)
         {
@@ -191,9 +189,6 @@ namespace SIPROWEBPUBLICACAO.Controllers
             
         }
 
-
-
-
         [HttpGet]
         public async Task<PublicacaoModel> Buscar_Qtd_Processo(string usuario)
         {
@@ -207,6 +202,26 @@ namespace SIPROWEBPUBLICACAO.Controllers
 
             return new PublicacaoModel();
 
+        }
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> ExcluirLote(string lote)
+        {
+            var valor = lote?.Replace("/", "") ?? "";
+
+            PublicacaoModel publicacaoModel = new PublicacaoModel();
+
+            var apiUrl = $"{_baseApiUrl}publicacao/excluir-lote/{valor}";
+               var response = await _httpClient.PutAsJsonAsync(apiUrl, valor); 
+
+            if (!response.IsSuccessStatusCode)
+                return Json(new { error = true, message = "Erro ao excluir o Lote." });
+
+            publicacaoModel = await Buscar_Qtd_Processo(userMatrix);
+
+            return PartialView("_Qtd_Publicar", publicacaoModel);
         }
 
     }

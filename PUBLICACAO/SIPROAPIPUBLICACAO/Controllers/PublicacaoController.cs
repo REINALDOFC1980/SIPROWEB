@@ -79,13 +79,25 @@ namespace SIPROAPIPUBLICACAO.Controllers
         }
 
 
-        [HttpGet]
+        [HttpPost]
         [Route("atualizar-publicacao")]
         public async Task<IActionResult> AtualizarPublicacao(PublicacaoModel publicacaoModel)
         {
             await _publicacao.AtualizarPublicacao(publicacaoModel);
 
             return Ok();
+        }
+
+
+        [HttpPut]
+        [Route("excluir-lote/{lote}")]
+        public async Task<IActionResult> ExcluirLote (string lote)
+        {
+
+            await _publicacao.ExcluirLote(lote);
+
+            return Ok();
+
         }
 
     }

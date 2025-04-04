@@ -1,4 +1,4 @@
-﻿@model SIPROSHAREDPUBLICACAO.Model.PublicacaoModel
+﻿lote@model SIPROSHAREDPUBLICACAO.Model.PublicacaoModel
 
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
@@ -24,7 +24,7 @@
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
 
                 <i class="fa fa-tags modal-icon"></i>
-                <h2 class="modal-title">Lote Gerado: <strong>LT1/2025</strong>     </h2>
+                <h2 class="modal-title">Lote Gerado para Publicação </h2>
                 <br />
                 <button type="button" class="btn btn-primary btn-xs text-center"><i class="fa fa-print"></i> Imprimir DOM </button>
 
@@ -35,15 +35,15 @@
             <div class="modal-body">
 
 
-                <form id="form_distribuicao">
+                <form role="form_publicacao" id="form_publicacao">
 
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Lote:</label>
                         <div class="col-lg-8">
                             <div class="input-group">
-                                <input placeholder="" id="PRT_LOTE" type="text" class="form-control form-control-sm" readonly>
+                                <input placeholder="" id="prt_lote" name="prt_lote" type="text" class="form-control form-control-sm" readonly required>
                                 <span class="input-group-append">
-                                    <button type="button" class="btn btn-sm btn-danger">
+                                    <button type="button" class="btn btn-sm btn-danger" id="btn_excluir">
                                         <i class="fa fa-trash-o"></i> Excluir Lote
                                     </button>
                                 </span>
@@ -54,35 +54,41 @@
 
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Responsável:</label>
-                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_USU_PUBLICACAO"  readonly></div>
+                        <div class="col-lg-8"><input type="text" class="form-control" id="prt_usu_publicacao" name="prt_usu_publicacao" readonly></div>
                     </div>
 
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Date de Geração:</label>
-                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_DT_LOTE" readonly></div>
+                        <div class="col-lg-8"><input type="text" class="form-control" id="prt_dt_lote" name="prt_dt_lote" readonly></div>
                     </div>
 
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Quantidade:</label>
-                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_PUBLICACAO_QTD" readonly></div>
+                        <div class="col-lg-8"><input type="text" class="form-control" id="prt_publicacao_qtd" name="prt_publicacao_qtd" readonly></div>
                     </div>
 
                     <hr />
 
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Número DOM:</label>
-                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_PUBLICACAO_DOM"></div>
+                        <div class="col-lg-8"><input type="text" class="form-control" id="prt_publicacao_dom" name="prt_publicacao_dom" required>
+                            <span id="erro_numero_dom" style="color:#cc5965 ; display: none;"> Este campo é obrigatório.</span>
+                        </div>
+                      
                     </div>
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Data de Publicação:</label>
-                        <div class="col-lg-8"><input type="text" class="form-control" id="PRT_DT_PUBLICACAO" data-mask="99/99/9999"></div>
+                        <div class="col-lg-8"><input type="text" class="form-control" id="prt_dt_publicacao" name="prt_dt_publicacao" data-mask="99/99/9999" required>
+                            <span id="erro_data_publicacao" style="color:#cc5965 ; display: none;"> Este campo é obrigatório.</span>
+                        </div>
+                
                     </div>
 
                 </form>
 
                 <div class="modal-footer">
                     <br />
-                    <button type="button" class="btn btn-block btn-primary " data-dismiss="modal"><i class="fa fa-print"></i> Gravar Publicação do DOM </button>
+                    <button type="button" class="btn btn-block btn-primary" id="btn_atualizar" ><i class="fa fa-print"></i> Gravar Publicação do DOM </button>
                 </div>
 
 
@@ -100,6 +106,28 @@
 
 
 <script type="module">
+
+    function validarCampos() {
+        var valido = true;
+
+        // Validação do primeiro campo
+        if ($("#prt_publicacao_dom").val().trim() === "") {
+            $("#erro_numero_dom").show();
+            valido = false;
+        } else {
+            $("#erro_numero_dom").hide();
+        }
+
+        // Validação do segundo campo
+        if ($("#prt_dt_publicacao").val().trim() === "") {
+            $("#erro_data_publicacao").show();
+            valido = false;
+        } else {
+            $("#erro_data_publicacao").hide();
+        }
+
+        return valido;
+    }
 
     $(document).on('click', '.gerarlote', function (e) {
 
@@ -141,14 +169,9 @@
         );
 
     });
+  
 
-
-
-
-
-
-    //Buscar os dados para exibir na model de Area Trabalho
-    $(document).on('click', '.lote', function (e) {
+    $(document).on('click', '.localizarlote', function (e) {
 
         e.preventDefault();
         var valor = $(this).data('id');
@@ -167,10 +190,10 @@
 
                 if (Array.isArray(data.publicacaoModel) && data.publicacaoModel.length > 0) {
                     let publicacao = data.publicacaoModel[0];
-                    $('#PRT_LOTE').val(publicacao.prt_lote);
-                    $('#PRT_USU_PUBLICACAO').val(publicacao.prt_publicacao_dom);
-                    $('#PRT_DT_LOTE').val(publicacao.prt_dt_lote);
-                    $('#PRT_PUBLICACAO_QTD').val(publicacao.prt_publicacao_qtd);
+                    $('#prt_lote').val(publicacao.prt_lote);
+                    $('#prt_usu_publicacao').val(publicacao.prt_publicacao_dom);
+                    $('#prt_dt_lote').val(publicacao.prt_dt_lote);
+                    $('#prt_publicacao_qtd').val(publicacao.prt_publicacao_qtd);
                 } else {
                     console.warn("Nenhum dado encontrado");
                 }
@@ -186,6 +209,107 @@
     });
 
 
+    $(document).on('click', '#btn_atualizar', async function () {
+        
+        //validando os ultimos campos
+        if (!validarCampos()) {
+            return false; 
+        }
+                
+        if ($("#form_publicacao").valid()) {
 
+            var formData = new FormData($('#form_publicacao')[0]);
+
+            Notiflix.Confirm.Show(
+                'Aviso!',
+                'Tem certeza registrar os dados da publicação?',
+                'Sim',
+                'Não',
+                async function okCb() {
+                    Notiflix.Loading.Standard('Aguarde...');
+
+                    $.ajax({
+                        url: '@Url.Action("AtualizarPublicacao", "Publicacao")',
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+
+                            Notiflix.Loading.Remove();
+
+                            if (result.error === true) {
+                                Notiflix.Notify.Failure('Erro.');
+                                return false;
+                            }
+                              $('#myModal').modal('hide');
+
+                            $('#Div_Publicar').html(result); // Atualiza a div com a Partial View
+                        },
+                        error: function (xhr, status, error) {
+                            console.log('Erro ao enviar arquivo:', error);
+                            Notiflix.Loading.Remove();
+                        }
+                    });
+                },
+                function cancelCb() {
+                    Notiflix.Loading.Remove();
+                },
+                {
+
+                }
+            );
+
+
+           
+        }
+    });
+
+
+    $(document).on('click', '#btn_excluir', async function () {
+        
+        var Lote = $('#prt_lote').val()
+        
+        Notiflix.Confirm.Show(
+            'Aviso!',
+            'Tem certeza que deseja excluir o lote: ' + Lote +' ?' ,
+            'Sim',
+            'Não',
+            async function okCb() {
+                
+                Notiflix.Loading.Standard('Aguarde...');
+
+                $.ajax({
+                    url: '@Url.Action("ExcluirLote", "Publicacao")',
+                    type: 'POST',
+                    data: { lote: Lote},
+                    success: function (result) {
+                        // Lógica a ser executada em caso de sucesso
+                        if (result.error == true) {
+                            Notiflix.Notify.Failure(result.message);
+                            return false;
+                        }
+
+                        $('#myModal').modal('hide');
+                        $('#Div_Publicar').html(result); // Atualiza a div com a Partial View
+                        Notiflix.Loading.Remove();
+
+                    },
+                    error: function (xhr, status, error) {
+                        // Lógica a ser executada em caso de erro
+                        console.log('Erro ao enviar arquivo:', error);
+                        Notiflix.Loading.Remove();
+                    }
+                });
+
+            },
+            function cancelCb() {
+                Notiflix.Loading.Remove();
+            },
+            {
+
+            }
+        );
+    });
 
 </script>

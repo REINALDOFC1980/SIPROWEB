@@ -146,6 +146,7 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
             }
 
         }
+
         public async Task<List<PublicacaoModel>> BuscarLotes(string usuario)
         {
 
@@ -157,7 +158,8 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
                             ISNULL(PRT_PUBLICACAO_DOM, '') as prt_publicacao_dom, 
                             ISNULL(Convert(varchar(10), PRT_DT_PUBLICACAO, 103), '') as prt_dt_publicacao
                           from Protocolo
-                         where PRT_DT_LOTE is not null
+                         where PRT_DT_LOTE is not null 
+                               and PRT_ACAO NOT IN('ARQUIVADO')
                          group by PRT_LOTE, 
                                PRT_DT_LOTE,
                                PRT_PUBLICACAO_DOM, 
@@ -191,7 +193,7 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
                                     PRT_DT_ARQUIVO = GETDATE(),  
                                     PRT_USUARIOARQUIVO = @Usuario  
                              FROM Protocolo   
-                             WHERE PRT_DT_LOTE = @PRT_LOTE 
+                             WHERE PRT_LOTE = @PRT_LOTE 
   
   
                               Select Prt_Numero 
@@ -203,25 +205,24 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
 	                            from #Temp_Arquivar TA INNER JOIN Movimentacao_Processo MP on( Prt_Numero = MOVPRO_PRT_NUMERO)
                                WHERE MOVPRO_STATUS = 'PUBLICAR'
 
-                               Insert into Movimentacao_Processo
-	                            ( MOVPRO_PRT_NUMERO    
-	                              ,MOVPRO_SETOR_ORIGEM 
-	                              ,MOVPRO_USUARIO_ORIGEM                                                                                
-	                              ,MOVPRO_DATA_ORIGEM      
-   	                              ,MOVPRO_ACAO_ORIGEM                                                                                                                                                                                                                                               
-	                              ,MOVPRO_SETOR_DESTINO 
-	                              ,MOVPRO_STATUS)
-                            select MOVPRO_PRT_NUMERO,
-                                   MOVPRO_SETOR_ORIGEM,
-                                   MOVPRO_USUARIO_ORIGEM,
-	                               GETDATE(),
-	                               NULL
-	                              'Processo publicado no DOM e arquivado.',
-	                               0,
-	                              'ARQUIVADO',
-	                               NULL,
-	                               NULL
-                               from #Temp_Arquivar inner join Movimentacao_Processo MP on(PRT_NUMERO = MOVPRO_PRT_NUMERO) and MOVPRO_STATUS = 'PUBLICADO/ARQUIVAR'";
+                              
+                            Insert into Movimentacao_Processo
+                             ( MOVPRO_PRT_NUMERO    
+                               ,MOVPRO_SETOR_ORIGEM 
+                               ,MOVPRO_USUARIO_ORIGEM                                                                                
+                               ,MOVPRO_DATA_ORIGEM      
+                               ,MOVPRO_ACAO_ORIGEM                                                                                                                                                                                                                                               
+                               ,MOVPRO_SETOR_DESTINO 
+                               ,MOVPRO_STATUS)
+                         select MOVPRO_PRT_NUMERO,
+                                MOVPRO_SETOR_ORIGEM,
+                                MOVPRO_USUARIO_ORIGEM,
+                                GETDATE(),
+                               'Processo publicado no DOM e arquivado.',
+                                0,
+                               'ARQUIVADO'
+
+                            from #Temp_Arquivar inner join Movimentacao_Processo MP on(PRT_NUMERO = MOVPRO_PRT_NUMERO) and MOVPRO_STATUS = 'PUBLICADO/ARQUIVAR'";
 
 
             using (var connection = _context.CreateConnection())
@@ -229,6 +230,31 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
                 await connection.ExecuteAsync(query, dbParametro);
             }
         }
-            
+
+        public async Task ExcluirLote (string lote)
+        {
+            try
+            {
+                var dbParametro = new DynamicParameters();
+                dbParametro.Add("@prt_lote", lote);
+
+                string query = @" 	 UPDATE Protocolo  
+                                 SET PRT_ACAO = 'PUBLICAR',  
+                                     PRT_LOTE = '',
+		                             PRT_DT_LOTE = NULL
+                              WHERE  PRT_NUMERO = @lote";
+
+                using (var con = _context.CreateConnection())
+                {
+                    await con.ExecuteAsync(query, dbParametro);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+           
+        }
     }
 }

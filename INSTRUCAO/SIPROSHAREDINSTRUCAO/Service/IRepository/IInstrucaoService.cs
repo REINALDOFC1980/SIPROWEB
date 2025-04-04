@@ -25,6 +25,7 @@ namespace SIPROSHAREDINSTRUCAO.Service.IRepository
         Task<List<Anexo_Model>> BuscarAnexo(string usuario, string ait);
 
         Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero, string usuario);
+       
         Task ExcluirAnexo(int prtdoc_id);
 
 

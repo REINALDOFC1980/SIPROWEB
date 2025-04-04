@@ -142,7 +142,8 @@
 
                                                 <label><strong>Parecer</strong></label>
                                                 <div id="summernote" class="summernote"></div>
-                                                <span id="erroSummernote" style="color:#cc5965 ; display: none;">Este campo é obrigatório.</span>
+                                               
+
                                             <br> 
                                                   
                                                 <div class="row">
@@ -634,9 +635,6 @@
     function validarSummernote() {
         // Obter o conteúdo do Summernote (sem tags HTML)
         var conteudo = $('#summernote').summernote('isEmpty') ? '' : $('#summernote').summernote('code').trim();
-        
-        console.log(conteudo)
-
         if (!conteudo) {
             // Mostrar mensagem de erro
             $('#erroSummernote').show();
