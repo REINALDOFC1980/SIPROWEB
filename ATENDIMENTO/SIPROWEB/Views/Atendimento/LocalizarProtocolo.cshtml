@@ -138,27 +138,31 @@
 <script>
 
 
-    
-
-
     function EmitirCopia() {
         // Add rpt
         var rpt = "Sre_Copia_Movimentacao_Processo.rpt";
+        var prt_numero = document.getElementById('PRT_NUMERO').value;
 
-        // Add parametros
-        var paramtros = [];
-        paramtros.push(document.getElementById('PRT_NUMERO').value);
-        paramtros.push("Reinaldo");
+        if (prt_numero == "") {
+            Notiflix.Notify.Failure("Favor selecionar um processo!");
+            return false;
+        }
+
+        // Add parâmetros
+        var parametros = [];
+        parametros.push(prt_numero);
+        parametros.push("Reinaldo");
 
         // Construir a URL com os parâmetros de consulta
         var url = '@Url.Action("EmitirRPT", "Relatorio")' + '?rpt=' + encodeURIComponent(rpt);
-        paramtros.forEach(function (parametro) {
+            parametros.forEach(function (parametro) {
             url += '&paramtros=' + encodeURIComponent(parametro);
         });
 
-        // Redirecionar para a URL
-        window.location.href = url;
+        // Abrir em uma nova aba
+        window.open(url, '_blank');
     }
+
 
 
     function TabIndex() {

@@ -527,7 +527,7 @@ namespace SIPROWEBJULGAMENTO.Controllers
             return PartialView("_AnexoJulgamento");
         }
 
-        public async Task<List<InstrucaoProcessoModel>> BuscarInstrucao(string? vlobusca)
+       public async Task<List<InstrucaoProcessoModel>> BuscarInstrucao(string? vlobusca)
         {
 
             vlobusca = vlobusca.Replace("/", "");
@@ -540,6 +540,14 @@ namespace SIPROWEBJULGAMENTO.Controllers
             else
                return new List<InstrucaoProcessoModel>();
         }
+
+
+
+
+        /*Excluir voto*/
+
+
+
     }
 
 

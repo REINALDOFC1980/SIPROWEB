@@ -155,24 +155,18 @@ namespace SIPROWEBPUBLICACAO.Controllers
         {
             try
             {
-                List<PublicacaoModel> publicacaoModel = new List<PublicacaoModel>();
+                PublicacaoModel publicacaoModel = new PublicacaoModel();
 
                 var valor = lote?.Replace("/", "") ?? "";
 
-                var apiUrl = $"{_baseApiUrl}publicacao/buscar-lotes/{valor}";
+                var apiUrl = $"{_baseApiUrl}publicacao/buscar-lote/{valor}";
                 var response = await _httpClient.GetAsync(apiUrl);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    publicacaoModel = await response.Content.ReadFromJsonAsync<List<PublicacaoModel>>();
+                    publicacaoModel = await response.Content.ReadFromJsonAsync<PublicacaoModel>();
 
-                    if(publicacaoModel != null && publicacaoModel.Count > 0)
-{
-                        foreach (var item in publicacaoModel)
-                        {
-                            item.prt_publicacao_dom = userMatrix;
-                        }
-                    }
+                    publicacaoModel.prt_publicacao_dom = userMatrix;
 
 
                     return Json(new { error = false, publicacaoModel });

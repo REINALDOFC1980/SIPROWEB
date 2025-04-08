@@ -1,0 +1,118 @@
+﻿
+@{
+    if (ViewBag.Parecer != null && !string.IsNullOrWhiteSpace(ViewBag.Parecer?.Disjug_Parecer_Relatorio))
+    {
+        <ul class="list-group clear-list">
+            <li class="list-group-item fist-item">
+
+                <input type="hidden" class="form-control" value="" id="PRT_NUMERO" name="PRT_NUMERO">
+                <h2>
+                    Dados do Julgamento:  <span class="float-right label label-success"><strong class="h6">@ViewBag.Parecer?.MovPro_Prt_Numero</strong></span>
+                </h2>
+                <hr />
+            </li>
+        </ul>
+
+        <div id="Div_Votacao">
+            @{
+                if (ViewBag.Votacao == null)
+                {
+                    // <div>Aguardando Votacao</div>
+                }
+                else
+                if (ViewBag.Votacao.Count != 0)
+                {
+                    @foreach (var item in ViewBag.Votacao)
+                    {
+
+                        <div class="feed-activity-list">
+
+                            <div class="feed-element">
+                                <a class="float-left" href="profile.html">
+                                    <img alt="image" class="rounded-circle" src="~/img/user3.png">
+
+                                </a>
+                                <div class="media-body ">
+                                    <small class="float-right">@item?.Disjug_Tipo</small>
+                                    <strong>@item?.Disjug_Relator</strong> <br>
+
+                                    @{
+                                        string resultadoClasse = item?.Disjug_Resultado == "DEFERIDO" ? "text-success" :
+                                        item?.Disjug_Resultado == "INDEFERIDO" ? "text-danger" :
+                                        item?.Disjug_Resultado == "AGUARDANDO..." ? "text-black" : "text-muted";
+                                    }
+
+                                    <small class="text-muted">
+                                        Votação: <strong class="@resultadoClasse">@item?.Disjug_Resultado</strong> |  @item?.Disjug_Resultado_Data
+                                    </small>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    }
+
+                }
+
+
+            }
+
+
+            @{
+                if (ViewBag.Parecer != null && !string.IsNullOrWhiteSpace(ViewBag.Parecer.Disjug_Parecer_Relatorio))
+                {
+                    <form role="form" id="form_homologacao">
+                        <div>
+                            <br />
+                            <h3>Parecer do Relator:</h3>
+                            <textarea id="Disjug_Parecer_Relatorio" name="Disjug_Parecer_Relatorio" rows="7" cols="60" class="form-control" readonly>@ViewBag.Parecer.Disjug_Parecer_Relatorio?.Trim()
+                                                            </textarea>
+
+                            <input type="hidden" id="MovPro_Prt_Numero" name="MovPro_Prt_Numero" value="@ViewBag.Parecer.MovPro_Prt_Numero">
+                            <input type="hidden" id="MovPro_id" name="MovPro_id" value="@ViewBag.Parecer.MovPro_id">
+                            <input type="hidden" id="MovPro_Parecer_Origem" name="MovPro_Parecer_Origem">
+
+                        </div>
+
+                        <hr />
+                        <a class="btn btn-primary btn-rounded btn-block" href="#" id="btn_homologacao">
+                            <i class="fa fa-thumbs-up"></i> Homologar processo - @ViewBag.Parecer.MovPro_Prt_Numero
+                        </a>
+                        <br />
+                        <br />
+                        <a class="btn btn-light btn-rounded btn-block" href="#" id="btn_retificar">
+                            <i class="fa fa-reply"></i> Devolver para correção
+                        </a>
+                    </form>
+                }
+
+            }
+
+        </div>
+    }
+    else
+    {
+        <div class=" inspinia-timeline">
+            <div id="div_defesa">
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <h4 class="text-center">Selecione um processo para visualizar os dados.</h4>
+                <br>
+                <br>
+                <p class="text-center">
+                    <a href=""><i class="fa fa-twitch big-icon"></i></a>
+                    <br>
+                    <br>
+                </p>
+
+            </div>
+        </div>
+    }
+}
+
+
+
+

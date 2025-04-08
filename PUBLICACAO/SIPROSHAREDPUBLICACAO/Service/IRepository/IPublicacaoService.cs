@@ -20,7 +20,6 @@ namespace SIPROSHAREDPUBLICACAO.Service.IRepository
         Task AtualizarPublicacao(PublicacaoModel publicacaoModel);
 
         Task ExcluirLote (string lote);  
-
         
 
     }

@@ -97,11 +97,15 @@
         paramtros.forEach(function (parametro) {
             url += '&paramtros=' + encodeURIComponent(parametro);
         });
-        
-       
-        window.location.href = url;
+
+
+        window.open(url, '_blank');
    
     });
+
+
+
+
 
 
 

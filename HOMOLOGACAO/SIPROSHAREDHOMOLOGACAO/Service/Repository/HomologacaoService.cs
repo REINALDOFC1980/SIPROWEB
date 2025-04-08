@@ -422,7 +422,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
                         --Mudando o status dos processo distribuido
                           UPDATE PD
-                             SET DIS_DESTINO_STATUS = 'RECEBIDO',
+                             SET DIS_DESTINO_STATUS = 'RECEBIDO'
                             FROM Protocolo_Distribuicao PD INNER JOIN #Processo P ON (pd.DIS_MOV_ID = p.DIS_MOV_ID)
                      
 

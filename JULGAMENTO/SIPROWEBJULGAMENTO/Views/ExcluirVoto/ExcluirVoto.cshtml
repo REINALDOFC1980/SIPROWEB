@@ -1,0 +1,99 @@
+﻿
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>Excluir Voto</h2>
+        <small>Lista de processo com permissão para exclur voto.</small>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="ibox">
+
+                <div class="ibox-content">
+                    <h3><i class="fa fa-list-ul"></i>  Lista de processos: Em julgamento, julgado e homologado  </h3>
+                    <small>Selecione uma situação.</small>
+
+                    <form id="form_buscar">
+                        <div class="form-group row">
+
+                            <div class="col-sm-10">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <select class="select2_demo_3 form-control" style="width:100%;" id="resultado" name="resultado" required>
+
+                                            <option value="Todos">Todos</option>
+                                            <option value="Julgando">Em Julgamento</option>
+                                            <option value="Homologar">Julgado</option>
+                                            <option value="Publicacao">Homologados</option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="col-md-8">
+                                                                               
+                                            <input type="text" class="form-control" id="" >                                       
+                                        
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="row">
+                                    <span class="input-group-append" >
+                                        <button type="button" class="btn btn-primary" id="btmLocalizarProtocolo"> <i class="fa fa-search"></i> Localizar</button>
+                                    </span>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </form>
+                    <div class="clients-list">
+                        <div class="full-height-scroll">
+                            <div id="div_listaHomologacao">
+                              @*   @await Html.PartialAsync("_ListaHomologacao") *@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+
+            <div class="tabs-container">
+
+                <ul class="nav nav-tabs">
+                    <li><a class="nav-link active show" data-toggle="tab" href="#tab-1">Dados do Processo </a></li>                   
+                </ul>
+
+                <div class="tab-content">
+                    <div id="tab-1" class="tab-pane active show">
+                        <div class="panel-body">
+                            <div class="client-detail">
+                                <div class="full-height-scroll">
+                                    <div id="div_ParecerRelator">
+                                        @await Html.PartialAsync("_ProtocoloDetalhe")
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>

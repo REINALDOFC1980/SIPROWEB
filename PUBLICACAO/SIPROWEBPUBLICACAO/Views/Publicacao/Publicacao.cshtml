@@ -187,9 +187,8 @@
                     Notiflix.Notify.Failure('Erro ao realizar a operação.');
                     return false;
                 }
-
-                if (Array.isArray(data.publicacaoModel) && data.publicacaoModel.length > 0) {
-                    let publicacao = data.publicacaoModel[0];
+                if (data.publicacaoModel) { // Apenas verifica se o objeto existe
+                    let publicacao = data.publicacaoModel;
                     $('#prt_lote').val(publicacao.prt_lote);
                     $('#prt_usu_publicacao').val(publicacao.prt_publicacao_dom);
                     $('#prt_dt_lote').val(publicacao.prt_dt_lote);
