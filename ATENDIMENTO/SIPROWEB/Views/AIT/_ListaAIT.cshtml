@@ -2,6 +2,16 @@
 <div class="table-responsive">
 
     <table class="table table-striped table-hover">
+        
+        <thead>
+            <tr>
+                <th class="text-left">Número AIT</th>
+                <th class="text-center">Placa</th>
+                <th class="text-left">Infração</th>
+                <th class="text-center">Ações</th>
+            </tr>
+        </thead>
+        
         <tbody>
 
             
@@ -10,24 +20,22 @@
                     foreach (var item in Model)
                     {
                         <tr>
-                            <td class="contact-type">
-                             <i class="fa fa-car"> </i>
-                             </td>
 
+                            
 
-                            <td class="text-center">
-                                <strong>AIT</strong><br>
+                        <td class="text-left">
+              
                                 <a href="#" class="client-link" onclick="AbirAIT('@item.rec_ait_numero')">@item.rec_ait_numero</a>
                             </td>
 
 
                             <td class="text-center">
-                                <strong>Placa</strong><br>
-                                <a href="#" class="client-link">@item.Rec_Veiculo_Placa</a>
+
+                            <a href="#" class="client-link"><i class="fa fa-car"> </i> @item.Rec_Veiculo_Placa</a>
                             </td>
 
-                            <td class="text-center">
-                                <strong>Descrição da Placa</strong><br>
+                        <td class="text-left">
+
                                 @item.infracaodescricao
                             </td>
 

@@ -1,4 +1,4 @@
-﻿lote@model SIPROSHAREDPUBLICACAO.Model.PublicacaoModel
+﻿@model SIPROSHAREDPUBLICACAO.Model.PublicacaoModel
 
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
@@ -173,10 +173,10 @@
 
     $(document).on('click', '.localizarlote', function (e) {
 
+
         e.preventDefault();
+
         var valor = $(this).data('id');
-
-
         $.ajax({
             url: '@Url.Action("Buscar_Lote", "Publicacao")',
             type: 'GET',
