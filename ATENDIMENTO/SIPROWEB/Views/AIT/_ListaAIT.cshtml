@@ -10,10 +10,27 @@
                     foreach (var item in Model)
                     {
                         <tr>
-                            <td class="contact-type"><i class="fa fa-car"> </i></td>
-                            <td><a href="#" class="client-link" onclick="AbirAIT('@item.rec_ait_numero')">@item.rec_ait_numero</a></td>
-                            <td><a href="#" class="client-link">@item.Rec_Veiculo_Placa</a></td>
-                            <td> @item.infracaodescricao</td>
+                            <td class="contact-type">
+                             <i class="fa fa-car"> </i>
+                             </td>
+
+
+                            <td class="text-center">
+                                <strong>AIT</strong><br>
+                                <a href="#" class="client-link" onclick="AbirAIT('@item.rec_ait_numero')">@item.rec_ait_numero</a>
+                            </td>
+
+
+                            <td class="text-center">
+                                <strong>Placa</strong><br>
+                                <a href="#" class="client-link">@item.Rec_Veiculo_Placa</a>
+                            </td>
+
+                            <td class="text-center">
+                                <strong>Descrição da Placa</strong><br>
+                                @item.infracaodescricao
+                            </td>
+
                             <td>
                             <a href="#" class="btn btn-primary" id="link-@item.rec_ait_numero" onclick="AbirAIT('@item.rec_ait_numero', this)">
                                      Visualizar

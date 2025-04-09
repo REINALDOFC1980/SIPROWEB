@@ -593,6 +593,7 @@ namespace SIPROSHARED.Service.Repository
 										Left join Pessoa as S on(PRT_CPF_SOLICITANTE = S.PES_CPF)										
 									    Left join Pessoa as C on(PRT_CPF_CONDUTOR = C.PES_CPF)
 	                         	 WHERE Prt_Numero = @PRT_NUMERO
+                               --  and PRT_DT_PUBLICACAO is not null
                                 order by PRT_DT_CADASTRO
                         
                              ";

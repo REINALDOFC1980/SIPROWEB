@@ -14,14 +14,28 @@
                 @foreach (var item in ViewBag.Protocolo)
                 {
                     <tr>
-                        <td class="contact-type"><i class="fa fa-car"> </i></td>
-                        <td><a href="#" class="client-link" onclick="AbirProtocolo('@item.PRT_NUMERO')">@item.PRT_NUMERO</a></td>
-                        <td><a href="#" class="client-link">@item.PRT_NOME_ASSUNTO</a></td>
-                        <td><a href="#" class="client-link">@item.PRT_AIT</a></td>
+                        <td class="contact-type text-center">
+                        <i class="fa fa-car"> </i></td>
+
+                            <td class="text-center">
+                                <strong>Protocolo</strong><br>
+                                <a href="#" class="client-link" onclick="AbirProtocolo('@item.PRT_NUMERO')">@item.PRT_NUMERO</a>
+                            </td>
+
+                            <td class="text-center">
+                               <strong>Serviço</strong><br>
+                                <a href="#" class="client-link">@item.PRT_NOME_ASSUNTO</a>
+                           </td>
+
+                            <td class="text-center">
+                              <strong>AIT</strong><br>
+                             <a href="#" class="client-link">@item.PRT_AIT</a>
+                         </td>
          
                        @* <td> @item.PRT_NOME_ORIGEM</td>
                         <td> @item.PRT_PLACA</td>*@
-                            <td class="client-status">
+                            <td class="text-center client-status">
+                                <strong>Situação do Processo</strong><br>
                                 <span class="label @(item.PRT_ACAO == "ARQUIVADO!" ? "label-black-50" : "label-primary")">
                                     @item.PRT_ACAO
                                 </span>
