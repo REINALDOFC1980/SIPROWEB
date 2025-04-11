@@ -100,5 +100,18 @@ namespace SIPROAPIPUBLICACAO.Controllers
 
         }
 
+
+        [HttpGet]
+        [Route("gerar-dom/{lote}")]
+        public async Task<IActionResult> GerarDOM(string lote)
+        {
+            var result = await _publicacao.GerarDOM(lote);
+
+            if (result == null)
+                return NoContent();
+
+            return Ok(result);
+        }
+
     }
 }
