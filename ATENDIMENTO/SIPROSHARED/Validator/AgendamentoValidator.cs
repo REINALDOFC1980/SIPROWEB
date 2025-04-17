@@ -14,16 +14,17 @@ namespace SIPROSHARED.Validator
         public AgendamentoValidator()
         {
 
-            
-           //RuleFor(user => user.Age_Abertura)
-           //     .NotEmpty().WithMessage("A data de abertura não foi fornecida.")
-           //     .Matches(@"^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\d{4}$").WithMessage("A data de abertura deve estar no formato dd/MM/yyyy.");
 
+            //RuleFor(user => user.Age_Abertura)
+            //     .NotEmpty().WithMessage("A data de abertura não foi fornecida.")
+            //     .Matches(@"^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\d{4}$").WithMessage("A data de abertura deve estar no formato dd/MM/yyyy.");
 
             RuleFor(user => user.Age_Doc_Solicitante)
-              .NotEmpty().WithMessage("O CPF não foi fornecido.")
-              .Length(11).WithMessage("O CPF deve ter exatamente 11 caracteres.")
-              .Matches("^[0-9]{11}$").WithMessage("O CPF deve conter apenas números.");
+                .NotEmpty().WithMessage("O CPF/CNPJ não foi fornecido.")
+                .Must(doc => doc.Length == 11 || doc.Length == 14)
+                .WithMessage("O documento deve ter exatamente 11 (CPF) ou 14 (CNPJ) caracteres.")
+                .Matches("^[0-9]{11}$|^[0-9]{14}$")
+                .WithMessage("O documento deve conter apenas números.");
 
             RuleFor(user => user.Age_AIT)
                 .NotEmpty().WithMessage("O número do AIT não foi fornecido.")

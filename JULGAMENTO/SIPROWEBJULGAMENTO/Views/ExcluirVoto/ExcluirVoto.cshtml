@@ -20,10 +20,11 @@
 
                     <form id="form_buscar">
                         <div class="form-group row">
-
                             <div class="col-sm-10">
                                 <div class="row">
+                                    
                                     <div class="col-md-4">
+                                      
                                         <select class="select2_demo_3 form-control" style="width:100%;" id="resultado" name="resultado" required>
 
                                             <option value="Todos">Todos</option>
@@ -35,14 +36,12 @@
 
                                     </div>
 
-                                    <div class="col-md-8">
-                                                                               
-                                            <input type="text" class="form-control" id="" >                                       
-                                        
+                                    <div class="col-md-8">                                                                               
+                                        <input type="text" class="form-control" id="" >                                                                               
                                     </div>
-
                                 </div>
                             </div>
+                            
                             <div class="col-sm-2">
                                 <div class="row">
                                     <span class="input-group-append" >
@@ -50,14 +49,12 @@
                                     </span>
                                 </div>
                             </div>
-
-
                         </div>
                     </form>
                     <div class="clients-list">
                         <div class="full-height-scroll">
                             <div id="div_listaHomologacao">
-                              @*   @await Html.PartialAsync("_ListaHomologacao") *@
+                               @*  @await Html.PartialAsync("_ListaProcesso") *@
                             </div>
                         </div>
                     </div>
@@ -79,7 +76,7 @@
                             <div class="client-detail">
                                 <div class="full-height-scroll">
                                     <div id="div_ParecerRelator">
-                                        @await Html.PartialAsync("_ProtocoloDetalhe")
+                              @*           @await Html.PartialAsync("_ProtocoloDetalhe") *@
                                     </div>
 
                                 </div>

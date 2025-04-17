@@ -19,16 +19,15 @@ namespace SIPROSHARED.Service.Repository
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-
        
         public async Task<AgendaModel> GetAgendamento(string cpf)
         {
 
-            //validação
-            if (string.IsNullOrEmpty(cpf) || cpf.Length != 11)
-            {
-                throw new ErrorOnValidationException(new List<string> { "O CPF deve ter exatamente 11 caracteres." });
-            }
+            ////validação
+            //if (string.IsNullOrEmpty(cpf) || cpf.Length != 11)
+            //{
+            //    throw new ErrorOnValidationException(new List<string> { "O CPF deve ter exatamente 11 caracteres." });
+            //}
          
             var query = @"  
              Select top 1
@@ -587,13 +586,14 @@ namespace SIPROSHARED.Service.Repository
                        ,PRT_CNH_ESTRANGEIRA_NOME
                        ,convert(varchar(10),isnull(PRT_DT_POSTAGEM, PRT_DT_ABERTURA),103) as PRT_DT_ABERTURA
                        ,PRT_CNH_ESTRANGEIRA_PAIS 
+
                         FROM  Protocolo inner join Origem O on(PRT_ORIGEM = O.ORI_CODIGO)
 										inner join Assunto A on (PRT_ASSUNTO = A.ASS_ID)
                                         inner join TipoRestricao on(PRT_RESTRICAO = RES_ID)
 										Left join Pessoa as S on(PRT_CPF_SOLICITANTE = S.PES_CPF)										
 									    Left join Pessoa as C on(PRT_CPF_CONDUTOR = C.PES_CPF)
 	                         	 WHERE Prt_Numero = @PRT_NUMERO
-                               --  and PRT_DT_PUBLICACAO is not null
+ 
                                 order by PRT_DT_CADASTRO
                         
                              ";

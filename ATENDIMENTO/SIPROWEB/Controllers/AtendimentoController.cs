@@ -124,10 +124,12 @@ namespace SIPROWEB.Controllers
                 int codServico = agendamento.Age_Cod_Assunto;            
 
                 if (agendamento != null && agendamento.Age_Cod_Origem == 48)
-                {
+                {                   
+                    
                     //buscando os dados do proprietário e validando o AIT agendado
                     apiUrl = $"{_baseSipApiUrl}ait/v1/{agendamento.Age_AIT}";
                     response = await _httpClient.GetAsync(apiUrl);
+               
 
                     if (!response.IsSuccessStatusCode)
                     {
@@ -140,6 +142,8 @@ namespace SIPROWEB.Controllers
                     }
 
                     var multa = await response.Content.ReadFromJsonAsync<ResultGetAitModel>();
+
+
                     if (multa != null && multa.defesanai == null)
                     {
                         apiUrl = $"{_baseApiUrl}atendimento/alteragendamento";
@@ -492,6 +496,17 @@ namespace SIPROWEB.Controllers
                 };
 
                 var multa = await response.Content.ReadFromJsonAsync<ResultGetAitModel>(options);
+
+
+                if (cpf != multa.cnh_cnpj_proprietario && cpf.Length == 14)
+                {
+                    apiUrl = $"{_baseApiUrl}atendimento/alteragendamento";
+                    await _httpClient.PostAsJsonAsync(apiUrl, new { ait, codservico, situacao = "Ait Incomp.." });
+                    return Json(new { retorno = "error", errorAPI="Esse AIT não pertence ao CNPJ digitado!" });
+                }
+
+
+
                 if (multa != null)
                 {
                     if (multa.defesanai == null)

@@ -19,7 +19,8 @@
         public string? PRT_PLACA { get; set; }
         public string? PRT_SITUACAO { get; set; }
         public int DIS_ID { get; set; }
-
+        public string? DIS_RETORNO_OBS { get; set; }
+        
     }
 }
 

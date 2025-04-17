@@ -75,15 +75,11 @@
                     <div class="row">
                         <div class="col-sm-8 b-r">
 
-                 
-
-
-
                             <div class="form-group">
 
                                 <div class="row">
                                     <div class="col-sm-8">
-                                        <label>Digite o número de autuação </label> -      <small>(T000000000)</small>
+                                        <label>Digite o número de autuação </label> -   <small>(T000000000)</small>
                                         <input type="text" id="Age_AIT" name="Age_AIT" class="form-control" required maxlength="10" value="">
                                         <input type="hidden" id="Ass_Nome" name="Ass_Nome" class="form-control">
                                     </div>
@@ -124,6 +120,7 @@
                             <h4>Qual a origem?</h4>
                             <p class="text-center">
                                 <div><label><input type="radio" value="10" id="Age_Cod_Origem" name="Age_Cod_Origem"> Presencial </label></div>
+                          
                                 <div><label><input type="radio" value="64" id="Age_Cod_Origem" name="Age_Cod_Origem"> Correios </label></div>
                             </p>
                         </div>
@@ -214,7 +211,18 @@
             var formattedValue = formatValueWithLeadingZeros($(this).val());
             $(this).val(formattedValue);
         });
+        
+       var cpf_cnpj = $('#Age_Doc_Solicitante').val();
+           cpf_cnpj = cpf_cnpj.replace(/\D/g, '');
 
+        if (cpf_cnpj.length == 14) {
+            window.onload = function () {
+                const radio = document.querySelector('input[name="Age_Cod_Origem"][value="64"]');
+                if (radio) radio.checked = true;
+            };
+
+
+          }
 
 
 
@@ -251,7 +259,7 @@
                         //Abertura do pop up  
                         if (response.retorno == 'Desconhecido') {
                             $("#modalTitulo").text("CPF: " + response.cpf);
-                            $("#mensagem").html("<i class='fa fa-twitch'></i> O CPF digitado do solicitante não corresponde ao <strong>proprietário</strong> do veículo. Você confirma que este CPF pertence ao <strong>Portador</strong> ou <strong>Condutor</strong> do veículo?");
+                            $("#mensagem").html("<i class='fa fa-twitch'></i> O CPF/CNPJ digitado do solicitante não corresponde ao <strong>proprietário</strong> do veículo. Você confirma que este CPF pertence ao <strong>Portador</strong> ou <strong>Condutor</strong> do veículo?");
 
                             $("#btnNegarCondutor").show();
                             $("#btnConfimarCondutor").show();
@@ -260,7 +268,7 @@
                         } 
                         else if (response.retorno == 'Proprietario') {
                             $("#modalTitulo").text("CPF: " + response.cpf);
-                            $("#mensagem").html("<i class='fa fa-twitch'> </i> Consta em nosso sistema que o CPF <strong>" + response.cpf + "</strong> do solicitante corresponde ao <strong> proprietário </strong> do veículo");
+                            $("#mensagem").html("<i class='fa fa-twitch'> </i> Consta em nosso sistema que o CPF/CNPJ <strong>" + response.cpf + "</strong> do solicitante corresponde ao <strong> proprietário </strong> do veículo");
                             $("#btnNegarCondutor").hide();
                             $("#btnConfimarCondutor").hide();
                             $("#btnConfimarProprietario").show();

@@ -189,24 +189,26 @@
 
                                         </form>
 
+                                        <!-- 🔹 Contêiner dos botões -->
+                                        <div class="mt-auto d-flex justify-content-between">
+                                            <button type="button" class="btn btn-sm btn-primary text-white shadow-sm"
+                                                    style="border: 2px ; width: 150px;"
+                                                    onclick="RealizarJulgamento('D')">
+                                                Deferido
+                                            </button>
+
+                                            <button type="button" class="btn btn-sm btn-danger text-white shadow-sm"
+                                                    style="width: 150px;"
+                                                    onclick="RealizarJulgamento('I')">
+                                                Indeferido
+                                            </button>
+                                        </div>
+
+
                                     </div>
                                 </div>
 
-                                <!-- 🔹 Contêiner dos botões -->
-                                <div class="mt-auto d-flex justify-content-between">
-                                    <button type="button" class="btn btn-sm btn-primary text-white shadow-sm"
-                                            style="border: 2px ; width: 150px;"
-                                            onclick="RealizarJulgamento('D')">
-                                        Deferido
-                                    </button>
-
-                                    <button type="button" class="btn btn-sm btn-danger text-white shadow-sm"
-                                            style="width: 150px;"
-                                            onclick="RealizarJulgamento('I')">
-                                        Indeferido
-                                    </button>
-                                </div>
-
+                              
 
 
                             </div>
@@ -373,7 +375,7 @@
                                         <hr />
                                         <br />                                       
                                         <p>
-                                        Clique em <strong>Escolher arquivo</strong> para localizar o documento que deja anexar.
+                                        Clique em <strong>Escolher arquivo</strong> para localizar o documento que deseja anexar.
                                         </p>
                                         <div class="btn-group" style="width:100%;">
 
@@ -442,8 +444,8 @@
                             <br />                           
                             <br />
                             <br />
-                            <h2><i class="fa fa-exclamation"></i> Observação do Atendimento</h2>
-                            <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" rows="12" cols="45" class="form-control" readonly>@Model?.PRT_OBSERVACAO</textarea>
+                            <h2><i class="fa fa-exclamation"></i> Obs. da Homologação</h2>
+                            <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" rows="12" cols="45" class="form-control" readonly>@Model?.DIS_RETORNO_OBS</textarea>
 
                             <br />
 
@@ -473,11 +475,9 @@
 <script>
 
 
-
-
     $(document).ready(function () {
         $('#summernote').summernote({
-            height: 200,
+            height: 180,
             toolbar: [
                 ['view', ['fullscreen']], // Apenas o botão de tela cheia
                 ['style', ['bold', 'italic', 'underline']], // Mantém apenas negrito, itálico e sublinhado
@@ -486,6 +486,8 @@
             ],
             tooltip: false // Desativa os tooltips
         });
+
+       
 
         var motivoVotoSelecionado = '@(ViewBag.ParecerRelator != null ? Html.Raw(ViewBag.ParecerRelator.Disjug_Parecer_Relatorio) : "")';
      

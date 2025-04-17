@@ -38,8 +38,9 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                                   ,PRT_RESTRICAO
                                   ,RES_NOME AS PRT_RESTRICAO_NOME
                                   ,PRT_PLACA
-                                  ,'Julgar' AS  PRT_SITUACAO
+                                  ,'Julgar' AS PRT_SITUACAO
                                   ,PRT_OBSERVACAO
+                                  ,SUBSTRING (DIS_RETORNO_OBS,1,20) as DIS_RETORNO_OBS 
                               FROM Protocolo inner join Movimentacao_Processo on (PRT_NUMERO = MOVPRO_PRT_NUMERO)
 				                             inner join Protocolo_distribuicao on (MOVPRO_ID = DIS_MOV_ID)
 				                             inner join Assunto on (PRT_ASSUNTO = ASS_ID)
@@ -48,25 +49,26 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
 							WHERE DIS_DESTINO_USUARIO = @usuario
                               and PRT_AIT like case when @vlobusca = 'Todos' then '%' else @vlobusca end
+                              and PRT_NUMERO like case when @vlobusca = 'Todos' then '%' else @vlobusca end
 							  and DIS_DESTINO_STATUS = 'RECEBIDO'
                               and isnull(DIS_RETORNO,0) = 0
                               and DIS_ID not in (select DISJUG_DIS_ID from Protocolo_Distribuicao_Julgamento)
 							";
 
-                using (var connection = _context.CreateConnection())
-                {
-                    var parametros = new { usuario, vlobusca };
-                    var processos = await connection.QueryAsync<ProtocoloJulgamento_Model>(query, parametros);
+            using (var connection = _context.CreateConnection())
+            {
+                var parametros = new { usuario, vlobusca };
+                var processos = await connection.QueryAsync<ProtocoloJulgamento_Model>(query, parametros);
 
-                    return processos.ToList();
-                }
-            
+                return processos.ToList();
+            }
+
         }
 
         public async Task<List<ProtocoloJulgamento_Model>> LocalizarProcessosAssinar(string usuario, string vlobusca)
         {
-           
-                var query = @"
+
+            var query = @"
 							SELECT PRT_NUMERO 
                                   ,ORI_DESCRICAO as PRT_NOME_ORIGEM
                                   ,ASS_NOME as PRT_NOME_ASSUNTO
@@ -81,6 +83,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                                   ,DIS_DESTINO_STATUS	
                                   ,'Assinar' AS  PRT_SITUACAO
                                   ,PRT_OBSERVACAO
+                                  ,DIS_RETORNO_OBS 
                               FROM Protocolo inner join Movimentacao_Processo on (PRT_NUMERO = MOVPRO_PRT_NUMERO)
                                              inner join Protocolo_distribuicao on (MOVPRO_ID = DIS_MOV_ID)
 				                             inner join Protocolo_Distribuicao_Julgamento on (DIS_ID = DISJUG_DIS_ID)
@@ -94,13 +97,13 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                               and DISJUG_RESULTADO_DATA IS NULL  
 							";
 
-                using (var connection = _context.CreateConnection())
-                {
-                    var parametros = new { usuario, vlobusca };
-                    var processos = await connection.QueryAsync<ProtocoloJulgamento_Model>(query, parametros);
+            using (var connection = _context.CreateConnection())
+            {
+                var parametros = new { usuario, vlobusca };
+                var processos = await connection.QueryAsync<ProtocoloJulgamento_Model>(query, parametros);
 
-                    return processos.ToList();
-                }
+                return processos.ToList();
+            }
         }
 
         public async Task<List<ProtocoloJulgamento_Model>> LocalizarRetificacao(string usuario, string vlobusca)
@@ -120,6 +123,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                                   ,PRT_PLACA
                                   ,'Julgar' AS  PRT_SITUACAO
                                   ,PRT_OBSERVACAO
+                                  ,DIS_RETORNO_OBS 
                               FROM Protocolo inner join Movimentacao_Processo on (PRT_NUMERO = MOVPRO_PRT_NUMERO)
 				                             inner join Protocolo_distribuicao on (MOVPRO_ID = DIS_MOV_ID)
 				                             inner join Assunto on (PRT_ASSUNTO = ASS_ID)
@@ -143,7 +147,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
         public async Task<ProtocoloJulgamento_Model> LocalizarProcesso(string usuario, string vlobusca)
         {
-          
+
             var query = @"
 				 SELECT    PRT_NUMERO 
                                   ,MOVPRO_SETOR_ORIGEM as PRT_COD_ORIGEM
@@ -158,7 +162,9 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                                   ,RES_NOME AS PRT_RESTRICAO_NOME
                                   ,PRT_PLACA
  	                              ,DIS_ID
+                                  ,DIS_RETORNO_OBS 
                                   ,PRT_OBSERVACAO
+                                  ,DIS_RETORNO_OBS 
                          FROM Protocolo inner join Movimentacao_Processo  on (PRT_NUMERO = MOVPRO_PRT_NUMERO)
 			                          inner join Protocolo_distribuicao on (MOVPRO_ID = DIS_MOV_ID)
 			                          inner join Assunto on (PRT_ASSUNTO = ASS_ID)
@@ -171,17 +177,17 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
             using (var connection = _context.CreateConnection())
             {
-                var parametros = new { usuario, vlobusca };                   
+                var parametros = new { usuario, vlobusca };
                 var processo = await connection.QueryFirstOrDefaultAsync<ProtocoloJulgamento_Model>(query, parametros);
 
                 return processo;
             }
-           
+
         }
 
         public async Task<List<MovimentacaoModel>> BuscarMovimentacao(string prt_numero)
         {
-            
+
             var query = @" SELECT  
                                  
 		                   MOVPRO_PRT_NUMERO       
@@ -207,30 +213,30 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                 return command.ToList();
             }
         }
-          
+
         public async Task<List<SetorModel>> BuscarSetor()
         {
-           
+
             var query = @" SELECT SETSUB_ID, 
                                   UPPER(SETSUB_NOME) AS SETSUB_NOME 
                              FROM SetorSub  
                             WHERE SETSUB_Ativo = 1  
                               and SETSUB_ID NOT IN (45,46,47,52,53,54,55,56)
                          ORDER BY SETSUB_NOME";
-           
-           
+
+
             using (var connection = _context.CreateConnection())
             {
-           
+
                 var command = await connection.QueryAsync<SetorModel>(query);
                 return command.ToList();
             }
-           
+
         }
 
         public async Task<List<MembroModel>> BuscarMembros(string usuario)
         {
-   
+
             var query = @"  SELECT UPPER(SETSUBUSU_USUARIO) AS SETSUBUSU_USUARIO,
                                    UPPER(SETSUBUSU_NOMECOMPLETO) AS SETSUBUSU_NOMECOMPLETO
                               FROM SetorSubXUsuario 
@@ -252,7 +258,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                 var command = await connection.QueryAsync<MembroModel>(query, parametros);
                 return command.ToList();
             }
-            
+
         }
 
         public async Task<List<MotivoVotoModel>> BuscarMotivoVoto()
@@ -261,19 +267,19 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                                     MOT_NOME
                                from MotivoVotoDefesa
                                 Order by MOT_NOME";
-            
-            
+
+
             using (var connection = _context.CreateConnection())
             {
-                
+
                 var command = await connection.QueryAsync<MotivoVotoModel>(query);
                 return command.ToList();
-            }            
+            }
         }
 
         public async Task EncamimharProcessoInstrucao(InstrucaoProcessoModel instrucaoProcesso)
         {
-         
+
             // Adicionando parâmetros
             var dbParametro = new DynamicParameters();
             dbParametro.Add("@INSPRO_Dis_id", instrucaoProcesso.INSPRO_Dis_id);
@@ -347,10 +353,10 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 		                             ,Disjug_Relator            
 		                             ,Convert(varchar(10),Disjug_Data,103)  as Disjug_Data           
 		                             ,Disjug_Parecer_Relatorio                                                                                                                                                                                                                                         
-		                             ,Disjug_Resultado 
+		                             ,Case when Disjug_Resultado = 'D' then 'DEFERIDO' ELSE 'INDEFERIDO' END as Disjug_Resultado 
 		                             ,Disjug_Motivo_Voto                                
 		                             ,Convert(varchar(10),Disjug_Resultado_Data,103) as Disjug_Resultado_Data
-                                from Protocolo_Distribuicao_Julgamento where DISJUG_DIS_ID = @vlobusca order by Disjug_Id ";
+                                from Protocolo_Distribuicao_Julgamento where DISJUG_DIS_ID = @vlobusca order by Disjug_Id";
 
 
             using (var connection = _context.CreateConnection())
@@ -362,7 +368,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
                 return parecer;
             }
-            
+
         }
 
         public async Task InserirVotoRelator(JulgamentoProcessoModel julgamentoProcesso)
@@ -376,11 +382,10 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                 throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
             //fim
 
-
             var dbParametro = new DynamicParameters();
-            dbParametro.Add("@Disjug_Dis_Id", julgamentoProcesso.Disjug_Dis_Id);  
+            dbParametro.Add("@Disjug_Dis_Id", julgamentoProcesso.Disjug_Dis_Id);
             dbParametro.Add("@Disjug_Relator", julgamentoProcesso.Disjug_Relator);
-            dbParametro.Add("@Disjug_Parecer_Relatorio", julgamentoProcesso.Disjug_Parecer_Relatorio.Trim());
+            dbParametro.Add("@Disjug_Parecer_Relatorio", julgamentoProcesso.Disjug_Parecer_Relatorio.Replace("'", "").Trim());
             dbParametro.Add("@Disjug_Resultado", julgamentoProcesso.Disjug_Resultado);
             dbParametro.Add("@Disjug_Motivo_Voto", julgamentoProcesso.Disjug_Motivo_Voto);
             dbParametro.Add("@Disjug_Membro1", julgamentoProcesso.Disjug_Membro1);
@@ -477,8 +482,8 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
             var dbParametro = new DynamicParameters();
             dbParametro.Add("@Disjug_Dis_Id", julgamentoProcesso.Disjug_Dis_Id);
-            dbParametro.Add("@Disjug_Relator", julgamentoProcesso.Disjug_Relator);   
-   
+            dbParametro.Add("@Disjug_Relator", julgamentoProcesso.Disjug_Relator);
+
 
             var query = @"
 
@@ -586,7 +591,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
         public async Task<List<JulgamentoProcessoModel>> BuscarVotacao(int vlobusca)
         {
-          
+
             var query = @"   select 
 		                        DISJUG_RELATOR,
                                 FORMAT(DISJUG_RESULTADO_DATA, 'dd/MM/yyyy HH:mm') AS DISJUG_RESULTADO_DATA,
@@ -605,12 +610,12 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                 var command = await connection.QueryAsync<JulgamentoProcessoModel>(query, parametros);
                 return command.ToList();
             }
-          
+
         }
 
         public async Task<JulgamentoProcessoModel> VerificarVoto(string disjug_relator, int disjug_dis_id)
         {
-           
+
             var query = @"SELECT DISJUG_ID,
                                  DISJUG_RESULTADO_DATA 
                             FROM Protocolo_Distribuicao_Julgamento 
@@ -622,12 +627,12 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                 var parametros = new { disjug_relator, disjug_dis_id };
                 var result = await connection.QueryFirstOrDefaultAsync<JulgamentoProcessoModel>(query, parametros);
                 return result;
-            }                                                                        
+            }
         }
 
         public async Task IntoAnexo(List<IFormFile> arquivos, ProtocoloModel protocolo)
         {
-             // Verifica se há arquivos na lista
+            // Verifica se há arquivos na lista
             if (arquivos != null && arquivos.Count > 0)
             {
                 foreach (var arquivo in arquivos)
@@ -647,7 +652,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                     dbParametro.Add("@PRTDOC_PRT_NUMERO", protocolo.PRT_NUMERO);
                     dbParametro.Add("@PRTDOC_IMAGEM", imagemBytes);
                     dbParametro.Add("@PRTDOC_OBSERVACAO", fileName);
-                    dbParametro.Add("@PRTDOC_PRT_AIT", protocolo.PRT_AIT);                        
+                    dbParametro.Add("@PRTDOC_PRT_AIT", protocolo.PRT_AIT);
                     dbParametro.Add("@PRT_ATENDENTE", protocolo.PRT_ATENDENTE);
 
                     string query = @"
@@ -682,14 +687,14 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                     }
                 }
             }
-           
-           
+
+
         }
 
         public async Task<List<Anexo_Model>> BuscarAnexo(string usuario, string ait)
         {
             {
-               
+
                 var query = @"
 
 	                 Declare @Setor int
@@ -714,7 +719,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                     var command = await connection.QueryAsync<Anexo_Model>(query, parametros);
                     return command.ToList();
                 }
-                
+
             }
         }
 
@@ -725,7 +730,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                 List<AnexoModel> anexoModel = new List<AnexoModel>();
 
                 using (var connection = _context.CreateConnection())
-                {                   
+                {
                     string selectQuery = @"   SELECT 
                                               PRTDOC_ID,
                                               PRTDOC_PRT_NUMERO,
@@ -786,7 +791,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
         public async Task ExcluirAnexo(int prtdoc_id)
         {
-           
+
             var dbParametro = new DynamicParameters();
             dbParametro.Add("@prtdoc_id", prtdoc_id);
 
@@ -799,12 +804,12 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             {
                 await con.ExecuteAsync(query, dbParametro);
             }
-           
+
         }
 
         public async Task<List<InstrucaoProcessoModel>> BuscarHistoricoInstrucao(string vlobusca)
         {
-            
+
             var query = @"   
                            Select MOVPRO_USUARIO_ORIGEM as INSPRO_Usuario_origem,
                                   MOVPRO_PARECER_ORIGEM as INSPRO_Parecer,
@@ -826,8 +831,32 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                 var command = await connection.QueryAsync<InstrucaoProcessoModel>(query, parametros);
                 return command.ToList();
             }
-           
+
         }
 
+
+        /*Excluir Voto*/
+        public async Task<List<JulgamentoProcessoModel>> LocalizarProcessosExcluirVoto(string usuario)
+        {
+            var query = @"
+							 select MOVPRO_PRT_NUMERO,  
+		                            DIS_DESTINO_USUARIO as Julgador
+                               from Protocolo_distribuicao as a   
+                               join Movimentacao_Processo as b on (a.DIS_MOV_ID = b.MOVPRO_ID)  
+                               join Protocolo as c on (c.PRT_NUMERO  = b.MOVPRO_PRT_NUMERO)       
+                           -- where PRT_ACAO IN('JULGADO','HOLOMOGAR','PUBLICAR')
+                           order by MOVPRO_PRT_NUMERO
+
+							";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parametros = new { usuario };
+                var processos = await connection.QueryAsync<JulgamentoProcessoModel>(query, parametros);
+
+                return processos.ToList();
+            }
+
+        }
     }
 }

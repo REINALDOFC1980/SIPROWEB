@@ -37,7 +37,7 @@
 
                                         <div class="form-group col-md-3 has-warning"><label>Serviço</label> <input type="text" class="form-control" value="@Model.PRT_NOME_ASSUNTO" id="PRT_NOME_ASSUNTO" name="PRT_NOME_ASSUNTO" required readonly></div>
                                         <div class="form-group col-md-5"><label>Nome do Solicitante</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_NOME_SOLICITANTE" id="PRT_NOME_SOLICITANTE" name="PRT_NOME_SOLICITANTE" readonly></div>
-                                        <div class="form-group col-md-2"><label>CPF/CNPJ</label> <input type="text" placeholder="" class="form-control" data-mask="000.000.000-00" value="@Model.PRT_CPF_SOLICITANTE" id="PRT_CPF_SOLICITANTE" name="PRT_CPF_SOLICITANTE" readonly></div>
+                                        <div class="form-group col-md-2"><label>CPF/CNPJ</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_CPF_SOLICITANTE" id="PRT_CPF_SOLICITANTE" name="PRT_CPF_SOLICITANTE" readonly></div>
 
 
 
@@ -85,7 +85,7 @@
 
                                     <h2><i class="fa fa-user-circle" aria-hidden="true"></i><string> Proprietário</string></h2>
                                     <div class="row">
-                                            <div class="form-group col-md-2  has-warning"><label>CPF/CNPJ</label> <input type="text" class="form-control" value="@Model.PRT_CPFCNJ_PROPRIETARIO" id="PRT_CPFCNJ_PROPRIETARIO"  data-mask="000.000.000-00" name="PRT_CPFCNJ_PROPRIETARIO" required readonly></div>
+                                            <div class="form-group col-md-2  has-warning"><label>CPF/CNPJ</label> <input type="text" class="form-control" value="@Model.PRT_CPFCNJ_PROPRIETARIO" id="PRT_CPFCNJ_PROPRIETARIO"  @* data-mask="000.000.000-00" *@ name="PRT_CPFCNJ_PROPRIETARIO" required readonly></div>
                                         <div class="form-group col-md-6">
                                             <label>Nome do Proprietário</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_NOMEPROPRIETARIO" id="PRT_NOMEPROPRIETARIO" name="PRT_NOMEPROPRIETARIO" required readonly>
                                        
@@ -256,13 +256,13 @@
                                                         <div>
                                                             <label><input type="radio" value="2" id="optionsRadios1" name="optionsRadios"> Doc. sem autenticidade</label>
                                                         </div>
- @*                                                        <div>
+                                                        @*<div>
                                                             <label><input type="radio" value="3" id="optionsRadios2" name="optionsRadios"> Jurídico sem condutor</label>
                                                         </div> *@
                                                         <div>
                                                             <label><input type="radio" value="4" id="optionsRadios3" name="optionsRadios"> Sem doc. do solicitante</label>
                                                         </div>
-      @*                                                   <div>
+                                                            @*   <div>
                                                             <label><input type="radio" value="5" id="optionsRadios4" name="optionsRadios"> CNH Estrangeiro</label>
                                                         </div> *@
                                                         <div>
@@ -353,7 +353,7 @@
                     <div class="row">
                         <div class="form-group col-md-6"><label>Email</label><input type="email" placeholder="" class="form-control" id="PES_Email" name="PES_Email"></div>
                         <div class="form-group col-md-3"><label>Celular</label><input type="text" placeholder="" data-mask="(00)00000-0000" class="form-control" id="PES_Celular" name="PES_Celular" required minlength="14"></div>
-                        <div class="form-group col-md-3"><label>Telefone</label><input type="text" placeholder="" data-mask="(00)00000-0000" class="form-control" id="PES_Telefone" name="PES_Telefone" minlength="14"></div>
+                        <div class="form-group col-md-3"><label>Telefone</label><input type="text" placeholder="" data-mask="(00)0000-0000" class="form-control" id="PES_Telefone" name="PES_Telefone" minlength="13"></div>
                     </div>
                     <small>O campo CEP realiza a busca dos dados autoameticamento, basta digitar o CEP que os campos abaixo serão preenchidos</small>
                     <hr />
@@ -548,7 +548,7 @@
         //Notificação em caso de Intepestividade no campo prazo
         if (intepestividade == "Sim" && ["1", "2", "39", "59"].includes(codservico)) {
             inputElement.classList.add('text-danger');
-            Addiconeerro(".error-prazo", "AIT (Intepestivo!).");//add um icone antes da imagem
+            Addiconeerro(".error-prazo", "AIT (Intempestivo!).");//add um icone antes da imagem
             radioElement.checked = true;
         } else {
             Removeiconeerro(".error-cnh");
@@ -863,8 +863,8 @@
             }
 
             // Valida o número do CPF
-            if (cpf.length != 11 || !validarCPF(cpf)) {
-                Addiconeerro(".error-message", " CPF inválido!");
+            if (cpf.length < 11 || !validarCPF(cpf)) {
+                Addiconeerro(".error-message", " CPF Inválido! ");
                 $('#PRT_CPF_CONDUTOR').focus();
                 return false;
             } else {
@@ -875,6 +875,7 @@
 
             // Verifica se o condutor é o solicitante e está como portador
             var ts = $("#PRT_TIPO_SOLICITANTE").val();
+           
             if ((cpf1 == cpf3) && ts == "Portador") {
                 Addiconeerro(".error-PRT_TIPO_SOLICITANTE", " O Solicitante está como Portador");
                 $('#PRT_CPF_CONDUTOR').focus();
@@ -884,7 +885,8 @@
             }
 
             Notiflix.Loading.Standard('Aguarde...');
-            // Busca os dados do condutor
+            
+            // Busca os dados do condutor          
             $.ajax({
                 url: '@Url.Action("BuscarCondutor", "Atendimento")',
                 type: 'GET',
@@ -987,8 +989,9 @@
             cpf = cpf.replace(/\D/g, ''); //tirando os caracteres!
 
             //## Validando os número do CPF
+
             if (cpf.length != 11 || !validarCPF(cpf)) {
-                Addiconeerro(".error-message", " CPF inválido!");//add um icone antes da imagem
+                Addiconeerro(".error-message", " CPF digitado inválido!");//add um icone antes da imagem
                 $('#PRT_RESS_CPF').focus();
                 return false;
             } else {

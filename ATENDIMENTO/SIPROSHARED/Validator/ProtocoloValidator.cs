@@ -37,11 +37,15 @@ namespace SIPROSHARED.Validator
                .MinimumLength(3).WithMessage("A atendente deve ter pelo menos 2 caracteres.")
                .MaximumLength(100).WithMessage("A atendente deve ter no máximo 20 caracteres.");
 
+
             RuleFor(user => user.PRT_CPF_SOLICITANTE)
-               .NotEmpty().WithMessage("O CPF do solicitante é obrigatório.")
-               .Length(11).WithMessage("O CPF do solicitante deve ter exatamente 11 caracteres.")
-               .Matches("^[0-9]{11}$").WithMessage("O CPF do solicitante deve conter apenas números.")
-               .Must(ValidarCpfCnpj).WithMessage("O CPF do solicitante informado é inválido.");
+                .NotEmpty().WithMessage("O CPF/CNPJ não foi fornecido.")
+                .Must(doc => doc.Length == 11 || doc.Length == 14)
+                .WithMessage("O documento deve ter exatamente 11 (CPF) ou 14 (CNPJ) caracteres.")
+                .Matches("^[0-9]{11}$|^[0-9]{14}$")
+                .WithMessage("O documento deve conter apenas números.");
+
+
 
             RuleFor(user => user.PRT_CPFCNJ_PROPRIETARIO)
                .NotEmpty().WithMessage("O CPF do proprietário é obrigatório.");

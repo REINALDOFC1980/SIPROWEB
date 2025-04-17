@@ -128,8 +128,11 @@ namespace SIPROWEBPUBLICACAO.Controllers
 
             }
 
-             ViewBag.LoteGerado = Buscar_Lotes(userMatrix);
-            return PartialView("_Qtd_Publicar");
+            publicacaoModel = await Buscar_Qtd_Processo(userMatrix);
+
+            ViewBag.LoteGerado = await Buscar_Lotes(userMatrix);
+          
+            return PartialView("_Qtd_Publicar", publicacaoModel);
         }
 
         [HttpGet]
@@ -214,6 +217,8 @@ namespace SIPROWEBPUBLICACAO.Controllers
                 return Json(new { error = true, message = "Erro ao excluir o Lote." });
 
             publicacaoModel = await Buscar_Qtd_Processo(userMatrix);
+
+            ViewBag.LoteGerado = await Buscar_Lotes(userMatrix);
 
             return PartialView("_Qtd_Publicar", publicacaoModel);
         }

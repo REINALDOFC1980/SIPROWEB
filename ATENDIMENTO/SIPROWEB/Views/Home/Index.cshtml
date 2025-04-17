@@ -47,7 +47,7 @@
                             <form role="form" id="form">
                                 <div class="form-group">
                                     <input type="hidden" id="ConfirmarCondutor" />
-                                    <input type="text" placeholder="000.000.000-00" data-mask="999.999.999-99" class="form-control" id="Age_Doc_Solicitante" name="cpf" value="">
+                                    <input type="text" class="form-control" id="Age_Doc_Solicitante" name="cpf_cnpj"  maxlength="18"> 
                                 </div>
                                 <br>
 
@@ -171,7 +171,7 @@
 
             </div>
             <div class="alert alert-warning text-center">
-                <i class="fa fa-twitch"></i> CPF não encontrado na base de dados do Protocolo. <br />Verifique se foi digitado corretamente ou complete o cadastro preenchendo os dados necessários.
+                <i class="fa fa-twitch"></i> CPF ou CNPJ não encontrado na base de dados do Protocolo. <br />Verifique se foi digitado corretamente ou complete o cadastro preenchendo os dados necessários.
             </div>
             <div class="modal-body">
                 <form role="formpessoa" id="formpessoa">
@@ -180,8 +180,8 @@
                     </div> *@
                     <div class="row">
                         <div class="form-group col-md-4">
-                            <label>CPF <span style="color: red;">*</span></label>
-                            <input type="text" placeholder="" class="form-control cpf" data-mask="000.000.000-00" id="PES_CPF" name="PES_CPF" required>
+                            <label>CPF/CNPJ <span style="color: red;">*</span></label>
+                            <input type="text" placeholder="" class="form-control cpf" id="PES_CPF" name="PES_CPF" required>
                             <span class="error-cpf" style="color:chocolate;"></span>
                         </div>
                         <div class="form-group col-md-8">
@@ -190,29 +190,38 @@
                         </div>
                     </div>
                    
-                    <div class="row">
+                    <div class="row" id="dadoscarteira">
                         <div class="form-group col-md-5">
                             <label>CNH </label>
-                            <input type="text" placeholder="" class="form-control" data-mask="00000000000" id="PES_NumRegistroCNH" name="PES_NumRegistroCNH" ></div>
+                            <input type="text" placeholder="" class="form-control" data-mask="00000000000" id="PES_NumRegistroCNH" name="PES_NumRegistroCNH">
+                        </div>
                         <div class="form-group col-md-5">
                             <label>Validade CNH </label>
-                            <input type="text" placeholder="" data-mask="99/99/9999" class="form-control" id="PES_DT_Validade" name="PES_DT_Validade" >
+                            <input type="text" placeholder="" data-mask="99/99/9999" class="form-control" id="PES_DT_Validade" name="PES_DT_Validade">
                             <span class="error-cnh" style="color:chocolate;"></span>
                         </div>
                         <div class="form-group col-md-2">
                             <label>UF CNH</label>
-                            <input type="text" placeholder="" class="form-control input-mixed" id="PES_UFCNH" name="PES_UFCNH" maxlength="2" style="text-transform: uppercase;"></div>
+                            <input type="text" placeholder="" class="form-control input-mixed" id="PES_UFCNH" name="PES_UFCNH" maxlength="2" style="text-transform: uppercase;">
+                        </div>
                     </div>
+
+
                     <div class="row">
                         <div class="form-group col-md-6">
                             <label>Email <span style="color: red;">*</span></label>
-                            <input type="email" placeholder="" class="form-control" id="PES_Email" name="PES_Email"></div>
+                            <input type="email" placeholder="" class="form-control" id="PES_Email" name="PES_Email">
+                        </div>
                         <div class="form-group col-md-3">
                             <label>Celular <span style="color: red;">*</span></label>
-                            <input type="text" placeholder="" data-mask="(00)00000-0000" class="form-control" id="PES_Celular" name="PES_Celular" required minlength="14"></div>
+                            <input type="text" placeholder="" data-mask="(00)00000-0000" class="form-control" id="PES_Celular" name="PES_Celular" required minlength="14">
+                        </div>
                         <div class="form-group col-md-3">
-                            <label>Telefone</label><input type="text" placeholder="" data-mask="(00)0000-0000" class="form-control" id="PES_Telefone" name="PES_Telefone" minlength="13"></div>
-                    </div>
+                            <label>Telefone</label><input type="text" placeholder="" data-mask="(00)0000-0000" class="form-control" id="PES_Telefone" name="PES_Telefone" minlength="13">
+                        </div>
+                    </div>                        
+              
+                   
 
                     <hr />
                     <div class="row">
@@ -282,8 +291,40 @@
        
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
+
+  
+
     $(document).ready(function () {
-                
+
+
+        function verificarCPFCNPJ(cpf) {
+           
+            var valor = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
+        
+            if (valor.length === 11) {           
+                $("#dadoscarteira").show();
+            } else {
+                $("#dadoscarteira").hide();
+            }
+        }
+     
+
+        var $campo = $("#Age_Doc_Solicitante");
+
+        $campo.on("input", function () {
+            var valor = $campo.val().replace(/\D/g, ""); // Remove tudo que não for número
+
+            // Aplica a máscara sem bagunçar os números
+            if (valor.length <= 11) {
+                valor = valor.padEnd(11, '_'); // Evita troca de números
+                valor = valor.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+            } else {
+                valor = valor.padEnd(14, '_'); // Evita troca de números
+                valor = valor.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
+            }
+
+            $campo.val(valor.replace(/_/g, '')); // Remove os placeholders (_) antes de exibir
+        });
 
         setTimeout(function () {
             $("#Age_Doc_Solicitante").focus();
@@ -309,7 +350,7 @@
         //Botão de abertura do protocolo  
         $('#btnIniciarAbertura').click(function () {
         
-            inicializarValidacaoFormulario("#form");
+           ValidacaoFormPessoa("#form");
       
             // Verifica se o formulário é válido antes de prosseguir
             if ($("#form").valid()) {
@@ -317,7 +358,9 @@
                 // Se o formulário for válido, você pode prosseguir com a lógica para enviar os dados via AJAX
                 var cpf = $('#Age_Doc_Solicitante').val();
                 
-                cpf = cpf.replace(/\D/g, '');//tirando os caracteres!!
+                cpf = cpf.replace(/\D/g, '');
+
+                verificarCPFCNPJ(cpf);
 
                 Notiflix.Loading.Standard('Aguarde...');
                 $.ajax({
@@ -329,17 +372,17 @@
                         Notiflix.Loading.Remove();
 
                         if (response.error == true) { 
-                            console.log('passou aqui 1 ');
+                     
                             window.location.href = '@Url.Action("InternalServerError", "Home")'
                         }               
                         
                         if (response.retorno == 'BadRequest') {
-                            console.log('passou aqui 2 ');
+ 
                             Notiflix.Notify.Failure(response.message);
                         }
 
                         if (response.retorno == 'SemDados') {
-
+                       
                             $('#Modal2').modal('show');
                  
                             $('#Modal2').on('shown.bs.modal', function () {
@@ -394,7 +437,7 @@
                             $("#PRT_ASSUNTO").val(response.servico);
                             $("#PRT_AIT").val(response.ait);
                             $("#PRT_CPF").val(response.cpf);
-                            $("#mensagem").html("<i class='fa fa-twitch'></i> O CPF <strong>" + response.cpf + "</strong> que realizou o agendamento não corresponde ao <strong> proprietário </strong> do veículo. Você confirma que este CPF pertence ao <strong>Portador</strong> ou <strong>Condutor</strong> do veículo?");
+                            $("#mensagem").html("<i class='fa fa-twitch'></i> O CPF/CNPJ <strong>" + response.cpf + "</strong> que realizou o agendamento não corresponde ao <strong> proprietário </strong> do veículo. Você confirma que este CPF pertence ao <strong>Portador</strong> ou <strong>Condutor</strong> do veículo?");
                             $("#btnNegarCondutor").show();
                             $("#btnConfimarCondutor").show();
                             $("#btnConfimarProprietario").hide();
@@ -404,7 +447,7 @@
                             $("#PRT_ASSUNTO").val(response.servico);
                             $("#PRT_AIT").val(response.ait);
                             $("#PRT_CPF").val(response.cpf);
-                            $("#mensagem").html("<i class='fa fa-twitch'> </i> Consta em nosso sistema que o CPF <strong>" + response.cpf + "</strong> que realizou o agendamento corresponde ao <strong> proprietário </strong> do veículo.");
+                            $("#mensagem").html("<i class='fa fa-twitch'> </i> Consta em nosso sistema que o CPF/CNPJ <strong>" + response.cpf + "</strong> que realizou o agendamento corresponde ao <strong> proprietário </strong> do veículo.");
                             $("#btnNegarCondutor").hide();
                             $("#btnConfimarCondutor").hide();
                             $("#btnConfimarProprietario").show();
@@ -412,7 +455,7 @@
                             $("#btnConfimarProprietario").focus();
                         } //add o if do AIT inexistente
                         else if (response.retorno == 'SemAgendamento') { //  CPF
-                            console.log('passou aqui 3 ');
+          
                             window.location.href = '@Url.Action("AberturaAtendimento", "Atendimento")' + '?cpf=' + cpf;
                         
                         }

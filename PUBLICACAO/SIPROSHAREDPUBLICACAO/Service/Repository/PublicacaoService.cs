@@ -83,29 +83,28 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
                         from SetorSubXUsuario  
                         where SETSUBUSU_USUARIO =  @Usuario AND SETSUBUSU_PERFIL = 'Presidente' 
  
-                        select     distinct a.PRT_NUMERO
-                                   into #Publicar   
-                                   from Protocolo as a   
-                                   join Movimentacao_Processo as b on (a.PRT_NUMERO = b.MOVPRO_PRT_NUMERO)  
-                                   join SetorSub as c on (c.SETSUB_ID = b.MOVPRO_SETOR_DESTINO)  
-                                   join SetorsubxUsuario  as g on (g.SETSUBUSU_SETSUB_ID = c.SETSUB_ID)             
-                             where b.MOVPRO_SETOR_DESTINO = @SetorUsuario
-                               and PRT_ACAO = 'PUBLICAR'
+                        Select distinct a.PRT_NUMERO
+                          into #Publicar   
+                          from Protocolo as a   
+                               join Movimentacao_Processo as b on (a.PRT_NUMERO = b.MOVPRO_PRT_NUMERO)  
+                               join SetorSub as c on (c.SETSUB_ID = b.MOVPRO_SETOR_DESTINO)  
+                               join SetorsubxUsuario  as g on (g.SETSUBUSU_SETSUB_ID = c.SETSUB_ID)             
+                         where b.MOVPRO_SETOR_DESTINO = @SetorUsuario
+                           and PRT_ACAO = 'PUBLICAR'
   
 
-                        declare @NLoteGerado varchar(20)  
-                        exec Stb_GerarLote @NLoteGerado out  
+                                declare @NLoteGerado varchar(20)  
+                                exec Stb_GerarLote @NLoteGerado out   
   
   
+                                update protocolo  
+                                   set PRT_LOTE = @NLoteGerado,  
+                                       PRT_DT_LOTE = GETDATE(),  
+                                       PRT_ACAO = 'LOTE GERADO'
+                                  from #Publicar  
+                                 where protocolo.PRT_NUMERO = #Publicar.PRT_NUMERO  
   
-                        update protocolo  
-                           set PRT_LOTE = @NLoteGerado,  
-                               PRT_DT_LOTE = GETDATE(),  
-                               PRT_ACAO = 'LOTE GERADO'
-                          from #Publicar  
-                         where protocolo.PRT_NUMERO = #Publicar.PRT_NUMERO  
-  
-                        drop table #Publicar  
+                                drop table #Publicar  
 
 
             ";
@@ -238,11 +237,11 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
                 var dbParametro = new DynamicParameters();
                 dbParametro.Add("@prt_lote", lote);
 
-                string query = @" 	 UPDATE Protocolo  
-                                 SET PRT_ACAO = 'PUBLICAR',  
-                                     PRT_LOTE = '',
-		                             PRT_DT_LOTE = NULL
-                              WHERE  PRT_NUMERO = @lote";
+                string query = @"UPDATE Protocolo  
+                                    SET PRT_ACAO = 'PUBLICAR',  
+                                        PRT_LOTE = '',
+		                                PRT_DT_LOTE = NULL
+                                  WHERE Replace(PRT_LOTE,'/','') = @prt_lote";
 
                 using (var con = _context.CreateConnection())
                 {

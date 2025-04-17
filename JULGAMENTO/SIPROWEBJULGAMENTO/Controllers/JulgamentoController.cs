@@ -7,6 +7,7 @@ using SIPROSHAREDJULGAMENTO.Models;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 
@@ -49,7 +50,7 @@ namespace SIPROWEBJULGAMENTO.Controllers
         {
             try
             {
-                ViewBag.Protocolo = new List<ProtocoloModel>();
+                ViewBag.Protocolo = new List<ProtocoloJulgamento_Model>();
 
                 string apiUrl = $"{_baseApiUrl}julgamento/localizar-processoall/{userMatrix}/{"Todos"}";
                 var response = await _httpClient.GetAsync(apiUrl);
@@ -60,7 +61,7 @@ namespace SIPROWEBJULGAMENTO.Controllers
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var protocolos = await response.Content.ReadFromJsonAsync<List<ProtocoloModel>>();
+                    var protocolos = await response.Content.ReadFromJsonAsync<List<ProtocoloJulgamento_Model>>();
                     ViewBag.Protocolo = protocolos;
                 }
 
@@ -158,15 +159,21 @@ namespace SIPROWEBJULGAMENTO.Controllers
             {
                 var Protocolo = await response.Content.ReadFromJsonAsync<ProtocoloJulgamento_Model>();
 
+
+
                 ViewBag.Notificacao = await BuscarNotificacao(vlobusca);
                 ViewBag.Condutor = await BuscarCondutor(vlobusca);
                 ViewBag.Setor = await BuscarSetor();
                 ViewBag.Membro = await BuscarMembro();
                 ViewBag.MotivoVoto = await BuscarMotivoVoto();
+
                 ViewBag.ParecerRelator = await BuscarParecerRelator(Protocolo.DIS_ID);
+
                 ViewBag.Votacao = await BuscarVotacao(Protocolo.DIS_ID);
                 ViewBag.instrucao = await BuscarInstrucao(Protocolo.PRT_NUMERO);
                 ViewBag.Anexos = await BuscarAnexoBanco(Protocolo.PRT_NUMERO);
+
+
 
                 return View(Protocolo);
             }
@@ -195,6 +202,7 @@ namespace SIPROWEBJULGAMENTO.Controllers
                 ViewBag.Membro = await BuscarMembro();
                 ViewBag.MotivoVoto = await BuscarMotivoVoto();
                 ViewBag.ParecerRelator = await BuscarParecerRelator(Protocolo.DIS_ID);
+
                 ViewBag.Votacao = await BuscarVotacao(Protocolo.DIS_ID);
                 ViewBag.instrucao = await BuscarInstrucao(Protocolo.PRT_NUMERO);
                 ViewBag.Anexos = await BuscarAnexoBanco( Protocolo.PRT_NUMERO);
@@ -496,7 +504,7 @@ namespace SIPROWEBJULGAMENTO.Controllers
         }
 
 
-       [HttpGet]
+        [HttpGet]
         public async Task<List<AnexoModel>> BuscarAnexoBanco(string prt_numero)
         {
             //buscando os documentos necessários
@@ -527,7 +535,7 @@ namespace SIPROWEBJULGAMENTO.Controllers
             return PartialView("_AnexoJulgamento");
         }
 
-       public async Task<List<InstrucaoProcessoModel>> BuscarInstrucao(string? vlobusca)
+        public async Task<List<InstrucaoProcessoModel>> BuscarInstrucao(string? vlobusca)
         {
 
             vlobusca = vlobusca.Replace("/", "");

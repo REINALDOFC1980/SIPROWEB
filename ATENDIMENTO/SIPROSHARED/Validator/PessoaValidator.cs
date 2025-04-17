@@ -16,8 +16,9 @@ namespace SIPROSHARED.Validator
 
             RuleFor(user => user.pes_CPF)
                 .NotEmpty().WithMessage("O CPF é obrigatório.")
-                .Length(11).WithMessage("O CPF deve ter exatamente 11 caracteres.")
-                .Matches("^[0-9]{11}$").WithMessage("O CPF deve conter apenas números.");
+                .MinimumLength(11).WithMessage("O CPF/CNPJ deve ter pelo menos 11 caracteres.")
+                .MaximumLength(14).WithMessage("O CPF/CNPJ deve ter no máximo 14 caracteres.");
+              //.Matches("^[0-9]{14}$").WithMessage("O CPF/CNPJ deve conter apenas números.");
 
             RuleFor(user => user.pes_Nome)
                 .NotEmpty().WithMessage("O Nome é obrigatório.")
@@ -87,7 +88,7 @@ namespace SIPROSHARED.Validator
 
             RuleFor(user => user.pes_Telefone)
                 .Matches(@"^\(?\d{2}\)?\s?\d{4}-\d{4}$")
-                .WithMessage("O número de celular informado não é válido.");
+                .WithMessage("O número de telefone informado não é válido.");
 
             //RuleFor(user => user.pes_Pais)
             //    .NotEmpty().WithMessage("O País é obrigatório.");

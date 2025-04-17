@@ -46,26 +46,45 @@
     </li>
 
 
+    @if (!string.IsNullOrEmpty(Model?.PRT_DT_PUBLICACAO))
+    {
+        <li class="list-group-item">
 
-    <li class="list-group-item">
+            <h2>  Dados do julgamento: </h2>
+            <span class="float-right">
+                <strong> @Model?.PRT_RESULTADO </strong>
+            </span>
+            Resultado do julgamento:
+        </li>
+        <li class="list-group-item">
+            <span class="float-right"><strong>@Model?.PRT_DT_JULGAMENTO </strong></span>
+            Data do resultado:
+        </li>
+        <li class="list-group-item">
+            <span class="float-right"><strong> @Model?.PRT_LOTE </strong></span>
+            Lote:
+        </li>
+        <li class="list-group-item">
+            <span class="float-right"><strong>   @Model?.PRT_DT_PUBLICACAO </strong></span>
+            Dados da Publicação:
+        </li>
 
-        <h2>  Dados do julgamento </h2>
-        <span class="float-right">
-            <strong> @Model?.PRT_RESULTADO </strong></span>
-        Resultado do julgamento: 
-    </li>
-    <li class="list-group-item">
-        <span class="float-right"><strong>@Model?.PRT_DT_JULGAMENTO </strong></span>
-        Data do resultado: 
-    </li>
-    <li class="list-group-item">
-        <span class="float-right"><strong> @Model?.PRT_LOTE </strong></span>
-        Lote: 
-    </li>
-    <li class="list-group-item">
-        <span class="float-right"><strong>   @Model?.PRT_DT_PUBLICACAO </strong></span>
-        Dados da Publicação:
-    </li>
+    }else
+    {  
+        <li class="list-group-item">
+       
+            <h2>  Dados do julgamento: </h2>
+           <br />
+            <i class="fa fa-twitch"></i><strong>
+                <small>
+                    Até o momento não consta julgamento para esse processo.
+
+                </small>
+            </strong>
+        </li>
+    }
+
+    
 
 
 

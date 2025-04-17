@@ -223,7 +223,6 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
         }
 
-
         public async Task HomologarTodos(HomologacaoModel homologacaoModel, IDbConnection connection, IDbTransaction transaction)
         {
 
@@ -299,8 +298,6 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
 
         }
-
-
 
         public async Task<JulgamentoModel> BuscarParecer(string processo)
         {
@@ -422,7 +419,8 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
                         --Mudando o status dos processo distribuido
                           UPDATE PD
-                             SET DIS_DESTINO_STATUS = 'RECEBIDO'
+                             SET DIS_DESTINO_STATUS = 'RECEBIDO',
+			                     DIS_RETORNO_OBS = @MOVPRO_PARECER_ORIGEM
                             FROM Protocolo_Distribuicao PD INNER JOIN #Processo P ON (pd.DIS_MOV_ID = p.DIS_MOV_ID)
                      
 
@@ -459,8 +457,6 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
         }
 
 
-        /*
-         */
     }
 }
 

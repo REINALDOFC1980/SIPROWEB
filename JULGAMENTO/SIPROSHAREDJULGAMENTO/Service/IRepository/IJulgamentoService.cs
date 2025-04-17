@@ -45,5 +45,11 @@ namespace SIPROSHAREDJULGAMENTO.Service.IRepository
 
         Task<List<InstrucaoProcessoModel>> BuscarHistoricoInstrucao(string vlobusca);
 
+
+        /*Excluir Voto!*/
+
+        Task<List<JulgamentoProcessoModel>> LocalizarProcessosExcluirVoto(string usuario);
+
+
     }
 }

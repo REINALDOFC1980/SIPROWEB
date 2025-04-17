@@ -267,11 +267,29 @@ namespace SIPROAPIJULGAMENTO.Controllers
 
              if (processo == null)
              {
-                 return StatusCode(404, "Não existe instrução cadastrado.");
-             }
+                return NoContent();
+            }
 
              return Ok(processo);
             
+        }
+
+
+
+        [HttpGet]
+        [Route("buscar-processo-excluir/{usuario}")]
+        public async Task<IActionResult> LocalizarProcessosExcluirVoto(string usuario)
+        {
+
+            var processo = await _julgamento.LocalizarProcessosExcluirVoto(usuario);
+
+            if (processo == null)
+            {
+                return NoContent();
+            }
+
+            return Ok(processo);
+
         }
 
     }

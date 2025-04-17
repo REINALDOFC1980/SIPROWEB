@@ -112,7 +112,7 @@ namespace SIPROWEB.Controllers
 
                     DateTime defesaNaiDate = DateTime.Parse(apiAitModel.rec_TrocaInf_Dataapre);
                     protocoloModel.PRT_DT_ABERTURA = defesaNaiDate.ToString("dd/MM/yyyy");
-
+                    protocoloModel.PRT_CPF_CONDUTOR = apiAitModel.rec_TrocaInf_Numero;
                     protocoloModel.PRT_ATENDENTE = apiAitModel.rec_TrocaInf_Usuario;
                     protocoloModel.PRT_NOME_CONDUTOR = apiAitModel.rec_Trocainf_Nomecond;
                     protocoloModel.PRT_NUMREGISTRO_CNH = apiAitModel.rec_Trocainf_Registro;

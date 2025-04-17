@@ -24,7 +24,7 @@
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
 
                 <i class="fa fa-tags modal-icon"></i>
-                <h2 class="modal-title">Lote Gerado para Publicação </h2>
+                <h2 class="modal-title">Lote Gerado Para Publicação </h2>
                 <br />
                 <button type="button" class="btn btn-primary btn-xs text-center"><i class="fa fa-print"></i> Imprimir DOM </button>
 
@@ -98,14 +98,11 @@
 </div>
 
 
-
-
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
 
 
-<script type="module">
+<script>
 
     function validarCampos() {
         var valido = true;
@@ -173,10 +170,12 @@
 
     $(document).on('click', '.localizarlote', function (e) {
 
-
-        e.preventDefault();
+         e.preventDefault();
 
         var valor = $(this).data('id');
+
+
+
         $.ajax({
             url: '@Url.Action("Buscar_Lote", "Publicacao")',
             type: 'GET',
@@ -285,6 +284,7 @@
                     success: function (result) {
                         // Lógica a ser executada em caso de sucesso
                         if (result.error == true) {
+                            Notiflix.Loading.Remove();
                             Notiflix.Notify.Failure(result.message);
                             return false;
                         }

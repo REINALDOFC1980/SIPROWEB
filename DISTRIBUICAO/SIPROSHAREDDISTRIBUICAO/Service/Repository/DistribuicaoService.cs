@@ -334,7 +334,8 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
                               'RECEBIDO' AS DIS_DESTINO_STATUS,
                               0 AS DIS_NUMJULGADOS,
                               CASE WHEN PRT_ACAO = 'RETIFICAR VOTO' THEN 1 ELSE 0 END AS DIS_RETORNO,
-                              NULL DIS_DATA_JULGAMENTO
+                              NULL DIS_DATA_JULGAMENTO,
+                              '' as Retorno
                          from #temp_Distribuicao
 
 
@@ -354,7 +355,9 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
         
         public async Task DistribuicaoProcesso(ProtocoloDistribuicaoModel distribuicaoModel, IDbConnection connection, IDbTransaction transaction)
         {
-            
+            try
+            {
+
                 // Adicionando parâmetros
                 var dbParametro = new DynamicParameters();
                 dbParametro.Add("@UsuarioOrigem", distribuicaoModel.DIS_ORIGEM_USUARIO);
@@ -436,7 +439,8 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
                                   'RECEBIDO' AS DIS_DESTINO_STATUS,
                                   0 AS DIS_NUMJULGADOS,
                                   CASE WHEN PRT_ACAO = 'RETIFICAR VOTO' THEN 1 ELSE 0 END AS DIS_RETORNO,
-                                  NULL DIS_DATA_JULGAMENTO
+                                  NULL DIS_DATA_JULGAMENTO,
+                                  '' as Retorno
                              from #temp_Distribuicao
 	                         where MOVPRO_ID = @MOVPRO_ID
        
@@ -450,6 +454,13 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
                 ";
 
                 await connection.ExecuteAsync(query, dbParametro, transaction);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
                 
            
         }

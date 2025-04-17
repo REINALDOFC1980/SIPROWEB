@@ -94,7 +94,32 @@
                             <div class="panel-body">
                                 <div class="client-detail" >
                                     <div class="full-height-scroll">
-                                        <h2>Parecer do Relator</h2>
+                   
+                                      @*   <div class="ibox-title">
+                                            <h2>Parecer do Relator</h2>
+                                            <div class="ibox-tools">
+                                                <span class="label label-warning-light float-right"><h3>10 Messages</h3></span>
+                                            </div>
+                                        </div> *@
+
+                                 
+                                            <span class="float-right text-right">
+                                                <small><strong>Decisão do Relator</strong></small>
+
+                                                    <h2>
+                                                        <span class="label label-success float-right">
+                                                        @{
+                                                            if (ViewBag.ParecerRelator != null)
+                                                            {
+                                                                @ViewBag.ParecerRelator.Disjug_Resultado
+                                                            }
+                                                        }
+
+                                                        </span>
+                                                    </h2>
+                                            </span>
+                                            <h2>Parecer do Relator</h2>
+                                        <br />
 
                                         <hr />
                                    
@@ -152,33 +177,12 @@
                                                 </div>
 
                                             </div>
-                               
-
-                                            <!-- 🔹 Contêiner dos botões -->
-                                           @*  <div class="mt-auto d-flex justify-content-between">
-                                                <button type="button" class="btn btn-sm btn-primary text-white shadow-sm"
-                                                        style="border: 2px ; width: 150px;"
-                                                        onclick="RealizarJulgamento('D')">
-                                                    Deferido
-                                                </button>
-
-                                                <button type="button" class="btn btn-sm btn-danger text-white shadow-sm"
-                                                        style="width: 150px;"
-                                                        onclick="RealizarJulgamento('I')">
-                                                    Indeferido
-                                                </button>
-                                            </div>
- *@
-
 
                                         </form>
 
                                     </div>
 
                                 </div>
-
-                              
-
 
                             </div>
                         </div>
@@ -231,9 +235,8 @@
                                                             UF
                                                         </li>
                                                     </ul>
-                                                   @*  <hr>
-                                                    <h4>Observação do Agente infrator</h4>
-                                                    <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" value="@ViewBag.Condutor?.rec_TrocaInf_Infracao" rows="2" class="form-control"></textarea> *@
+                                                    <br />
+                                                    <small><i class="fa fa-twitch"></i> Caso não haja informações sobre o condutor, os dados do mesmo não serão exibidos.</small>
                                                 </div>
                                             </div>
                                             <div class="col-lg-4">
@@ -328,8 +331,8 @@
                             <br />                           
                             <br />
                             <br />
-                            <h2><i class="fa fa-exclamation"></i> Observação do SETAP</h2>
-                            <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" rows="12" cols="45" class="form-control" readonly>@Model?.PRT_OBSERVACAO</textarea>
+                            <h2><i class="fa fa-exclamation"></i> Obs.da Homologação</h2>
+                            <textarea id="PRT_OBSERVACAO1" name="PRT_OBSERVACAO1" rows="12" cols="45" class="form-control" readonly>@Model?.DIS_RETORNO_OBS</textarea>
 
                             <br />
 
@@ -360,7 +363,7 @@
 
     $(document).ready(function () {        
         $('#summernote').summernote({
-            height: 290,
+            height: 250,
             toolbar: [
                 ['view', ['fullscreen']] // Mantém apenas o botão de tela cheia
             ],
@@ -369,7 +372,12 @@
      
         
         var motivoVotoSelecionado = '@(ViewBag.ParecerRelator != null ? Html.Raw(ViewBag.ParecerRelator.Disjug_Parecer_Relatorio) : "")';
+        
+        var Resultado = '@(ViewBag.Disjug_Resultado != null ? Html.Raw(ViewBag.ParecerRelator.Disjug_Resultado) : "")';
      
+
+
+
         $('#summernote').summernote('code', motivoVotoSelecionado);
         // Desativa a edição, mas mantém os botões ativos
          setTimeout(function() {

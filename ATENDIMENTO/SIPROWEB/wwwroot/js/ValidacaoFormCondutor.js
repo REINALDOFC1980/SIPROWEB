@@ -8,7 +8,7 @@ function inicializarValidacaoFormulario(selector) {
             rules: {
                 cpf: {
                     required: true,
-                    minlength: 14, // Ajuste aqui para 11 caracteres sem contar os separadores de ponto e traço
+                    minlength: 11, // Ajuste aqui para 11 caracteres sem contar os separadores de ponto e traço
                     validarCPF: true // Usando a regra de validação de CPF personalizada
                 },
                 Rec_CNH_Condutor: {
@@ -51,7 +51,7 @@ function inicializarValidacaoFormulario(selector) {
                 cpf: {
                     required: "Por favor, insira o CPF.",
                     minlength: "Por favor, insira um CPF válido.",
-                    validarCPF: "CPF inválido"
+                    validarCPF: "CPF digitado é inválido"
                 },
                 Rec_CNH_Condutor: {
                     required: "Por favor, insira a CNH.",
@@ -87,9 +87,10 @@ function inicializarValidacaoFormulario(selector) {
         });
 
         // método de validação de CPF
-        $.validator.addMethod("validarCPF", function (value, element) {
+    $.validator.addMethod("validarCPF", function (value, element) {
+            console.log(value);
             return validarCPF(value); // Chama a função validarCPF
-        }, "Por favor, insira um CPF válido.");
+        }, "Por favor, insira um CPF válido!");
 
         // Adicionando uma nova regra de validação personalizada para verificar a data de vencimento
         $.validator.addMethod("verificaDataVencimento", function (value, element) {

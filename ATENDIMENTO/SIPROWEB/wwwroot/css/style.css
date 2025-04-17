@@ -1923,7 +1923,7 @@ button.dim:active:before {
   color: #5e5e5e;
   font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 600;
-  padding: 3px 8px;
+  padding: 5px 8px;
   text-shadow: none;
   border-radius: 0.25em;
   line-height: 1;

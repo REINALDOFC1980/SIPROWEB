@@ -2,10 +2,14 @@
     $(selector).validate({
         lang: 'pt_BR',
         rules: {
-            cpf: {
+            //cpf: {
+            //    required: true,
+            //    //minlength: 17, // Ajuste aqui para 11 caracteres sem contar os separadores de ponto e traço
+            //    validarCPF: true // Usando a regra de validação de CPF personalizada
+            //},
+            cpf_cnpj: {
                 required: true,
-                minlength: 14, // Ajuste aqui para 11 caracteres sem contar os separadores de ponto e traço
-                validarCPF: true // Usando a regra de validação de CPF personalizada
+                validarCPFCNPJ: true
             },
             Rec_CNH_Condutor: {
                 /*  required: true,*/
@@ -42,10 +46,9 @@
 
         },
         messages: {
-            cpf: {
-                required: "Por favor, insira o CPF.",
-                minlength: "Por favor, insira um CPF válido.",
-                validarCPF: "CPF inválido"
+            cpf_cnpj: {
+                required: "Por favor, insira um CPF ou CNPJ.",
+                validarCPFCNPJ: "CPF ou CNPJ inválido!"
             },
             Rec_CNH_Condutor: {
                 required: "Por favor, insira a CNH.",
@@ -73,23 +76,34 @@
                 required: "Por favor, insira seu e-mail.",
                 email: "Por favor, insira um e-mail válido."
             },
-            Age_Cod_Assunto: { // Mensagem de erro para o campo select
+            Age_Cod_Assunto: {
                 required: "Por favor, selecione uma opção."
             }
         },
 
     });
 
-    // método de validação de CPF
-    $.validator.addMethod("validarCPF", function (value, element) {
-        return validarCPF(value); // Chama a função validarCPF
-    }, "Por favor, insira um CPF válido.");
+    //validanado o CPF e CNPJ
+    $.validator.addMethod("validarCPFCNPJ", function (value, element) {
+
+        var numero = value.replace(/\D/g, ""); 
+
+        if (numero.length === 11) {
+            return validarCPF(numero); 
+        }
+        else if (numero.length === 14) {
+            return validarCNPJ(numero); 
+        }
+
+        return false;
+    }, "Por favor, insira um CPF ou CNPJ válido.");
+
 
     // Adicionando uma nova regra de validação personalizada para verificar a data de vencimento
-    $.validator.addMethod("verificaDataVencimento", function (value, element) {
-        // Use a função verificarDataVencimento para verificar se a data de vencimento é válida
+    $.validator.addMethod("verificaDataVencimento", function (value, element) {       
         return !verificarDataVencimento(value);
     }, "CNH fora do prazo!");
+
 
     // Adicionando a regra de validação de data personalizada
     $.validator.addMethod("validDate", function (value, element) {
