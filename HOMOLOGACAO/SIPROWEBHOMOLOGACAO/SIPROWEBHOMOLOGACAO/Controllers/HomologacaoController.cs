@@ -147,8 +147,6 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
            
         }
 
-
-
         [HttpGet]
         public async Task<PartialViewResult> BuscarParecer(string prt_numero)
         {
@@ -281,8 +279,6 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
 
         }
 
-
-        //buscando os documentos necessários
         [HttpPost]
         public async Task<IActionResult> HomologarTodos(int setor, string resultado)
         {
@@ -302,14 +298,11 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
 
         }
 
-
         [HttpPost]
         public async Task<IActionResult> RetificarVoto(RetificacaoModel retificacaoModel)
         {
             var prtnumero = retificacaoModel.MOVPRO_PRT_NUMERO.Replace("/", "");
             HomologacaoModel homologacaoModel = await BuscarPrtHomologar(prtnumero); 
-
-
 
             if (homologacaoModel != null)
             {
@@ -331,7 +324,6 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
                 ViewBag.Protocolo = await BuscarListaProtocolo(homologacaoModel.SETSUB_ID, "Todos");
 
             return PartialView("_ListaHomologacao");
-
 
         }
 

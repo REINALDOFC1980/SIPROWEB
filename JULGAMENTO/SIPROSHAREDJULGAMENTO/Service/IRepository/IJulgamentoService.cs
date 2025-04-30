@@ -48,7 +48,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.IRepository
 
         /*Excluir Voto!*/
 
-        Task<List<JulgamentoProcessoModel>> LocalizarProcessosExcluirVoto(string usuario);
+        Task<List<ExcluirModel>> LocalizarProcessosExcluirVoto(string usuario, string situacao, string processo);
 
 
     }

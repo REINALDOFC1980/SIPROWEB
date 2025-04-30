@@ -836,26 +836,48 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
 
         /*Excluir Voto*/
-        public async Task<List<JulgamentoProcessoModel>> LocalizarProcessosExcluirVoto(string usuario)
+        public async Task<List<ExcluirModel>> LocalizarProcessosExcluirVoto(string usuario, string situacao, string processo)
         {
-            var query = @"
-							 select MOVPRO_PRT_NUMERO,  
-		                            DIS_DESTINO_USUARIO as Julgador
-                               from Protocolo_distribuicao as a   
-                               join Movimentacao_Processo as b on (a.DIS_MOV_ID = b.MOVPRO_ID)  
-                               join Protocolo as c on (c.PRT_NUMERO  = b.MOVPRO_PRT_NUMERO)       
-                           -- where PRT_ACAO IN('JULGADO','HOLOMOGAR','PUBLICAR')
-                           order by MOVPRO_PRT_NUMERO
 
+            try
+            {
+                var query = @"
+							 
+	                 Declare @Setor int
+
+					 Set @Setor = (Select top 1 
+                                            SETSUBUSU_SETSUB_ID 
+			  		                                from SetorSubXUsuario 
+								                            where SETSUBUSU_USUARIO = @usuario)
+
+                                      Select MOVPRO_PRT_NUMERO as PrtNumero,  
+                                             DIS_DESTINO_USUARIO as PrtRelator,
+			                                 ASS_NOME  as PrtAssunto
+                                    from Protocolo_distribuicao as a   
+                                    join Movimentacao_Processo as b on (a.DIS_MOV_ID = b.MOVPRO_ID)  
+                                    join Protocolo as c on (c.PRT_NUMERO  = b.MOVPRO_PRT_NUMERO)     
+		                            join Assunto as d on (d.ASS_ID = PRT_ASSUNTO)
+                                    Where PRT_ACAO like case when @situacao = 'TODOS' then '%' else @situacao end and 
+                                            REPLACE(MOVPRO_PRT_NUMERO,'/','') like case when @processo = 'TODOS' then '%' else @processo end and  
+                                            MOVPRO_SETOR_ORIGEM = @Setor  
+                                order by MOVPRO_PRT_NUMERO 
 							";
 
-            using (var connection = _context.CreateConnection())
-            {
-                var parametros = new { usuario };
-                var processos = await connection.QueryAsync<JulgamentoProcessoModel>(query, parametros);
+                using (var connection = _context.CreateConnection())
+                {
+                    var parametros = new { usuario, situacao, processo };
+                    var processos = await connection.QueryAsync<ExcluirModel>(query, parametros);
 
-                return processos.ToList();
+                    return processos.ToList();
+                }
             }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
+          
 
         }
     }

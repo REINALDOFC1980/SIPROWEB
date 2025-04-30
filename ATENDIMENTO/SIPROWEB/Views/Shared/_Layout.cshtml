@@ -60,23 +60,21 @@
                 @{
                     var roles = Context.Items["UserRoles"] as string;
 
-                    var atendimento = new[] { "ATENDIMENTO_1", "ADM", "ATENDIMENTO_ADM" };
+                    var atendimento = new[] { "ATENDIMENTO_1", "ADM", "ATENDIMENTO_ADM"  };
                     if (atendimento.Contains(roles))
                     {
                         <li>
                             <a href="~/Home/Index"><i class="fa fa-plus"></i> <span class="nav-label">Novo Atendimento</span></a>
                         </li>
-                        <li>
-                            <a href="~/Atendimento/LocalizarProtocolo"><i class="fa fa-list-ul"></i> <span class="nav-label">Consultar Protocolo</span></a>
-                        </li>
+                           
                         <li>
                             <a href="~/AIT/LocalizarAIT"><i class="fa fa-paste"></i> <span class="nav-label">Histórico AIT</span></a>
                         </li>
-                        <li>
-                            <a href="~/Pessoa/Pessoa"><i class="fa fa-user"></i> <span class="nav-label">Localizar Pessoa</span></a>
-                        </li>
+                     
                     }
-         
+
+                  
+
                    
                     var julgamento = new[] { "JULGAMENTO_1", "JULGAMENTO_ADM", "ADM" };
                     if (julgamento.Contains(roles))
@@ -90,7 +88,6 @@
                                         {
                                             <li> <a asp-controller="Distribuicao" asp-action="Distribuicao"> <i class="fa fa-exchange"></i> <span class="nav-label">Distribuir Processo</span></a></li>
                                         }
-
                                    }                                  
                                     
                                     <li> <a asp-controller="Julgamento" asp-action="Julgamento"> <i class="fa fa-legal"></i> <span class="nav-label">julgar Processo</span></a></li>
@@ -103,7 +100,6 @@
                                             <li> <a asp-controller="excluirvoto" asp-action="excluirvoto"> <i class="fa fa-times-rectangle-o"></i><span class="nav-label">Excluir Voto</span></a></li>
                                             <li> <a asp-controller="Julgamento" asp-action="Retificacao"> <i class="fa fa-clipboard"></i><span class="nav-label">Retificar Processo</span></a></li>
                                         }
-
                                     }
                              
                                 <li>
@@ -160,14 +156,31 @@
 
                
                     var publicar = new[] { "JULGAMENTO_ADM", "ADM" };
-                        if (publicar.Contains(roles))
+                    if (publicar.Contains(roles))
                     {
-                        <li>
-                                <a asp-controller="Publicacao" asp-action="Publicacao"><i class="fa fa-cloud-upload"></i> <span class="nav-label">Publicação</span></a>
+                    <li>
+                            <a asp-controller="Publicacao" asp-action="Publicacao"><i class="fa fa-cloud-upload"></i> <span class="nav-label">Publicação</span></a>
                         </li>
                     }
 
-                }
+                    var consultarProtocolo = new[] { "ATENDIMENTO_1", "ADM", "ATENDIMENTO_ADM", "JULGAMENTO_1", "JULGAMENTO_ADM" };
+                    if (consultarProtocolo.Contains(roles))
+                    {
+                        <li>
+                            <a href="~/Atendimento/LocalizarProtocolo"><i class="fa fa-list-ul"></i> <span class="nav-label">Consultar Protocolo</span></a>
+                        </li>
+                    }
+
+                    var pessoa = new[] { "ATENDIMENTO_1", "ADM", "ATENDIMENTO_ADM" };
+                    if (pessoa.Contains(roles))
+                    {
+
+                        <li>
+                            <a href="~/Pessoa/Pessoa"><i class="fa fa-user"></i> <span class="nav-label">Localizar Pessoa</span></a>
+                        </li>
+                    }
+
+                    }
                 </ul>          
 
             </div>

@@ -36,7 +36,6 @@ namespace SIPROWEBJULGAMENTO.Controllers
             base.OnActionExecuting(context);
         }
 
-
         private async Task<JsonResult> HandleErrorResponse(HttpResponseMessage response)
         {
             var errorResponse = await response.Content.ReadAsStringAsync();
@@ -94,7 +93,6 @@ namespace SIPROWEBJULGAMENTO.Controllers
            
             return View();
         }
-
 
         public async Task<IActionResult> Retificacao()
         {
@@ -159,8 +157,6 @@ namespace SIPROWEBJULGAMENTO.Controllers
             {
                 var Protocolo = await response.Content.ReadFromJsonAsync<ProtocoloJulgamento_Model>();
 
-
-
                 ViewBag.Notificacao = await BuscarNotificacao(vlobusca);
                 ViewBag.Condutor = await BuscarCondutor(vlobusca);
                 ViewBag.Setor = await BuscarSetor();
@@ -172,8 +168,6 @@ namespace SIPROWEBJULGAMENTO.Controllers
                 ViewBag.Votacao = await BuscarVotacao(Protocolo.DIS_ID);
                 ViewBag.instrucao = await BuscarInstrucao(Protocolo.PRT_NUMERO);
                 ViewBag.Anexos = await BuscarAnexoBanco(Protocolo.PRT_NUMERO);
-
-
 
                 return View(Protocolo);
             }
@@ -373,8 +367,7 @@ namespace SIPROWEBJULGAMENTO.Controllers
 
             }
             
-                return Json(new { erro = false, retorno = "Operação realizada com sucesso!" });
-           
+                return Json(new { erro = false, retorno = "Operação realizada com sucesso!" });          
 
         }
 

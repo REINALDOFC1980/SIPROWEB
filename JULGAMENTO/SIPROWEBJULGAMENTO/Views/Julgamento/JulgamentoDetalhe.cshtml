@@ -9,7 +9,7 @@
         <h2>Julgamento de Processo</h2>
     </div>
 </div>
-<div class="wrapper wrapper-content  animated fadeInRight">
+
    
     <div class="row">
 
@@ -35,30 +35,35 @@
                                     </li>
                                     <li class="list-group-item">
                                         <span class="float-right"><strong> @Model?.PRT_NOME_ASSUNTO</strong></span>
-                                        Serviço:
+                                        Serviço solcitado:
                                     </li>
                                     <li class="list-group-item">
                                         <span class="float-right"><strong> @Model?.PRT_RESTRICAO_NOME</strong></span>
-                                       Restrição:
+                                       Restrição do AIT:
                                     </li>
                                     <li class="list-group-item">
                                         <span class="float-right"><strong>@Model?.PRT_DT_ABERTURA </strong></span>
-                                        Data da Abertura: 
+                                        Data da Abertura do Protocolo: 
                                     </li>
                                     <li class="list-group-item">
                                         <span class="float-right"><strong> @Model?.PRT_DT_POSTAGEM</strong></span>
-                                        Data da Postagem: 
+                                        Data da Postagem do Protocolo: 
                                     </li>
                                     <li class="list-group-item">
-                                        <p><small><strong>Dados do Proprietário</strong></small></p>
+                                        <span class="float-right"> <strong>@Model?.PRT_OBSERVACAO</strong></span>
+                                        Obs. Atendimento:
+                                    </li>
+
+                                    <li class="list-group-item">
+                              
                                         <span class="float-right"> <strong>@Model?.PRT_CPFCNJ_PROPRIETARIO</strong></span>
-                                        CPF/CNPJ: 
+                                        CPF/CNPJ Proprietário: 
                                     </li>
                                     <li class="list-group-item">
                                         <span class="float-right"> <strong>@Model?.PRT_NOMEPROPRIETARIO</strong></span>
-                                        proprietário:
+                                        Nome do Proprietário:
                                     </li>
-
+                                  
                                    @*Buscar via API de Miro*@
                                     <div id="Div_Notificacao">
                                         @await Html.PartialAsync("_DadosNotificacao")
@@ -85,7 +90,7 @@
                     <ul class="nav nav-tabs">
                         <li><a class="nav-link active" data-toggle="tab" href="#tab-0"><i class="fa fa-legal"></i>Parecer</a></li>
                         <li><a class="nav-link" data-toggle="tab" href="#tab-1"><i class="fa fa-drivers-license-o"></i>Condutor</a></li>
-                        <li><a class="nav-link" data-toggle="tab" href="#tab-4"><i class="fa fa-mail-forward"></i>Encaminhar</a></li>
+                        <li><a class="nav-link" data-toggle="tab" href="#tab-4"><i class="fa fa-mail-forward"></i>Encaminhar Processo</a></li>
                         <li><a class="nav-link" data-toggle="tab" href="#tab-5"><i class="fa fa-paperclip"></i>Anexos</a></li>
                       
                     </ul>
@@ -300,7 +305,7 @@
 
                                         <div class="row">
                                             <div class="col-sm-12 b-r">
-                                                <h3 class="m-t-none m-b"> Destino desejado</h3>
+                                                <h3 class="m-t-none m-b"> Destino</h3>
                                                 
                                                 <form role="form" id="form_instrucao">
                                                     <input type="hidden" id="INSPRO_Dis_id" name="INSPRO_Dis_id" value="@Model?.DIS_ID">
@@ -320,7 +325,7 @@
 
                                                  
                                                  
-                                                    <h3 class="m-t-none m-b">Instrução</h3>
+                                                    <h3 class="m-t-none m-b">Parecer</h3>
 
                                                     <textarea id="INSPRO_Parecer" name="INSPRO_Parecer" rows="5" class="form-control" required> </textarea>
                                                     <p><small>  <i class="fa fa-twitch"></i> Por favor, digite a instrução para o setor responsável de forma clara e objetiva, detalhando seu pedido. </small></p>
@@ -332,7 +337,7 @@
                                                     </div>
                                                     <br />
                                                  <br />
-                                                    <h4> <i class="fa fa-history"></i> Historico de Instrução</h4>
+                                                    <h4> <i class="fa fa-history"></i> Historico de Processos Encaminhados</h4>
                                                     <div class="ibox-content">
                                                         <div class="feed-activity-list">
 
@@ -458,7 +463,7 @@
     
     </div>
    
-</div>
+
 
 <script src="~/js/jquery-3.1.1.min.js"></script>
 <script src="~/js/jquery.min.js"></script>

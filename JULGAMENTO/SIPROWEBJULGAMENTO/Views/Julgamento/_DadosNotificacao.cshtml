@@ -2,7 +2,7 @@
 {
 
      <li class="list-group-item">
-        <p><small><strong>Dados da Notificação da Autuação</strong></small></p>
+@*         <p><h6><strong>Dados da Notificação da Autuação</strong></h6></p> *@
         <span class="float-right label label-success m-b-n-xxs"><strong class="h6">@ViewBag.Notificacao.rec_ait_numero</strong></span>
         NA: 
     </li>
@@ -20,8 +20,8 @@
         Data Infração:
     </li>
     <li class="list-group-item">
-        <span class="float-right"> <strong>@ViewBag.Notificacao.infracao</strong></span>
-        Infração:
+        <span class="float-left"> </span>
+        Infração: <strong>@ViewBag.Notificacao.infracao - @ViewBag.Notificacao.infracaodescricao</strong>
     </li>
     <li class="list-group-item">
         <span class="float-right"> <strong>@ViewBag.Notificacao.defesanai</strong></span>

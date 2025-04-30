@@ -55,7 +55,6 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
         }
 
 
-
         [HttpGet]
         [Route("buscar-setor")]
         public async Task<IActionResult> BuscarSetor()
@@ -102,10 +101,7 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
             {
 
                 throw;
-            }
-
-          
-
+            } 
         }
 
 

@@ -20,7 +20,7 @@ using System.Collections.Generic;
 namespace SIPROWEB.Controllers
 {
  
-    [AutorizacaoTokenAttribute("ADM", "ATENDIMENTO_1")]
+    [AutorizacaoTokenAttribute("ADM", "ATENDIMENTO_1", "JULGAMENTO_1", "JULGAMENTO_ADM")]
     public class AtendimentoController : Controller
     {
 

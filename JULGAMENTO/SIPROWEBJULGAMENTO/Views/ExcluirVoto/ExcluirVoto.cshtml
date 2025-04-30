@@ -15,17 +15,18 @@
             <div class="ibox">
 
                 <div class="ibox-content">
-                    <h3><i class="fa fa-list-ul"></i>  Lista de processos: Em julgamento, julgado e homologado  </h3>
-                    <small>Selecione uma situação.</small>
+                    <h3><i class="fa fa-list-ul"></i>  Lista de processos aptos para serem devolvidos  </h3>
+
 
                     <form id="form_buscar">
                         <div class="form-group row">
                             <div class="col-sm-10">
+                
                                 <div class="row">
                                     
                                     <div class="col-md-4">
-                                      
-                                        <select class="select2_demo_3 form-control" style="width:100%;" id="resultado" name="resultado" required>
+                                        <small>Selecione uma situação.</small>
+                                        <select class="select2_demo_3 form-control" style="width:100%;" id="prt_situacao" name="prt_situacao" required>
 
                                             <option value="Todos">Todos</option>
                                             <option value="Julgando">Em Julgamento</option>
@@ -36,25 +37,24 @@
 
                                     </div>
 
-                                    <div class="col-md-8">                                                                               
-                                        <input type="text" class="form-control" id="" >                                                                               
+                                    <div class="col-md-8">
+                                        <small> Digite o número do processo. </small>
+                                        <input type="text" class="form-control" id="vlobusca" >                                                                               
                                     </div>
                                 </div>
                             </div>
                             
-                            <div class="col-sm-2">
-                                <div class="row">
-                                    <span class="input-group-append" >
-                                        <button type="button" class="btn btn-primary" id="btmLocalizarProtocolo"> <i class="fa fa-search"></i> Localizar</button>
-                                    </span>
-                                </div>
+                            <div class="col-sm-2 d-flex align-items-end">
+                                <button type="button" class="btn btn-primary w-100" id="btmLocalizarProtocolo">
+                                    <i class="fa fa-search"></i> Localizar
+                                </button>
                             </div>
                         </div>
                     </form>
                     <div class="clients-list">
                         <div class="full-height-scroll">
-                            <div id="div_listaHomologacao">
-                               @*  @await Html.PartialAsync("_ListaProcesso") *@
+                            <div id="div_listaExcluir">
+                                @await Html.PartialAsync("_ListaProcesso")
                             </div>
                         </div>
                     </div>
@@ -67,8 +67,10 @@
             <div class="tabs-container">
 
                 <ul class="nav nav-tabs">
-                    <li><a class="nav-link active show" data-toggle="tab" href="#tab-1">Dados do Processo </a></li>                   
+                    <li><a class="nav-link active show" data-toggle="tab" href="#tab-1">Dados do Julgamento </a></li>
                 </ul>
+
+
 
                 <div class="tab-content">
                     <div id="tab-1" class="tab-pane active show">
@@ -76,21 +78,124 @@
                             <div class="client-detail">
                                 <div class="full-height-scroll">
                                     <div id="div_ParecerRelator">
-                              @*           @await Html.PartialAsync("_ProtocoloDetalhe") *@
+                                        @await Html.PartialAsync("_ParecerRelator")
                                     </div>
 
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>  
                 </div>
+
             </div>
         </div>
     </div>
 </div>
 
-
-
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+
+
+<script>
+
+
+    function LocalizarProtocolo(Situacao, Vlobusca) {
+        $.ajax({
+            url: '@Url.Action("BuscarProcessos", "ExcluirVoto")',
+            datatype: 'html',
+            contentType: "application/html; charset=utf-8",
+            type: "GET",
+            data: { situacao: Situacao, vlobusca: Vlobusca }, // Corrigido '=' para ':'
+            success: function (result) {
+                $('#div_listaExcluir').html(result);
+                AbrirHomologacao("/", "");
+                TabIndex();
+            },
+            error: function (xhr, status, error) {
+                Notiflix.Notify.Failure("Erro na busca do protocolo");
+            }
+        });
+    }
+
+
+    $('#btmLocalizarProtocolo').click(function (event) {
+        var Situacao = $('#prt_situacao').val();
+        var Vlobusca = $('#vlobusca').val();
+
+        console.log(Situacao + ', ' + Vlobusca)
+
+        event.preventDefault();
+        LocalizarProtocolo(Situacao, Vlobusca);
+    });
+
+
+    document.querySelectorAll(".table tr").forEach(td => {
+        td.addEventListener("click", function () {
+            // Remove borda dos outros <td>
+            document.querySelectorAll(".table tr").forEach(el => el.style.border = "none");
+
+            // Adiciona borda no <td> clicado
+            this.style.border = "2px solid #dea32f";
+        });
+    });
+
+    function TabIndex() {
+
+        // Remove active class from all tabs
+        document.querySelectorAll('.nav-link').forEach(function (tab) {
+            tab.classList.remove('active', 'show');
+        });
+        document.querySelectorAll('.tab-pane').forEach(function (pane) {
+            pane.classList.remove('active', 'show');
+        });
+
+        // Add active class to tab 1
+        document.querySelector('.nav-link[href="#tab-1"]').classList.add('active', 'show');
+        document.getElementById('tab-1').classList.add('active', 'show');
+    }
+
+
+    async function fetchAndUpdate(url, elementId) {
+        try {
+            console.log(`Fetching: ${url}`);
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'text/html; charset=utf-8'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro na requisição: ' + response.statusText);
+            }
+
+            const result = await response.text();
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = result;
+            } else {
+                Notiflix.Notify.Failure("Erro na busca do protocolo");
+            }
+
+        } catch (error) {
+            Notiflix.Notify.Failure("Erro na busca do protocolo");
+        }
+    }
+
+
+    function handleRowClick(_prt_numero) {
+        
+        const urls = [
+            { url: '@Url.Action("ExcluirDetalhe", "Julgamento")' + '?prt_numero=' + encodeURIComponent(_prt_numero), 
+              elementId: 'div_Excluir' },
+        ];
+
+        await Promise.all(urls.map(({ url, elementId }) => fetchAndUpdate(url, elementId)));
+
+        TabIndex();
+
+    }
+
+
+
+</script>

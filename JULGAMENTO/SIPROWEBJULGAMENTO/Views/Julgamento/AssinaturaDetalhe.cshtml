@@ -9,7 +9,7 @@
         <h2>Assinatura do Processo</h2>
     </div>
 </div>
-<div class="wrapper wrapper-content  animated fadeInRight">
+
    
     <div class="row">
 
@@ -50,7 +50,12 @@
                                         Data da Postagem: 
                                     </li>
                                     <li class="list-group-item">
-                                        <p><small><strong>Dados do Proprietário</strong></small></p>
+                                        <span class="float-right"> <strong>@Model?.PRT_OBSERVACAO</strong></span>
+                                        Obs. Atendimento:
+                                    </li>
+
+                                    <li class="list-group-item">
+                        
                                         <span class="float-right"> <strong>@Model?.PRT_CPFCNJ_PROPRIETARIO</strong></span>
                                         CPF/CNPJ: 
                                     </li>
@@ -94,15 +99,7 @@
                             <div class="panel-body">
                                 <div class="client-detail" >
                                     <div class="full-height-scroll">
-                   
-                                      @*   <div class="ibox-title">
-                                            <h2>Parecer do Relator</h2>
-                                            <div class="ibox-tools">
-                                                <span class="label label-warning-light float-right"><h3>10 Messages</h3></span>
-                                            </div>
-                                        </div> *@
-
-                                 
+                                                  
                                             <span class="float-right text-right">
                                                 <small><strong>Decisão do Relator</strong></small>
 
@@ -131,28 +128,28 @@
 
                             
                                                 @{
-                                                    if (ViewBag.ParecerRelator != null)
-                                                    {
-                                                        // Valor salvo no banco de dados
-                                                        var motivoVotoSelecionado = ViewBag.ParecerRelator?.Disjug_Motivo_Voto;
+                                                if (ViewBag.ParecerRelator != null)
+                                                {
+                                                    // Valor salvo no banco de dados
+                                                    var motivoVotoSelecionado = ViewBag.ParecerRelator?.Disjug_Motivo_Voto;
 
-                                                        <select class="select2_demo_3 form-control" style="width:100%;" id="Disjug_Motivo_Voto" name="Disjug_Motivo_Voto" required disabled>
-                                                            <option></option>
-                                                            @{
-                                                            if (ViewBag.MotivoVoto != null)
+                                                    <select class="select2_demo_3 form-control" style="width:100%;" id="Disjug_Motivo_Voto" name="Disjug_Motivo_Voto" required disabled>
+                                                        <option></option>
+                                                        @{
+                                                        if (ViewBag.MotivoVoto != null)
+                                                        {
+                                                            foreach (var item in ViewBag.MotivoVoto)
                                                             {
-                                                                foreach (var item in ViewBag.MotivoVoto)
-                                                                {
-                                                                    // Cria a opção manualmente com Html.Raw
-                                                                    var isSelected = item.MOT_COD == motivoVotoSelecionado ? "selected" : "";
-                                                                    @Html.Raw($"<option value='{item.MOT_COD}' {isSelected}>{item.MOT_NOME}</option>")
-                                                                }
+                                                                // Cria a opção manualmente com Html.Raw
+                                                                var isSelected = item.MOT_COD == motivoVotoSelecionado ? "selected" : "";
+                                                                @Html.Raw($"<option value='{item.MOT_COD}' {isSelected}>{item.MOT_NOME}</option>")
                                                             }
+                                                        }
                                                         
-                                                            }
-                                                        </select>
+                                                        }
+                                                    </select>
 
-                                                    }
+                                                }
 
                                                 }
                                                 <small>  <i class="fa fa-twitch"></i> Digite uma palavra chave para localizar o motivo do voto. O campo possui auto-completar com a lista de motivos disponíveis.</small>
@@ -344,16 +341,12 @@
         </div>
     
     </div>
-   
-</div>
+
 
 <script src="~/js/jquery-3.1.1.min.js"></script>
 <script src="~/js/jquery.min.js"></script>
 <script src="~/js/bootstrap.min.js"></script>
 <script src='~/js/jquery.mask.min.js'></script>
-
-@* <script src="~/js/validacaoFormPessoa.js"></script> *@
-
 
 <script src="~/js/plugins/blueimp/jquery.blueimp-gallery.min.js"></script>
 <script src="~/js/notiflix-aio-2.1.3.min.js"></script>
@@ -368,15 +361,12 @@
                 ['view', ['fullscreen']] // Mantém apenas o botão de tela cheia
             ],
             tooltip: false // Desativa os tooltips
-        });       
-     
+        });            
         
         var motivoVotoSelecionado = '@(ViewBag.ParecerRelator != null ? Html.Raw(ViewBag.ParecerRelator.Disjug_Parecer_Relatorio) : "")';
         
         var Resultado = '@(ViewBag.Disjug_Resultado != null ? Html.Raw(ViewBag.ParecerRelator.Disjug_Resultado) : "")';
-     
-
-
+  
 
         $('#summernote').summernote('code', motivoVotoSelecionado);
         // Desativa a edição, mas mantém os botões ativos

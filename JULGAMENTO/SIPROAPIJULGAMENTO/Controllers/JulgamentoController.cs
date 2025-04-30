@@ -190,16 +190,16 @@ namespace SIPROAPIJULGAMENTO.Controllers
         [HttpGet]
         [Route("buscar-parecer_relator/{vloBusca}")]
         public async Task<IActionResult> BuscarParecerRelator(int vloBusca)
-        {
-           
+        {           
             var processo = await _julgamento.BuscarParecerRelator(vloBusca);
 
             if (processo == null)
                 return NoContent();
 
-            return Ok(processo);
-            
+            return Ok(processo);            
         }
+
+
 
 
         [HttpPost]
@@ -277,18 +277,18 @@ namespace SIPROAPIJULGAMENTO.Controllers
 
 
         [HttpGet]
-        [Route("buscar-processo-excluir/{usuario}")]
-        public async Task<IActionResult> LocalizarProcessosExcluirVoto(string usuario)
+        [Route("buscar-processo-excluir/{usuario}/{situacao}/{processo}")]
+        public async Task<IActionResult> LocalizarProcessosExcluirVoto(string usuario, string situacao, string processo)
         {
 
-            var processo = await _julgamento.LocalizarProcessosExcluirVoto(usuario);
+            var resultado = await _julgamento.LocalizarProcessosExcluirVoto(usuario, situacao, processo);
 
-            if (processo == null)
+            if (resultado == null)
             {
                 return NoContent();
             }
 
-            return Ok(processo);
+            return Ok(resultado);
 
         }
 

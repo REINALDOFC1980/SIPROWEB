@@ -201,8 +201,6 @@ namespace SIPROWEBPUBLICACAO.Controllers
 
         }
 
-
-
         [HttpPost]
         public async Task<IActionResult> ExcluirLote(string lote)
         {
