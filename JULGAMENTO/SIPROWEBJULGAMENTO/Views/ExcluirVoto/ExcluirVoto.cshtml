@@ -1,7 +1,7 @@
 ﻿
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
-        <h2>Excluir Voto</h2>
+        <h2>Devolver Processo</h2>
         <small>Lista de processo com permissão para exclur voto.</small>
     </div>
     <div class="col-lg-2">
@@ -15,7 +15,7 @@
             <div class="ibox">
 
                 <div class="ibox-content">
-                    <h3><i class="fa fa-list-ul"></i>  Lista de processos aptos para serem devolvidos  </h3>
+                    <h3><i class="fa fa-list-ul"></i>  Lista de processos aptos para serem excluido os votos  </h3>
 
 
                     <form id="form_buscar">
@@ -31,7 +31,6 @@
                                             <option value="Todos">Todos</option>
                                             <option value="Julgando">Em Julgamento</option>
                                             <option value="Homologar">Julgado</option>
-                                            <option value="Publicacao">Homologados</option>
 
                                         </select>
 
@@ -54,7 +53,7 @@
                     <div class="clients-list">
                         <div class="full-height-scroll">
                             <div id="div_listaExcluir">
-                                @await Html.PartialAsync("_ListaProcesso")
+                               @await Html.PartialAsync("_ListaProcesso") 
                             </div>
                         </div>
                     </div>
@@ -92,6 +91,48 @@
     </div>
 </div>
 
+
+
+
+@*Modal*@
+<div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <div class="modal-dialog">
+        <div class="modal-content animated bounceInRight">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <i class="fa fa-share-square-o modal-icon"></i>
+                <h4 class="modal-title">Excluir Voto</h4>
+                <small class="font-bold">Encamimhar processo para sua origem.</small>
+            </div>
+
+
+            <div class="modal-body">
+
+                <form id="form_excluir">
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label text-right">Processo:</label>
+                        <div class="col-lg-9"><input type="text" class="form-control" id="PRT_NUMERO_R" readonly></div>
+                        <input type="hidden" class="form-control" id="MOVPRO_ID" />
+                        <input type="hidden" class="form-control" id="_prt_situacao" name="_prt_situacao" />
+                    </div>
+
+                   @*  <div class="form-group row">
+                        <label class="col-lg-3 col-form-label text-right">Motivo:</label>
+                        <div class="col-lg-9"><textarea name="MOVPRO_PARECER_ORIGEM_R" id="MOVPRO_PARECER_ORIGEM_R" rows="5" cols="40" class="form-control" placeholder="Digite sua mensagem aqui..."></textarea></div>
+                    </div> *@
+
+                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="btn_Confirmar">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
 
@@ -108,7 +149,7 @@
             data: { situacao: Situacao, vlobusca: Vlobusca }, // Corrigido '=' para ':'
             success: function (result) {
                 $('#div_listaExcluir').html(result);
-                AbrirHomologacao("/", "");
+                handleRowClick("0/0000");
                 TabIndex();
             },
             error: function (xhr, status, error) {
@@ -122,10 +163,20 @@
         var Situacao = $('#prt_situacao').val();
         var Vlobusca = $('#vlobusca').val();
 
-        console.log(Situacao + ', ' + Vlobusca)
-
         event.preventDefault();
         LocalizarProtocolo(Situacao, Vlobusca);
+    });
+
+    $(document).ready(function () {
+        $('#prt_situacao').on('change', function () {
+            var Situacao = $(this).val();
+            var Vlobusca = $('#vlobusca').val();
+
+            event.preventDefault();
+            LocalizarProtocolo(Situacao, Vlobusca);
+
+            
+        });
     });
 
 
@@ -186,16 +237,78 @@
     function handleRowClick(_prt_numero) {
         
         const urls = [
-            { url: '@Url.Action("ExcluirDetalhe", "Julgamento")' + '?prt_numero=' + encodeURIComponent(_prt_numero), 
-              elementId: 'div_Excluir' },
+            { url: '@Url.Action("BuscarParecer", "ExcluirVoto")' + '?prt_numero=' + encodeURIComponent(_prt_numero),
+                elementId: 'div_ParecerRelator'
+            },
         ];
 
-        await Promise.all(urls.map(({ url, elementId }) => fetchAndUpdate(url, elementId)));
+        Promise.all(urls.map(({ url, elementId }) => fetchAndUpdate(url, elementId)));
 
         TabIndex();
 
     }
 
+
+
+    // $(document).on('click', '#btn_excluirVoto', function () {
+
+    //     $('#myModal').modal('show');
+    //     $('#PRT_NUMERO_R').val($('#PRT_NUMERO').val());
+
+    // });
+
+    let isProcessing = false;
+    $(document).on('click', '#btn_excluirVoto', function () {
+
+        $('#myModal').modal('hide');
+        $('#MovPro_Parecer_Origem').val($('#MOVPRO_PARECER_ORIGEM_R').val());
+        $('#MovPro_Situacao').val($('#prt_situacao').val());
+        
+        var formData = $("#form_excluir").serialize();
+
+        Notiflix.Confirm.Show(
+            'Aviso!',
+            'Tem certeza que deseja excluir esse processo?',
+            'Sim',
+            'Não',
+            async function okCb() {
+
+                if (isProcessing) return; // Impede execução se já estiver em andamento
+                isProcessing = true; // Marca como em processamento
+                Notiflix.Loading.Standard('Aguarde...');
+
+                $.ajax({
+                    url: '@Url.Action("ConfirmarExcluirVoto", "ExcluirVoto")',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+
+                        Notiflix.Loading.Remove();
+                        if (response.error == 'BadRequest') {
+                            Notiflix.Notify.Failure(response.message);
+                            return false;
+                        };
+
+                        Notiflix.Notify.Success("Operação realizada com sucesso.");
+                        handleRowClick("0/0000")
+                        $('#div_listaExcluir').html(response);
+                    },
+                    error: function (xhr, status, error) {
+                        Notiflix.Loading.Remove();
+                        Notiflix.Notify.Failure("Erro interno!");
+                    }
+                });
+            },
+            function cancelCb() {
+                Notiflix.Loading.Remove();
+            },
+            {
+                // Configurações adicionais (opcional)
+            }
+        );
+
+
+    });
 
 
 </script>

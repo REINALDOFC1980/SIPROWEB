@@ -24,9 +24,14 @@
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
 
                 <i class="fa fa-tags modal-icon"></i>
-                <h2 class="modal-title">Lote Gerado Para Publicação </h2>
+                <h2 class="modal-title">Lote Gerado para Publicação </h2>
                 <br />
-                <button type="button" class="btn btn-primary btn-xs text-center"><i class="fa fa-print"></i> Imprimir DOM </button>
+                <form method="post" >
+                    <button type="button" id="btnDOM" class="btn btn-primary btn-xs text-center">
+                        <i class="fa fa-print"></i> Imprimir DOM
+                    </button>
+                </form>
+
 
 
             </div>
@@ -71,24 +76,26 @@
 
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Número DOM:</label>
-                        <div class="col-lg-8"><input type="text" class="form-control" id="prt_publicacao_dom" name="prt_publicacao_dom" required>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control" id="prt_publicacao_dom" name="prt_publicacao_dom" required>
                             <span id="erro_numero_dom" style="color:#cc5965 ; display: none;"> Este campo é obrigatório.</span>
                         </div>
-                      
+
                     </div>
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Data de Publicação:</label>
-                        <div class="col-lg-8"><input type="text" class="form-control" id="prt_dt_publicacao" name="prt_dt_publicacao" data-mask="99/99/9999" required>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control" id="prt_dt_publicacao" name="prt_dt_publicacao" data-mask="99/99/9999" required>
                             <span id="erro_data_publicacao" style="color:#cc5965 ; display: none;"> Este campo é obrigatório.</span>
                         </div>
-                
+
                     </div>
 
                 </form>
 
                 <div class="modal-footer">
                     <br />
-                    <button type="button" class="btn btn-block btn-primary" id="btn_atualizar" ><i class="fa fa-print"></i> Gravar Publicação do DOM </button>
+                    <button type="button" class="btn btn-block btn-primary" id="btn_atualizar"><i class="fa fa-print"></i> Gravar Publicação do DOM </button>
                 </div>
 
 
@@ -98,11 +105,14 @@
 </div>
 
 
+
+
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
 
 
-<script>
+<script type="module">
 
     function validarCampos() {
         var valido = true;
@@ -166,16 +176,14 @@
         );
 
     });
-  
+
 
     $(document).on('click', '.localizarlote', function (e) {
 
-         e.preventDefault();
+
+        e.preventDefault();
 
         var valor = $(this).data('id');
-
-
-
         $.ajax({
             url: '@Url.Action("Buscar_Lote", "Publicacao")',
             type: 'GET',
@@ -208,12 +216,12 @@
 
 
     $(document).on('click', '#btn_atualizar', async function () {
-        
+
         //validando os ultimos campos
         if (!validarCampos()) {
-            return false; 
+            return false;
         }
-                
+
         if ($("#form_publicacao").valid()) {
 
             var formData = new FormData($('#form_publicacao')[0]);
@@ -240,7 +248,7 @@
                                 Notiflix.Notify.Failure('Erro.');
                                 return false;
                             }
-                              $('#myModal').modal('hide');
+                            $('#myModal').modal('hide');
 
                             $('#Div_Publicar').html(result); // Atualiza a div com a Partial View
                         },
@@ -259,32 +267,31 @@
             );
 
 
-           
+
         }
     });
 
 
     $(document).on('click', '#btn_excluir', async function () {
-        
+
         var Lote = $('#prt_lote').val()
-        
+
         Notiflix.Confirm.Show(
             'Aviso!',
-            'Tem certeza que deseja excluir o lote: ' + Lote +' ?' ,
+            'Tem certeza que deseja excluir o lote: ' + Lote + ' ?',
             'Sim',
             'Não',
             async function okCb() {
-                
+
                 Notiflix.Loading.Standard('Aguarde...');
 
                 $.ajax({
                     url: '@Url.Action("ExcluirLote", "Publicacao")',
                     type: 'POST',
-                    data: { lote: Lote},
+                    data: { lote: Lote },
                     success: function (result) {
                         // Lógica a ser executada em caso de sucesso
                         if (result.error == true) {
-                            Notiflix.Loading.Remove();
                             Notiflix.Notify.Failure(result.message);
                             return false;
                         }
@@ -308,6 +315,29 @@
             {
 
             }
+        );
+    });
+
+
+    $(document).on('click', '#btnDOM', async function () {
+
+
+        var Lote = $('#prt_lote').val()
+
+        Notiflix.Confirm.Show(
+            'Aviso!',
+            'Tem certeza que deseja gerar arquivo DOM para o : ' + Lote + ' ?',
+            'Sim',
+            'Não',
+            async function okCb() {
+         
+                window.location.href = '@Url.Action("GerarWord", "Publicacao")' + '?lote=' + Lote;
+              
+            },
+            function cancelCb() {
+                Notiflix.Loading.Remove();
+            },
+           
         );
     });
 

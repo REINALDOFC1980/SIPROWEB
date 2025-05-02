@@ -255,5 +255,28 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
             }
            
         }
+
+        public async Task<List<PublicacaoDOMModel>> GerarDOM(string lote)
+        {
+
+            var query = @"
+                           SELECT PES_Nome,
+                           PRT_NUMERO,
+	                       PRT_AIT, 
+	                       Case when PRT_RESULTADO = 'D' then 'DEFERIDO' ELSE 'INDEFERIDO' END PRT_RESULTADO
+                           FROM Protocolo 
+                           INNER JOIN Pessoa on(PRT_CPF_SOLICITANTE = PES_CPF) 
+                           where REPLACE(PRT_LOTE, '/', '') = @Lote
+                         ";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parametros = new { lote };
+                var result = await connection.QueryAsync<PublicacaoDOMModel>(query, parametros);
+                return result.ToList();
+            }
+
+
+        }
     }
 }

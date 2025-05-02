@@ -41,7 +41,7 @@ namespace SIPROAPIPUBLICACAO.Controllers
 
 
         [HttpPost]
-        [Route("gerar-lote/{usuario}")] 
+        [Route("gerar-lote/{usuario}")]
         public async Task<IActionResult> GerarLote(string usuario)
         {
             if (string.IsNullOrEmpty(usuario))
@@ -91,7 +91,7 @@ namespace SIPROAPIPUBLICACAO.Controllers
 
         [HttpPut]
         [Route("excluir-lote/{lote}")]
-        public async Task<IActionResult> ExcluirLote (string lote)
+        public async Task<IActionResult> ExcluirLote(string lote)
         {
 
             await _publicacao.ExcluirLote(lote);
@@ -99,6 +99,21 @@ namespace SIPROAPIPUBLICACAO.Controllers
             return Ok();
 
         }
+
+
+
+        [HttpGet]
+        [Route("gerar-dom/{lote}")]
+        public async Task<IActionResult> GerarDOM(string lote)
+        {
+            var result = await _publicacao.GerarDOM(lote);
+
+            if (result == null)
+                return NoContent();
+
+            return Ok(result);
+        }
+
 
     }
 }
