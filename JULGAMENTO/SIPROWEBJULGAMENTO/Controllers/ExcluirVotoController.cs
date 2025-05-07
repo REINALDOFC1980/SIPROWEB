@@ -19,15 +19,6 @@ namespace SIPROWEBJULGAMENTO.Controllers
         private string? userMatrix;
 
 
-        private async Task<JsonResult> HandleErrorResponse(HttpResponseMessage response)
-        {
-            var errorResponse = await response.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorResponseModel>(errorResponse);
-            var errorMessage = errorData?.Errors?.FirstOrDefault() ?? "Erro ao processar sua solicitação.";
-            TempData["ErroMessage"] = errorMessage;
-            return Json(new { error = "BadRequest", message = errorMessage });
-        }
-
         public ExcluirVotoController(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
@@ -40,12 +31,16 @@ namespace SIPROWEBJULGAMENTO.Controllers
             base.OnActionExecuting(context);
         }
 
+        public static string RemoveHtmlTags(string input)
+        {
+            return Regex.Replace(input, "<.*?>", "").Replace("&nbsp;", "").Trim();
+        }
+
         public async Task<IActionResult> ExcluirVoto()
         {
             ViewBag.Protocolo = await  LocalizarProcessosExcluirVoto( "Todos","Todos");
             return View();
         }
-
 
         [HttpGet]
         public async Task<PartialViewResult> BuscarProcessos(string Situacao, string Vlobusca)
@@ -58,67 +53,49 @@ namespace SIPROWEBJULGAMENTO.Controllers
         [HttpGet]
         public async Task<List<ExcluirDetalheModel>> BuscarVotacao(string Protocolo)
         {
-            try
-            {
-                string apiUrl = $"{_baseApiUrl}excluirvoto/buscar-votacao/{Protocolo}";
-                var response = await _httpClient.GetAsync(apiUrl);
+           
+            string apiUrl = $"{_baseApiUrl}excluirvoto/buscar-votacao/{Protocolo}";
+              var response = await _httpClient.GetAsync(apiUrl);
 
-                if (response.StatusCode == HttpStatusCode.OK)
-                    return await response.Content.ReadFromJsonAsync<List<ExcluirDetalheModel>>();
-                else
-                    return new List<ExcluirDetalheModel>();
+              if (response.StatusCode == HttpStatusCode.NoContent)
+                  return new List<ExcluirDetalheModel>();
 
-            }
-            catch (Exception)
-            {
+            if (response.StatusCode == HttpStatusCode.OK)
+                return await response.Content.ReadFromJsonAsync<List<ExcluirDetalheModel>>();
 
-                throw;
-            }
+
+            ViewBag.MensagemErro = $"Erro ao buscar os lotes: {response.StatusCode}";
+            return new List<ExcluirDetalheModel>();         
 
         }
 
         [HttpGet]
-        public async Task<PartialViewResult> BuscarParecer(string prt_numero)
-        {
-            try
+        public async Task<IActionResult> BuscarParecer(string prt_numero)
+        {           
+            var protocolo = prt_numero.Replace("/", "");
+            string apiUrl = $"{_baseApiUrl}excluirvoto/buscar-parecer/{protocolo}";
+            var response = await _httpClient.GetAsync(apiUrl);
+
+            // Verifica erros tratados
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
+
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                var protocolo = prt_numero.Replace("/", "");
-                string apiUrl = $"{_baseApiUrl}excluirvoto/buscar-parecer/{protocolo}";
-                var response = await _httpClient.GetAsync(apiUrl);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    if (response.StatusCode == HttpStatusCode.InternalServerError)
-                        return PartialView("_ErrorPartialView");
-                }
-                else
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    ViewBag.Parecer = await response.Content.ReadFromJsonAsync<ExcluirDetalheModel>();
-                    ViewBag.Parecer.Disjug_Parecer_Relatorio = RemoveHtmlTags(ViewBag.Parecer.Disjug_Parecer_Relatorio);
-
-                    ViewBag.Votacao = await BuscarVotacao(prt_numero.Replace("/", ""));
-                }
-                else
-                    ViewBag.Parecer = new ExcluirDetalheModel();
-
-
-                return PartialView("_ParecerRelator");
-
+                ViewBag.Parecer = await response.Content.ReadFromJsonAsync<ExcluirDetalheModel>();
+                ViewBag.Parecer.Disjug_Parecer_Relatorio = RemoveHtmlTags(ViewBag.Parecer.Disjug_Parecer_Relatorio);
+                ViewBag.Votacao = await BuscarVotacao(prt_numero.Replace("/", ""));
             }
-            catch (Exception)
-            {
-
-                throw;
+            else {
+                ViewBag.Parecer = new ExcluirDetalheModel();
             }
 
-        }
+                
 
-
-        public static string RemoveHtmlTags(string input)
-        {
-            return Regex.Replace(input, "<.*?>", "").Replace("&nbsp;", "").Trim();
+            return PartialView("_ParecerRelator");           
         }
+   
 
         public async Task<List<ExcluirModel>> LocalizarProcessosExcluirVoto(string situacao, string processo)
         {
@@ -128,40 +105,39 @@ namespace SIPROWEBJULGAMENTO.Controllers
             string situacaoEsc = string.IsNullOrWhiteSpace(situacao) ? "TODOS" : situacao;
             string processoEsc = string.IsNullOrWhiteSpace(processo_) ? "TODOS" : processo_;
 
-            string apiUrl = $"{_baseApiUrl}excluirvoto/buscar-processo-excluir/{usuario}/{situacaoEsc}/{processoEsc}";
-           
+            string apiUrl = $"{_baseApiUrl}excluirvoto/buscar-processo-excluir/{usuario}/{situacaoEsc}/{processoEsc}";           
             var response = await _httpClient.GetAsync(apiUrl);
 
-            if (response.IsSuccessStatusCode)
+            if (response.StatusCode == HttpStatusCode.NoContent)
+                return new List<ExcluirModel>();
+
+            if (response.StatusCode == HttpStatusCode.OK)
             {
                 var data = await response.Content.ReadFromJsonAsync<List<ExcluirModel>>();
                 return data ?? new List<ExcluirModel>();
             }
-            else
-            {
-                // Aqui você pode logar ou mostrar uma mensagem
-                Console.WriteLine($"Erro na chamada: {response.StatusCode}");
-                return new List<ExcluirModel>();
-            }            
+            
+            // Aqui você pode logar ou mostrar uma mensagem
+            ViewBag.MensagemErro = $"Erro ao buscar os lotes: {response.StatusCode}";
+            return new List<ExcluirModel>();                       
             
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> ConfirmarExcluirVoto(ExcluirDetalheModel excluirModel,  string Vlobusca)
+        public async Task<IActionResult> ConfirmarExcluirVoto([FromForm] ExcluirDetalheModel excluirModel)
         {
-    
+
             excluirModel.Disjul_Usuario = userMatrix;
+
             string apiUrl = $"{_baseApiUrl}excluirvoto/excluir-julgamento";
             var response = await _httpClient.PostAsJsonAsync(apiUrl, excluirModel);
 
-            if (response.StatusCode == HttpStatusCode.BadRequest)
-                return await HandleErrorResponse(response);
-
-            if (response.StatusCode == HttpStatusCode.InternalServerError)
-                return PartialView("_ErrorPartialView");
-
-
+            // Verifica erros tratados
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
+         
             if (response.StatusCode == HttpStatusCode.OK)
                 ViewBag.Protocolo = await LocalizarProcessosExcluirVoto(excluirModel.MovPro_Situacao, "Todos");
 
@@ -170,29 +146,7 @@ namespace SIPROWEBJULGAMENTO.Controllers
         }
 
 
-        [HttpGet]
-        public async Task<ExcluirModel> BuscarPrtHomologar(string protocolo)
-        {
-            try
-            {
-                string apiUrl = $"{_baseApiUrl}homologacao/buscar-homologacao/{protocolo}";
-                var response = await _httpClient.GetAsync(apiUrl);
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                    return await response.Content.ReadFromJsonAsync<ExcluirModel>();
-                else
-                    return new ExcluirModel();
-
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-
-        }
-
-
+       
 
     }
 }

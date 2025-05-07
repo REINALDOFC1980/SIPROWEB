@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SIPROSHARED.Filtro;
+using SIPROSHAREDPUBLICACAO.Validator; // Importa a classe helper
 
 namespace SIPROSHAREDPUBLICACAO.Service.Repository
 {
@@ -26,6 +28,9 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
 
         public async Task<int> QuantidadeProcesso(string usuario)
         {
+            if (string.IsNullOrEmpty(usuario))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
             try
             {
                 var query = @"
@@ -61,9 +66,10 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
 
         }
 
-
         public async Task GerarLote(string usuario)
         {
+            if (string.IsNullOrEmpty(usuario))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
 
             try
             {
@@ -125,6 +131,9 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
 
         public async Task<PublicacaoModel> Buscar_Lote(string Lote)
         {
+            if (string.IsNullOrEmpty(Lote))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
             var query = @"
                         Select 
                             prt_lote, 
@@ -148,6 +157,8 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
 
         public async Task<List<PublicacaoModel>> BuscarLotes(string usuario)
         {
+            if (string.IsNullOrEmpty(usuario))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
 
             var query = @"
                             Select 
@@ -174,13 +185,20 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
         }
 
         public async Task AtualizarPublicacao(PublicacaoModel publicacaoModel)
-        {
+        {          
+
+            //validando a model agendamento 
+            var validator = new AtualizarPublicacaoValidator();
+            var result = validator.Validate(publicacaoModel);
+            if (result.IsValid == false)
+                throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
+      
 
             var dbParametro = new DynamicParameters();
             dbParametro.Add("PRT_DT_PUBLICACAO", publicacaoModel.prt_dt_publicacao);
             dbParametro.Add("PRT_PUBLICACAO_DOM", publicacaoModel.prt_publicacao_dom);
             dbParametro.Add("PRT_LOTE", publicacaoModel.prt_lote);
-            dbParametro.Add("@Usuario", publicacaoModel.prt_usu_publicacao);
+            dbParametro.Add("@USUARIO", publicacaoModel.prt_usu_publicacao);
 
 
             string query = @"
@@ -190,7 +208,7 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
                                     PRT_PUBLICACAO_DOM = @PRT_PUBLICACAO_DOM,  
                                     PRT_ACAO = 'ARQUIVADO',  
                                     PRT_DT_ARQUIVO = GETDATE(),  
-                                    PRT_USUARIOARQUIVO = @Usuario  
+                                    PRT_USUARIOARQUIVO = @USUARIO  
                              FROM Protocolo   
                              WHERE PRT_LOTE = @PRT_LOTE 
   
@@ -232,6 +250,9 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
 
         public async Task ExcluirLote (string lote)
         {
+            if (string.IsNullOrEmpty(lote))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
             try
             {
                 var dbParametro = new DynamicParameters();
@@ -258,6 +279,8 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
 
         public async Task<List<PublicacaoDOMModel>> GerarDOM(string lote)
         {
+            if (lote == "")
+                throw new ErrorOnValidationException(new List<string> { "O nome do lote não foi fornecido para exlução." });
 
             var query = @"
                            SELECT PES_Nome,

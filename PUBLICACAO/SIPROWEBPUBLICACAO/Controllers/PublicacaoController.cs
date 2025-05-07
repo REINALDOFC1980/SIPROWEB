@@ -35,77 +35,74 @@ namespace SIPROWEBPUBLICACAO.Controllers
             base.OnActionExecuting(context);
         }
 
-        private async Task<JsonResult> HandleErrorResponse(HttpResponseMessage response)
+         // Pensar em uma solução para as Actions para tratamento de erros
+        [HttpGet]
+        public async Task<IActionResult> Publicacao() 
         {
-            var errorResponse = await response.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorResponseModel>(errorResponse);
-            var errorMessage = errorData?.Errors?.FirstOrDefault() ?? "Erro ao processar sua solicitação.";
-            TempData["ErroMessage"] = errorMessage;
-            return Json(new { error = "BadRequest", message = errorMessage });
-        }
-
-        public async Task<PublicacaoModel> BuscarQtdPublicar(string usuario)
-        {
-            try
-            {
                 PublicacaoModel publicacaoModel = new PublicacaoModel();
 
-                string apiUrl = $"{_baseApiUrl}publicacao/quantidade-processo/{userMatrix}";
-                var response = await _httpClient.GetAsync(apiUrl); // Aguarda a resposta
+                publicacaoModel = await Buscar_Qtd_Processo();
+                ViewBag.LoteGerado = await Buscar_Lotes();
 
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                    publicacaoModel = await response.Content.ReadFromJsonAsync<PublicacaoModel>();
-
-                return publicacaoModel;
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
-
+                return View(publicacaoModel);       
 
         }
 
         [HttpGet]
-        public async Task<IActionResult> Publicacao() // Torna o método assíncrono
+        public async Task<PublicacaoModel> Buscar_Qtd_Processo()
         {
-            try
+            var apiUrl = $"{_baseApiUrl}publicacao/quantidade-processo/{userMatrix}";
+            var response = await _httpClient.GetAsync(apiUrl);
+
+            if (response.StatusCode == HttpStatusCode.NoContent)
+                return new PublicacaoModel();
+
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-
-                PublicacaoModel publicacaoModel = new PublicacaoModel();
-
-                publicacaoModel = await Buscar_Qtd_Processo(userMatrix);
-
-                ViewBag.LoteGerado = await Buscar_Lotes(userMatrix);
-
-                return View(publicacaoModel);
-            }
-            catch (Exception ex)
-            {
-
-                throw;
+                var result = await response.Content.ReadFromJsonAsync<PublicacaoModel>();
+                return result ?? new PublicacaoModel(); // Protege contra retorno null
             }
 
+            ViewBag.MensagemErro = $"Erro ao buscar os lotes: {response.StatusCode}";
+
+            return new PublicacaoModel();
+        }
+
+        [HttpGet]
+        public async Task<List<PublicacaoModel>> Buscar_Lotes()
+        {
+            ViewBag.LoteGerado = new List<PublicacaoModel>();
+
+            var apiUrl = $"{_baseApiUrl}publicacao/buscar-lotes/{userMatrix}";
+            var response = await _httpClient.GetAsync(apiUrl);
+
+            if (response.StatusCode == HttpStatusCode.NoContent)
+                return new List<PublicacaoModel>();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<List<PublicacaoModel>>();
+                ViewBag.LoteGerado = result ?? new List<PublicacaoModel>();
+                return ViewBag.LoteGerado;
+            }
+
+            ViewBag.MensagemErro = $"Erro ao buscar os lotes: {response.StatusCode}";
+            return new List<PublicacaoModel>();
         }
 
         [HttpPost]
-        public async Task<PartialViewResult> GerarLote()
+        public async Task<IActionResult> GerarLote()
         {
-
-            PublicacaoModel publicacaoModel = new PublicacaoModel();
-
-            //Gerando Lote
-            string apiUrl = $"{_baseApiUrl}publicacao/gerar-lote/{userMatrix}";
+            var apiUrl = $"{_baseApiUrl}publicacao/gerar-lote/{userMatrix}";
             var response = await _httpClient.PostAsync(apiUrl, null);
 
-            if (!response.IsSuccessStatusCode)
-                return PartialView("_ErrorPartialView");
+            // Verifica erros tratados
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
 
-            publicacaoModel = await Buscar_Qtd_Processo(userMatrix);
-
-            ViewBag.LoteGerado = await Buscar_Lotes(userMatrix);
+            var publicacaoModel = await Buscar_Qtd_Processo();
+            ViewBag.LoteGerado = await Buscar_Lotes();
 
             return PartialView("_Qtd_Publicar", publicacaoModel);
         }
@@ -113,99 +110,57 @@ namespace SIPROWEBPUBLICACAO.Controllers
         [HttpPost]
         public async Task<IActionResult> AtualizarPublicacao(PublicacaoModel publicacaoModel)
         {
-            publicacaoModel.prt_usu_publicacao = userMatrix;
-
-            var apiUrl = $"{_baseApiUrl}publicacao/atualizar-publicacao";
-            var response = await _httpClient.PostAsJsonAsync(apiUrl, publicacaoModel);
-
-            //tratamento de erro
-            if (!response.IsSuccessStatusCode)
-            {
-                if (response.StatusCode == HttpStatusCode.InternalServerError)
-                    return Json(new { error = true });
-
-                else if (response.StatusCode == HttpStatusCode.BadRequest)
-                    return await HandleErrorResponse(response);
-
-                else if (response.StatusCode == HttpStatusCode.NoContent)
-                    return await HandleErrorResponse(response);
-
-            }
-
-            ViewBag.LoteGerado = Buscar_Lotes(userMatrix);
-            return PartialView("_Qtd_Publicar");
-        }
-
-        [HttpGet]
-        public async Task<List<PublicacaoModel>> Buscar_Lotes(string usuario)
-        {
-
-            //Buscando os lotes gerados!
-            ViewBag.LoteGerado = new List<PublicacaoModel>();
-            var apiUrl = $"{_baseApiUrl}publicacao/buscar-lotes/{userMatrix}";
-            var response = await _httpClient.GetAsync(apiUrl);
-
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                List<PublicacaoModel> result = await response.Content.ReadFromJsonAsync<List<PublicacaoModel>>();
-                return result;
-            }
-
-            return new List<PublicacaoModel>();
-
-        }
-
-        public async Task<IActionResult> Buscar_Lote(string lote)
-        {
             try
             {
-                PublicacaoModel publicacaoModel = new PublicacaoModel();
+                publicacaoModel.prt_usu_publicacao = userMatrix;
+       
+                var apiUrl = $"{_baseApiUrl}publicacao/atualizar-publicacao";
+                var response = await _httpClient.PostAsJsonAsync(apiUrl, publicacaoModel);
+      
 
-                var valor = lote?.Replace("/", "") ?? "";
+                // Verifica erros tratados
+                var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+                if (resultadoErro != null)
+                    return resultadoErro;
 
-                var apiUrl = $"{_baseApiUrl}publicacao/buscar-lote/{valor}";
-                var response = await _httpClient.GetAsync(apiUrl);
+                publicacaoModel = await Buscar_Qtd_Processo();
+                ViewBag.LoteGerado = await Buscar_Lotes();
 
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    publicacaoModel = await response.Content.ReadFromJsonAsync<PublicacaoModel>();
-
-                    publicacaoModel.prt_publicacao_dom = userMatrix;
-
-
-                    return Json(new { error = false, publicacaoModel });
-                }
-
-                return Json(new { error = true, message = "Lote não encontrado" });
+                return PartialView("_Qtd_Publicar", publicacaoModel);
             }
             catch (Exception ex)
             {
-
-                throw;
+                return PartialView("_ErrorPartialView");
             }
-
-
         }
 
         [HttpGet]
-        public async Task<PublicacaoModel> Buscar_Qtd_Processo(string usuario)
+        public async Task<IActionResult> Buscar_Lote(string lote)
         {
+          
+            PublicacaoModel publicacaoModel = new PublicacaoModel();
+            var valor = lote?.Replace("/", "") ?? "";
 
-            //Buscando os novos valores
-            var apiUrl = $"{_baseApiUrl}publicacao/quantidade-processo/{userMatrix}";
+            var apiUrl = $"{_baseApiUrl}publicacao/buscar-lote/{valor}";
             var response = await _httpClient.GetAsync(apiUrl);
 
+            // Verifica erros tratados
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
+
             if (response.StatusCode == HttpStatusCode.OK)
-                return await response.Content.ReadFromJsonAsync<PublicacaoModel>();
+            {
+                publicacaoModel = await response.Content.ReadFromJsonAsync<PublicacaoModel>();
+                publicacaoModel.prt_publicacao_dom = userMatrix;
+                return Json(new { error = false, publicacaoModel });
+            }
 
-            return new PublicacaoModel();
-
+            return Json(new { error = false, publicacaoModel });
         }
 
-
-
         [HttpPost]
-        public async Task<IActionResult> ExcluirLote(string lote)
+        public async Task<IActionResult> ExcluirLote( string lote)
         {
             var valor = lote?.Replace("/", "") ?? "";
 
@@ -214,14 +169,17 @@ namespace SIPROWEBPUBLICACAO.Controllers
             var apiUrl = $"{_baseApiUrl}publicacao/excluir-lote/{valor}";
             var response = await _httpClient.PutAsJsonAsync(apiUrl, valor);
 
-            if (!response.IsSuccessStatusCode)
-                return Json(new { error = true, message = "Erro ao excluir o Lote." });
 
-            publicacaoModel = await Buscar_Qtd_Processo(userMatrix);
+            // Verifica erros tratados
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
+
+            publicacaoModel = await Buscar_Qtd_Processo();
+            ViewBag.LoteGerado = await Buscar_Lotes();
 
             return PartialView("_Qtd_Publicar", publicacaoModel);
         }
-
 
         [HttpGet]
         public async Task<List<PublicacaoDOMModel>> GerarDOM(string lote)
@@ -229,7 +187,6 @@ namespace SIPROWEBPUBLICACAO.Controllers
 
             var valor = lote?.Replace("/", "") ?? "";
             ViewBag.LoteGerado = new List<PublicacaoDOMModel>();
-
 
             var apiUrl = $"{_baseApiUrl}publicacao/gerar-dom/{valor}";
             var response = await _httpClient.GetAsync(apiUrl);
@@ -243,10 +200,7 @@ namespace SIPROWEBPUBLICACAO.Controllers
             return new List<PublicacaoDOMModel>();
 
         }
-
-
-
-        
+                
         public async Task<IActionResult> GerarWord(string lote)
         {
             var valor = lote?.Replace("/", "") ?? "";
@@ -256,14 +210,7 @@ namespace SIPROWEBPUBLICACAO.Controllers
             if (lista == null || !lista.Any())
                 return NoContent();
 
-            //var lista = resultado.Select(r => new string[]
-            //{
-            //    r.PES_Nome ?? "",       // Solicitante
-            //    r.PRT_NUMERO ?? "",     // Processo
-            //    r.PRT_AIT ?? "",        // AIT
-            //    r.PRT_RESULTADO ?? ""   // Resultado
-            //}).ToList();
-
+           
             string nomeArquivo = "Relatorio.docx";
             using (MemoryStream memStream = new MemoryStream())
             {

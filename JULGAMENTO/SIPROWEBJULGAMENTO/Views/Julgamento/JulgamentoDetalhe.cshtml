@@ -566,7 +566,7 @@
 
         Notiflix.Confirm.Show(
             'Aviso!',
-            'Tem certeza que deseja assinar esse processo ? ',
+            'Tem certeza que deseja julgar esse processo ? ',
             'Sim',
             'Não',
             async function okCb() {
@@ -603,7 +603,7 @@
                             success: function (response) {
                                 Notiflix.Loading.Remove();
                                 if (response.erro == false) {
-                                    Notiflix.Notify.Success("Assinatura realizada com sucesso!");
+                                    Notiflix.Notify.Success("Julgamento realizada com sucesso!");
                                     // Atraso de 2 segundos antes do redirecionamento
                                     setTimeout(function () {
                                         window.location.href = response.url;

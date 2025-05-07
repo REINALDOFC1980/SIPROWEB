@@ -29,8 +29,8 @@
                                         <select class="select2_demo_3 form-control" style="width:100%;" id="prt_situacao" name="prt_situacao" required>
 
                                             <option value="Todos">Todos</option>
-                                            <option value="Julgando">Em Julgamento</option>
-                                            <option value="Homologar">Julgado</option>
+                                            <option value="Em Julgamento">Em Julgamento</option>
+                                            <option value="Homologar">Em Homologação</option>
 
                                         </select>
 
@@ -79,7 +79,9 @@
                                     <div id="div_ParecerRelator">
                                         @await Html.PartialAsync("_ParecerRelator")
                                     </div>
+                                    <hr />
 
+                                   
                                 </div>
                             </div>
                         </div>
@@ -169,8 +171,10 @@
 
     $(document).ready(function () {
         $('#prt_situacao').on('change', function () {
+
             var Situacao = $(this).val();
-            var Vlobusca = $('#vlobusca').val();
+            var Vlobusca = "Todos";
+            $('#vlobusca').val("");
 
             event.preventDefault();
             LocalizarProtocolo(Situacao, Vlobusca);
@@ -249,22 +253,16 @@
     }
 
 
-
-    // $(document).on('click', '#btn_excluirVoto', function () {
-
-    //     $('#myModal').modal('show');
-    //     $('#PRT_NUMERO_R').val($('#PRT_NUMERO').val());
-
-    // });
-
-    let isProcessing = false;
-    $(document).on('click', '#btn_excluirVoto', function () {
+   let isProcessing = false;
+    $(document).on('click', '.btn_excluirVoto', function () {
 
         $('#myModal').modal('hide');
         $('#MovPro_Parecer_Origem').val($('#MOVPRO_PARECER_ORIGEM_R').val());
         $('#MovPro_Situacao').val($('#prt_situacao').val());
-        
-        var formData = $("#form_excluir").serialize();
+
+        var form = document.getElementById("form_excluir");
+        var formData = new FormData(form);
+
 
         Notiflix.Confirm.Show(
             'Aviso!',
@@ -273,31 +271,39 @@
             'Não',
             async function okCb() {
 
-                if (isProcessing) return; // Impede execução se já estiver em andamento
-                isProcessing = true; // Marca como em processamento
                 Notiflix.Loading.Standard('Aguarde...');
 
-                $.ajax({
-                    url: '@Url.Action("ConfirmarExcluirVoto", "ExcluirVoto")',
-                    type: 'POST',
-                    data: formData,
-                    success: function (response) {
+                try {
+                    const response = await fetch('@Url.Action("ConfirmarExcluirVoto", "ExcluirVoto")', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    //Tratamento de erro!
+                    if (!response.ok) {
 
                         Notiflix.Loading.Remove();
-                        if (response.error == 'BadRequest') {
-                            Notiflix.Notify.Failure(response.message);
-                            return false;
-                        };
 
-                        Notiflix.Notify.Success("Operação realizada com sucesso.");
-                        handleRowClick("0/0000")
-                        $('#div_listaExcluir').html(response);
-                    },
-                    error: function (xhr, status, error) {
-                        Notiflix.Loading.Remove();
-                        Notiflix.Notify.Failure("Erro interno!");
+                        const data = await response.json();
+
+                        if (data.redirectTo) {
+                            window.location.href = data.redirectTo; //Erros 500 e NotFoud
+                        } else {
+                            Notiflix.Notify.Failure(data.message); //Erros 400 outros
+                        }
+                        return false;
                     }
-                });
+
+                    Notiflix.Loading.Remove();
+                    Notiflix.Notify.Success("Operação realizada com sucesso.");
+                    handleRowClick("0/0000")
+                    const html = await response.text();
+                    $('#div_listaExcluir').html(html);
+
+                } catch (error) {
+                    Notiflix.Notify.Failure(error);
+                    Notiflix.Loading.Remove();
+                }
+
             },
             function cancelCb() {
                 Notiflix.Loading.Remove();

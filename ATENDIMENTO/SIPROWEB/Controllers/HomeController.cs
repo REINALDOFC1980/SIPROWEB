@@ -24,6 +24,12 @@ namespace SIPROWEB.Controllers
             return View();
         }
 
+        public IActionResult BadRequest(string msg)
+        {
+            ViewBag.MensagemErro = msg;
+            return View();
+        }
+
 
         public IActionResult ChamarDistribuicao()
         {
