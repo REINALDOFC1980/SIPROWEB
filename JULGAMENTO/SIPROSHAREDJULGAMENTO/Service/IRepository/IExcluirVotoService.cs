@@ -11,6 +11,8 @@ namespace SIPROSHAREDJULGAMENTO.Service.IRepository
     public interface IExcluirVotoService
     {
 
+        Task<List<ExcluirModel>> LocalizarProcessosExcluirVoto(string usuario, string situacao, string processo);
+
         Task<List<ExcluirDetalheModel>> BuscarVotacao(string processo);
 
         Task<ExcluirDetalheModel> BuscarParecer(string processo);

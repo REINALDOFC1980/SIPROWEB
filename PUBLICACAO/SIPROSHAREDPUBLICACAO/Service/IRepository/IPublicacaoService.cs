@@ -19,8 +19,9 @@ namespace SIPROSHAREDPUBLICACAO.Service.IRepository
 
         Task AtualizarPublicacao(PublicacaoModel publicacaoModel);
 
-        Task ExcluirLote (string lote);  
-        
+        Task ExcluirLote (string lote);
+        Task<List<PublicacaoDOMModel>> GerarDOM(string lote);
+
 
     }
 }

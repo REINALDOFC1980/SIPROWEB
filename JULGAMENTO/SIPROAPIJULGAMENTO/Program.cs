@@ -16,6 +16,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddSingleton<IJulgamentoService, JulgamentoService>();
+builder.Services.AddSingleton<IExcluirVotoService, ExcluirVotoService>();
 builder.Services.AddMvc(options => options.Filters.Add(typeof(ExceptionFilter)));
 
 var app = builder.Build();

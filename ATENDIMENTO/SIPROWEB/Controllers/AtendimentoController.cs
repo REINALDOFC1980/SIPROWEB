@@ -216,7 +216,6 @@ namespace SIPROWEB.Controllers
                    
                     if (!response.IsSuccessStatusCode)
                     {
-
                         TempData["ErroMessage"] = response.StatusCode + " - ait/v1..";                        
                         return RedirectToAction("InternalServerError", "Home"); 
                     }  

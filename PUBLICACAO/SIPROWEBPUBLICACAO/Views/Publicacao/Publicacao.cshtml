@@ -24,9 +24,14 @@
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
 
                 <i class="fa fa-tags modal-icon"></i>
-                <h2 class="modal-title">Lote Gerado Para Publicação </h2>
+                <h2 class="modal-title">Lote Gerado para Publicação </h2>
                 <br />
-                <button type="button" class="btn btn-primary btn-xs text-center"><i class="fa fa-print"></i> Imprimir DOM </button>
+                <form method="post" >
+                    <button type="button" id="btnDOM" class="btn btn-primary btn-xs text-center">
+                        <i class="fa fa-print"></i> Imprimir DOM
+                    </button>
+                </form>
+
 
 
             </div>
@@ -71,24 +76,26 @@
 
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Número DOM:</label>
-                        <div class="col-lg-8"><input type="text" class="form-control" id="prt_publicacao_dom" name="prt_publicacao_dom" required>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control" id="prt_publicacao_dom" name="prt_publicacao_dom" required>
                             <span id="erro_numero_dom" style="color:#cc5965 ; display: none;"> Este campo é obrigatório.</span>
                         </div>
-                      
+
                     </div>
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label text-right">Data de Publicação:</label>
-                        <div class="col-lg-8"><input type="text" class="form-control" id="prt_dt_publicacao" name="prt_dt_publicacao" data-mask="99/99/9999" required>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control" id="prt_dt_publicacao" name="prt_dt_publicacao" data-mask="99/99/9999" required>
                             <span id="erro_data_publicacao" style="color:#cc5965 ; display: none;"> Este campo é obrigatório.</span>
                         </div>
-                
+
                     </div>
 
                 </form>
 
                 <div class="modal-footer">
                     <br />
-                    <button type="button" class="btn btn-block btn-primary" id="btn_atualizar" ><i class="fa fa-print"></i> Gravar Publicação do DOM </button>
+                    <button type="button" class="btn btn-block btn-primary" id="btn_atualizar"><i class="fa fa-print"></i> Gravar Publicação do DOM </button>
                 </div>
 
 
@@ -98,11 +105,12 @@
 </div>
 
 
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
 
 
-<script>
+<script type="module">
 
     function validarCampos() {
         var valido = true;
@@ -130,23 +138,27 @@
 
         Notiflix.Confirm.Show(
             'Aviso!',
-            'Tem certeza que deseja gera um lote?',
+            'Tem certeza que deseja gerar um lote?',
             'Sim',
             'Não',
             async function okCb() {
                 Notiflix.Loading.Standard('Aguarde...');
                 try {
                     const response = await fetch('@Url.Action("GerarLote", "publicacao")', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
+                        method: 'POST'
                     });
 
-                    if (!response.ok) {
 
+                    if (!response.ok) {
+                        const data = await response.json();
                         Notiflix.Loading.Remove();
-                        throw new Error(`Erro na requisição: ${response.statusText}`);
+
+                        if (data.redirectTo) {
+                            window.location.href = data.redirectTo;
+                        } else {
+                            Notiflix.Notify.Failure(data.message || 'Erro ao gerar o lote.');
+                        }
+                        return false;
                     }
 
                     Notiflix.Loading.Remove();
@@ -154,7 +166,8 @@
                     $('#Div_Publicar').html(html);
 
                 } catch (error) {
-                    console.error("Erro ao gerar lote:", error);
+                    Notiflix.Loading.Remove();
+                    Notiflix.Notify.Failure(error);           
                 }
             },
             function cancelCb() {
@@ -166,54 +179,64 @@
         );
 
     });
-  
+
 
     $(document).on('click', '.localizarlote', function (e) {
+       
+        e.preventDefault();
 
-         e.preventDefault();
+        var valor = $(this).data('id'); 
 
-        var valor = $(this).data('id');
+        const buscarLote = async () => {
+          
+            Notiflix.Loading.Standard('Aguarde...');
+            
+            try {
 
+                const response = await fetch('@Url.Action("Buscar_Lote", "Publicacao")?lote=' + valor);
 
+                //Tratamento de erro!
+                if (!response.ok ) {
+                    const data = await response.json();
+                    Notiflix.Loading.Remove();
 
-        $.ajax({
-            url: '@Url.Action("Buscar_Lote", "Publicacao")',
-            type: 'GET',
-            data: { lote: valor },
-            success: function (data) {
-
-                if (data.error == true) {
-                    Notiflix.Notify.Failure('Erro ao realizar a operação.');
+                    if (data.redirectTo) {
+                        window.location.href = data.redirectTo; //Erros 500 e NotFoud
+                    } else {
+                        Notiflix.Notify.Failure(data.message); //Erros 400 outros
+                    }
                     return false;
                 }
-                if (data.publicacaoModel) { // Apenas verifica se o objeto existe
+
+                if (data.publicacaoModel) {
                     let publicacao = data.publicacaoModel;
                     $('#prt_lote').val(publicacao.prt_lote);
                     $('#prt_usu_publicacao').val(publicacao.prt_publicacao_dom);
                     $('#prt_dt_lote').val(publicacao.prt_dt_lote);
                     $('#prt_publicacao_qtd').val(publicacao.prt_publicacao_qtd);
-                } else {
-                    console.warn("Nenhum dado encontrado");
+                    $('#myModal').modal('show');
                 }
 
-                $('#myModal').modal('show');
-
-            },
-            error: function (xhr, status, error) {
-                // Lida com erros, se houver
-                console.log(xhr.responseText);
+            } catch (error) {
+                Notiflix.Notify.Failure('Erro de comunicação com o servidor.');
+                console.error(error);
+            } finally {
+                Notiflix.Loading.Remove();
             }
-        });
+        };
+
+        // Chama a função async
+        buscarLote();
     });
 
 
-    $(document).on('click', '#btn_atualizar', async function () {
-        
+    $(document).on('click', '#btn_atualizar', function (e) {
+
         //validando os ultimos campos
         if (!validarCampos()) {
-            return false; 
+            return false;
         }
-                
+
         if ($("#form_publicacao").valid()) {
 
             var formData = new FormData($('#form_publicacao')[0]);
@@ -226,88 +249,121 @@
                 async function okCb() {
                     Notiflix.Loading.Standard('Aguarde...');
 
-                    $.ajax({
-                        url: '@Url.Action("AtualizarPublicacao", "Publicacao")',
-                        type: 'POST',
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function (result) {
-
+                    try {
+                        const response = await fetch('@Url.Action("AtualizarPublicacao", "publicacao")', {
+                            method: 'POST',
+                            body: formData
+                        });
+                 
+                        //Tratamento de erro!
+                        if (!response.ok) {
+                            
                             Notiflix.Loading.Remove();
+                            
+                            const data = await response.json();                           
 
-                            if (result.error === true) {
-                                Notiflix.Notify.Failure('Erro.');
-                                return false;
+                            if (data.redirectTo) {
+                                window.location.href = data.redirectTo; //Erros 500 e NotFoud
+                            } else {
+                                Notiflix.Notify.Failure(data.message); //Erros 400 outros
                             }
-                              $('#myModal').modal('hide');
-
-                            $('#Div_Publicar').html(result); // Atualiza a div com a Partial View
-                        },
-                        error: function (xhr, status, error) {
-                            console.log('Erro ao enviar arquivo:', error);
-                            Notiflix.Loading.Remove();
-                        }
-                    });
-                },
-                function cancelCb() {
-                    Notiflix.Loading.Remove();
-                },
-                {
-
-                }
-            );
-
-
-           
-        }
-    });
-
-
-    $(document).on('click', '#btn_excluir', async function () {
-        
-        var Lote = $('#prt_lote').val()
-        
-        Notiflix.Confirm.Show(
-            'Aviso!',
-            'Tem certeza que deseja excluir o lote: ' + Lote +' ?' ,
-            'Sim',
-            'Não',
-            async function okCb() {
-                
-                Notiflix.Loading.Standard('Aguarde...');
-
-                $.ajax({
-                    url: '@Url.Action("ExcluirLote", "Publicacao")',
-                    type: 'POST',
-                    data: { lote: Lote},
-                    success: function (result) {
-                        // Lógica a ser executada em caso de sucesso
-                        if (result.error == true) {
-                            Notiflix.Loading.Remove();
-                            Notiflix.Notify.Failure(result.message);
                             return false;
                         }
 
                         $('#myModal').modal('hide');
-                        $('#Div_Publicar').html(result); // Atualiza a div com a Partial View
-                        Notiflix.Loading.Remove();
+                        Notiflix.Loading.Remove();             
+                        const html = await response.text();
+                        $('#Div_Publicar').html(html);
 
-                    },
-                    error: function (xhr, status, error) {
-                        // Lógica a ser executada em caso de erro
-                        console.log('Erro ao enviar arquivo:', error);
+                    } catch (error) {
+                        Notiflix.Notify.Failure(error);
                         Notiflix.Loading.Remove();
                     }
-                });
 
+                },
+                function cancelCb() {
+                    Notiflix.Loading.Remove();
+                }
+            );
+
+        }
+
+
+    });
+
+
+    $(document).on('click', '#btn_excluir', async function () {
+
+        var Lote = $('#prt_lote').val()
+
+        Notiflix.Confirm.Show(
+            'Aviso!',
+            'Tem certeza que deseja excluir o lote: ' + Lote + ' ?',
+            'Sim',
+            'Não',
+            async function okCb() {
+
+                Notiflix.Loading.Standard('Aguarde...');
+
+                try {
+                    const response = await fetch(`@Url.Action("ExcluirLote", "Publicacao")?lote=${encodeURIComponent(Lote)}`, {
+                    method: 'POST'// Aqui o corpo com o lote
+                    });                    
+                   
+                 
+
+                    //Tratamento de erro!
+                    if (!response.ok) {
+                        const data = await response.json();
+                        Notiflix.Loading.Remove();
+
+                        if (data.redirectTo) {
+                            window.location.href = data.redirectTo; //Erros 500 e NotFoud
+                        } else {
+                            Notiflix.Notify.Failure(data.message); //Erros 400 outros
+                        }
+                        return false;
+                    }
+
+                    Notiflix.Loading.Remove();
+                    $('#myModal').modal('hide'); 
+
+                    const html = await response.text();
+                    $('#Div_Publicar').html(html);
+
+                } catch (error) {
+                    console.log(error)
+                    Notiflix.Notify.Failure(error);
+                    Notiflix.Loading.Remove();
+                }                
+            },
+            function cancelCb() {
+                Notiflix.Loading.Remove();
+            }
+           
+        );
+    });
+
+
+    $(document).on('click', '#btnDOM', async function () {
+
+
+        var Lote = $('#prt_lote').val()
+
+        Notiflix.Confirm.Show(
+            'Aviso!',
+            'Tem certeza que deseja gerar arquivo DOM para o : ' + Lote + ' ?',
+            'Sim',
+            'Não',
+            async function okCb() {
+         
+                window.location.href = '@Url.Action("GerarWord", "Publicacao")' + '?lote=' + Lote;
+              
             },
             function cancelCb() {
                 Notiflix.Loading.Remove();
             },
-            {
-
-            }
+           
         );
     });
 

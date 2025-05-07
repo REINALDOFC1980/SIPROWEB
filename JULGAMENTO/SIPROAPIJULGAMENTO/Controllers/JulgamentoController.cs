@@ -276,21 +276,7 @@ namespace SIPROAPIJULGAMENTO.Controllers
 
 
 
-        [HttpGet]
-        [Route("buscar-processo-excluir/{usuario}/{situacao}/{processo}")]
-        public async Task<IActionResult> LocalizarProcessosExcluirVoto(string usuario, string situacao, string processo)
-        {
-
-            var resultado = await _julgamento.LocalizarProcessosExcluirVoto(usuario, situacao, processo);
-
-            if (resultado == null)
-            {
-                return NoContent();
-            }
-
-            return Ok(resultado);
-
-        }
+       
 
     }
 }
