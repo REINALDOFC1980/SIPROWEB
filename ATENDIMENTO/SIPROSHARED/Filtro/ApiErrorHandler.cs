@@ -39,12 +39,11 @@ namespace SIPROSHARED.Filtro
                 var errorData = JsonConvert.DeserializeObject<ErrorResponseModel>(errorResponse);
                 var errorMessage = errorData?.Errors?.FirstOrDefault() ?? "Requisição inválida.";
 
-                // Armazenar em TempData via JSON (passa pela URL redirecionando)
                 return new ObjectResult(new
                 {
                     error = true,
-                    message = errorMessage,
-                    redirectTo = urlHelper.Action("BadRequest", "Home", new { msg = errorMessage })
+                    message = errorMessage
+                    //redirectTo = urlHelper.Action("BadRequest", "Home", new { msg = errorMessage })
                 })
                 { StatusCode = (int)response.StatusCode };
             }

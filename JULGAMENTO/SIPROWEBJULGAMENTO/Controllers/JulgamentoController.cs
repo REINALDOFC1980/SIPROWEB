@@ -54,9 +54,11 @@ namespace SIPROWEBJULGAMENTO.Controllers
                 string apiUrl = $"{_baseApiUrl}julgamento/localizar-processoall/{userMatrix}/{"Todos"}";
                 var response = await _httpClient.GetAsync(apiUrl);
 
-                //tratamento de erro 500
+                //tratamento de erro 
                 if (response.StatusCode == HttpStatusCode.InternalServerError)
                     return RedirectToAction("InternalServerError", "Home");
+                if (response.StatusCode == HttpStatusCode.BadRequest)
+                    return RedirectToAction("BadRequest", "Home", new { msg = "Erro ao inicializar a pagina." }); ;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -81,9 +83,11 @@ namespace SIPROWEBJULGAMENTO.Controllers
             string apiUrl = $"{_baseApiUrl}julgamento/localizar-processos-assinar/{userMatrix}/{"Todos"}";
             var response = await _httpClient.GetAsync(apiUrl);
 
-            //tratamento de erro 500
+            //tratamento de erro 
             if (response.StatusCode == HttpStatusCode.InternalServerError)
                 return RedirectToAction("InternalServerError", "Home");
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+                return RedirectToAction("BadRequest", "Home", new { msg = "Erro ao inicializar a pagina." }); ;
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -104,8 +108,11 @@ namespace SIPROWEBJULGAMENTO.Controllers
                 var response = await _httpClient.GetAsync(apiUrl);
 
                 //tratamento de erro 500
+                //tratamento de erro 
                 if (response.StatusCode == HttpStatusCode.InternalServerError)
                     return RedirectToAction("InternalServerError", "Home");
+                if (response.StatusCode == HttpStatusCode.BadRequest)
+                    return RedirectToAction("BadRequest", "Home", new { msg = "Erro ao inicializar a pagina." }); ;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -127,14 +134,21 @@ namespace SIPROWEBJULGAMENTO.Controllers
         [HttpGet]
         public async Task<IActionResult> BuscarProtocolo(string vlobusca)
         {
+
+            var valor = vlobusca?.Replace("/", "") ?? "";
             ViewBag.Protocolo = new List<ProtocoloJulgamento_Model>();
 
-            string apiUrl = $"{_baseApiUrl}julgamento/localizar-processoall/{userMatrix}/{vlobusca}";
+            string apiUrl = $"{_baseApiUrl}julgamento/localizar-processoall/{userMatrix}/{valor}";
             var response = await _httpClient.GetAsync(apiUrl);
 
-            //tratamento de erro 500
-            if (response.StatusCode == HttpStatusCode.InternalServerError)
-                return PartialView("_ErrorPartialView");
+
+            // Verifica erros tratados
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
+
+
+  
 
              if (response.StatusCode == HttpStatusCode.OK)
                 ViewBag.Protocolo = await response.Content.ReadFromJsonAsync<List<ProtocoloJulgamento_Model>>();
@@ -149,9 +163,12 @@ namespace SIPROWEBJULGAMENTO.Controllers
             string apiUrl = $"{_baseApiUrl}julgamento/localizar-processo/{userMatrix}/{vlobusca}";
             var response = await _httpClient.GetAsync(apiUrl);
 
-            //tratamento de erro 500
+            //tratamento de erro 
             if (response.StatusCode == HttpStatusCode.InternalServerError)
                 return RedirectToAction("InternalServerError", "Home");
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+                return RedirectToAction("BadRequest", "Home", new { msg = "Erro ao inicializar a pagina." }); ;
+
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -182,9 +199,12 @@ namespace SIPROWEBJULGAMENTO.Controllers
             string apiUrl = $"{_baseApiUrl}julgamento/localizar-processo/{userMatrix}/{vlobusca}";            
             var response = await _httpClient.GetAsync(apiUrl);
 
-            //tratamento de erro 500
+            //tratamento de erro 
             if (response.StatusCode == HttpStatusCode.InternalServerError)
                 return RedirectToAction("InternalServerError", "Home");
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+                return RedirectToAction("BadRequest", "Home", new { msg = "Erro ao inicializar a pagina." }); ;
+
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -343,7 +363,35 @@ namespace SIPROWEBJULGAMENTO.Controllers
                 return await response.Content.ReadFromJsonAsync<JulgamentoProcessoModel>();            
             else  
                 return null;
-        }     
+        }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> BuscarParecerXMotivo(int mod_id)
+        {
+
+            JulgamentoProcessoModel parecerModel = new JulgamentoProcessoModel();
+
+            var apiUrl = $"{_baseApiUrl}julgamento/buscar-parecer-motivo/{mod_id}";
+            var response = await _httpClient.GetAsync(apiUrl);
+           
+            // Verifica erros tratados
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                parecerModel = await response.Content.ReadFromJsonAsync<JulgamentoProcessoModel>();
+                return Json(new { error = false, parecerModel });
+            }
+
+            return Json(new { error = false, parecerModel });
+        }
+
+
+
 
         [HttpPost]
         public async Task<IActionResult> EncaminharProcessoInstrucao(InstrucaoProcessoModel instrucaoProcesso)
@@ -353,84 +401,60 @@ namespace SIPROWEBJULGAMENTO.Controllers
             var response = await _httpClient.PostAsJsonAsync(apiUrl, instrucaoProcesso);
 
 
-            //tratamento de erro
-            if (!response.IsSuccessStatusCode)
-            {
-                if (response.StatusCode == HttpStatusCode.InternalServerError)
-                    return Json(new { error = true });
+            // Verifica erros tratados
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
 
-                else if (response.StatusCode == HttpStatusCode.BadRequest)
-                    return await HandleErrorResponse(response);
 
-                else if (response.StatusCode == HttpStatusCode.NoContent)
-                    return await HandleErrorResponse(response);
-
-            }
-            
-                return Json(new { erro = false, retorno = "Operação realizada com sucesso!" });          
+             return Json(new { erro = false, retorno = "Operação realizada com sucesso!" });          
 
         }
 
         [HttpPost]
         public async Task<IActionResult> InserirVotoRelator(JulgamentoProcessoModel julgamentoProcesso)
-        {                   
+        {
+
             var resultado = await VerificarVoto(julgamentoProcesso.Disjug_Dis_Id);
-          
+
             //caso não retorne valor é feita a primeira inserção
-            if(resultado == null){
+            if (resultado == null){
 
                 julgamentoProcesso.Disjug_Relator = userMatrix;
 
                 var apiUrl = $"{_baseApiUrl}julgamento/inserir-voto-relator";
                 var response = await _httpClient.PostAsJsonAsync(apiUrl, julgamentoProcesso);
 
-                //tratamento de erro
-                if (!response.IsSuccessStatusCode)
-                {
-                    if (response.StatusCode == HttpStatusCode.InternalServerError)
-                        return Json(new { error = true });
+                // Verifica erros tratados
+                var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+                if (resultadoErro != null)
+                    return resultadoErro;
+              
 
-                    else if (response.StatusCode == HttpStatusCode.BadRequest)
-                        return await HandleErrorResponse(response);
-
-                    else if (response.StatusCode == HttpStatusCode.NoContent)
-                        return await HandleErrorResponse(response);
-
-                }
-
-                return Json(new { erro = false, retorno = "Operação realizada com sucesso!" , Url = @Url.Action("Julgamento", "Julgamento") });
+                return Json(new { erro = false, retorno = "Operação realizada com sucesso!"  });
             }
             //caso ja tenha dados verifica se usuario que esta logado ja realizou o voto
             if(resultado.Disjug_Resultado_Data != null )
             {
                 return Json(new { erro = true, retorno = "Seu voto já foi confirmado!" });
             }   
-            else
+            else //### VOTO DO MEMBRO
             {
                 julgamentoProcesso.Disjug_Relator = userMatrix;
                
                 var apiUrl = $"{_baseApiUrl}julgamento/inserir-voto-membro";
                 var response = await _httpClient.PostAsJsonAsync(apiUrl, julgamentoProcesso);
 
-                //tratamento de erro
-                if (!response.IsSuccessStatusCode)
-                {
-                    if (response.StatusCode == HttpStatusCode.InternalServerError)
-                        return Json(new { error = true });
-
-                    else if (response.StatusCode == HttpStatusCode.BadRequest)
-                        return await HandleErrorResponse(response);
-
-                    else if (response.StatusCode == HttpStatusCode.NoContent)
-                        return await HandleErrorResponse(response);
-
-                }
-
+                // Verifica erros tratados
+                var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+                if (resultadoErro != null)
+                    return resultadoErro;
+               
 
                 if (!response.IsSuccessStatusCode)
                     return Json(new { erro = true, retorno = "Erro ao inserir!"});
                
-                return Json(new { erro = false, retorno = "Operação realizada com sucesso!" , Url = @Url.Action("Assinatura", "Julgamento") });
+                return Json(new { erro = false, retorno = "Operação realizada com sucesso!"  });
 
             }                   
                            
@@ -453,6 +477,7 @@ namespace SIPROWEBJULGAMENTO.Controllers
         {
             try
             {
+
                 ViewBag.Anexo = new List<Anexo_Model>();
 
                 var apiUrl = $"{_baseApiUrl}julgamento/inserir-anexo";
@@ -474,6 +499,13 @@ namespace SIPROWEBJULGAMENTO.Controllers
                 content.Add(new StringContent(protocoloJson, Encoding.UTF8, "application/json"), "protocoloJson");
 
                 var response = await _httpClient.PostAsync(apiUrl, content);
+
+
+                // Verifica erros tratados
+                var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+                if (resultadoErro != null)
+                    return resultadoErro;
+
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -521,8 +553,10 @@ namespace SIPROWEBJULGAMENTO.Controllers
             var apiUrl = $"{_baseApiUrl}julgamento/excluir-anexo/{prodoc_id}";
             var response = await _httpClient.PostAsJsonAsync(apiUrl, prodoc_id);
 
-            if (!response.IsSuccessStatusCode)
-                return PartialView("_ErrorPartialView");
+            // Verifica erros tratados
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
 
             ViewBag.Anexos = await BuscarAnexoBanco(prt_numero);
             return PartialView("_AnexoJulgamento");

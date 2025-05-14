@@ -433,27 +433,39 @@
 
                     Notiflix.Loading.Standard('Aguarde...');
 
-                    $.ajax({
-                        url: '@Url.Action("InserirVotoRelator", "Julgamento")',
-                        type: 'POST',
-                        data: $.param(formData), // Converte o array para uma string serializada
-                        success: function (response) {
+                    try {
+                        const response = await fetch('@Url.Action("InserirVotoRelator", "Julgamento")', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: $.param(formData)
+                        });
+
+                        // ✅ Tratamento de erro
+                        if (!response.ok) {
                             Notiflix.Loading.Remove();
-                            if (response.erro == false) {
-                                Notiflix.Notify.Success("Assinatura realizada com sucesso!");
-                                // Atraso de 2 segundos antes do redirecionamento
-                                setTimeout(function () {
-                                    window.location.href = response.url;
-                                }, 1000);
+                            const data = await response.json();
+                            if (data.redirectTo) {
+                                window.location.href = data.redirectTo;
                             } else {
-                                Notiflix.Notify.Failure(response.message);
+                                Notiflix.Notify.Failure(data.message || "Erro ao enviar instrução.");
                             }
-                        },
-                        error: function (xhr, status, error) {
-                            Notiflix.Notify.Failure("Erro interno!");
-                            Notiflix.Loading.Remove();
+                            return false;
                         }
-                    });
+
+                        // ✅ OK!
+                        Notiflix.Notify.Success("Julgamento realizado com sucesso!");
+                        setTimeout(function () {
+                            window.location.href = '@Url.Action("Assinatura", "Julgamento")';
+                        }, 1000);
+
+
+                    } catch (error) {
+                        Notiflix.Loading.Remove();
+                        Notiflix.Notify.Failure("Erro interno!");
+                        console.error("Erro ao enviar instrução:", error);
+                    }
 
                 }
             },

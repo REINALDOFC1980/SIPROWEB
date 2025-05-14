@@ -19,6 +19,8 @@ namespace SIPROSHAREDJULGAMENTO.Service.IRepository
 
         Task<List<SetorModel>> BuscarSetor();
 
+        Task<JulgamentoProcessoModel> BuscarParecerXMotivo(int mod_id);
+
         Task<List<MembroModel>> BuscarMembros(string usuario);
 
         Task<List<MotivoVotoModel>> BuscarMotivoVoto();

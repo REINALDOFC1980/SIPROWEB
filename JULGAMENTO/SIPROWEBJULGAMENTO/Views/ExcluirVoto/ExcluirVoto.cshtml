@@ -68,9 +68,6 @@
                 <ul class="nav nav-tabs">
                     <li><a class="nav-link active show" data-toggle="tab" href="#tab-1">Dados do Julgamento </a></li>
                 </ul>
-
-
-
                 <div class="tab-content">
                     <div id="tab-1" class="tab-pane active show">
                         <div class="panel-body">
@@ -142,6 +139,7 @@
 <script>
 
 
+
     function LocalizarProtocolo(Situacao, Vlobusca) {
         $.ajax({
             url: '@Url.Action("BuscarProcessos", "ExcluirVoto")',
@@ -209,10 +207,8 @@
         document.getElementById('tab-1').classList.add('active', 'show');
     }
 
-
     async function fetchAndUpdate(url, elementId) {
         try {
-            console.log(`Fetching: ${url}`);
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -237,7 +233,6 @@
         }
     }
 
-
     function handleRowClick(_prt_numero) {
         
         const urls = [
@@ -252,8 +247,6 @@
 
     }
 
-
-   let isProcessing = false;
     $(document).on('click', '.btn_excluirVoto', function () {
 
         $('#myModal').modal('hide');
@@ -295,7 +288,7 @@
 
                     Notiflix.Loading.Remove();
                     Notiflix.Notify.Success("Operação realizada com sucesso.");
-                    handleRowClick("0/0000")
+                    handleRowClick("0/0000")           
                     const html = await response.text();
                     $('#div_listaExcluir').html(html);
 

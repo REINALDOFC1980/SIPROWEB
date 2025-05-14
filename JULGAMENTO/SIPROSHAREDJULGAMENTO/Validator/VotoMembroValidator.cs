@@ -19,12 +19,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Validator
 
             RuleFor(user => user.Disjug_Relator)
                .NotEmpty().WithMessage("O Relator é obrigatório.");
-
-            RuleFor(user => user.Disjug_Resultado)
-             .NotEmpty().WithMessage("O resultado é obrigatório.");            
-
-            
-
+          
         }
     }
 }

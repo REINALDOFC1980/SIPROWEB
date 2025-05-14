@@ -1,10 +1,12 @@
 ﻿using Dapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using SIPROSHARED.DbContext;
 using SIPROSHARED.Models;
 using SIPROSHAREDHOMOLOGACAO.Validator;
 using SIPROSHAREDJULGAMENTO.Models;
 using SIPROSHAREDJULGAMENTO.Service.IRepository;
+using SIPROSHAREDJULGAMENTO.Validator;
 using SIRPOEXCEPTIONS.ExceptionBase;
 using System.Data;
 using System.Data.Common;
@@ -20,10 +22,12 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-
+       
+        // ✅
         public async Task<List<ProtocoloJulgamento_Model>> LocalizarProcessos(string usuario, string vlobusca)
         {
-            //validação
+            if (string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(vlobusca))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
 
             var query = @"
 							SELECT PRT_NUMERO
@@ -48,8 +52,8 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                                              inner join TipoRestricao on(PRT_RESTRICAO = RES_ID)
 
 							WHERE DIS_DESTINO_USUARIO = @usuario
-                              and PRT_AIT like case when @vlobusca = 'Todos' then '%' else @vlobusca end
-                              and PRT_NUMERO like case when @vlobusca = 'Todos' then '%' else @vlobusca end
+                              and  (PRT_AIT like case when @vlobusca = 'Todos' then '%' else @vlobusca end or
+                                  Replace(PRT_NUMERO,'/','') like case when @vlobusca = 'Todos' then '%' else @vlobusca end )
 							  and DIS_DESTINO_STATUS = 'RECEBIDO'
                               and isnull(DIS_RETORNO,0) = 0
                               and DIS_ID not in (select DISJUG_DIS_ID from Protocolo_Distribuicao_Julgamento)
@@ -65,8 +69,12 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
         }
 
+        // ✅
         public async Task<List<ProtocoloJulgamento_Model>> LocalizarProcessosAssinar(string usuario, string vlobusca)
         {
+            if (string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(vlobusca))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
 
             var query = @"
 							SELECT PRT_NUMERO 
@@ -106,6 +114,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             }
         }
 
+        // ✅
         public async Task<List<ProtocoloJulgamento_Model>> LocalizarRetificacao(string usuario, string vlobusca)
         {
             var query = @"
@@ -145,34 +154,37 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             }
         }
 
+        // ✅
         public async Task<ProtocoloJulgamento_Model> LocalizarProcesso(string usuario, string vlobusca)
         {
+           if (string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(vlobusca))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
 
             var query = @"
-				 SELECT    PRT_NUMERO 
-                                  ,MOVPRO_SETOR_ORIGEM as PRT_COD_ORIGEM
-                                  ,ORI_DESCRICAO as PRT_NOME_ORIGEM
-                                  ,ASS_NOME as PRT_NOME_ASSUNTO
-                                  ,PRT_DT_ABERTURA
-                                  ,PRT_DT_POSTAGEM
-                                  ,PRT_CPFCNJ_PROPRIETARIO
-                                  ,PRT_NOMEPROPRIETARIO							  
-	                              ,PRT_AIT
-                                  ,PRT_RESTRICAO
-                                  ,RES_NOME AS PRT_RESTRICAO_NOME
-                                  ,PRT_PLACA
- 	                              ,DIS_ID
-                                  ,DIS_RETORNO_OBS 
-                                  ,PRT_OBSERVACAO
-                                  ,DIS_RETORNO_OBS 
-                         FROM Protocolo inner join Movimentacao_Processo  on (PRT_NUMERO = MOVPRO_PRT_NUMERO)
-			                          inner join Protocolo_distribuicao on (MOVPRO_ID = DIS_MOV_ID)
-			                          inner join Assunto on (PRT_ASSUNTO = ASS_ID)
-			                          inner join Origem on(PRT_ORIGEM = ORI_CODIGO)
-                                      inner join TipoRestricao on(PRT_RESTRICAO = RES_ID)
-			                    WHERE 
-			                    PRT_AIT = @vlobusca
-			                      and DIS_DESTINO_STATUS IN('RECEBIDO','JULGANDO')
+		       SELECT    PRT_NUMERO 
+                        ,MOVPRO_SETOR_ORIGEM as PRT_COD_ORIGEM
+                        ,ORI_DESCRICAO as PRT_NOME_ORIGEM
+                        ,ASS_NOME as PRT_NOME_ASSUNTO
+                        ,PRT_DT_ABERTURA
+                        ,PRT_DT_POSTAGEM
+                        ,PRT_CPFCNJ_PROPRIETARIO
+                        ,PRT_NOMEPROPRIETARIO							  
+	                    ,PRT_AIT
+                        ,PRT_RESTRICAO
+                        ,RES_NOME AS PRT_RESTRICAO_NOME
+                        ,PRT_PLACA
+ 	                    ,DIS_ID
+                        ,DIS_RETORNO_OBS 
+                        ,PRT_OBSERVACAO
+                        ,DIS_RETORNO_OBS 
+                    FROM Protocolo inner join Movimentacao_Processo  on (PRT_NUMERO = MOVPRO_PRT_NUMERO)
+			                inner join Protocolo_distribuicao on (MOVPRO_ID = DIS_MOV_ID)
+			                inner join Assunto on (PRT_ASSUNTO = ASS_ID)
+			                inner join Origem on(PRT_ORIGEM = ORI_CODIGO)
+                            inner join TipoRestricao on(PRT_RESTRICAO = RES_ID)
+			        WHERE 
+			        PRT_AIT = @vlobusca
+			    and DIS_DESTINO_STATUS IN('RECEBIDO','JULGANDO')
 				";
 
             using (var connection = _context.CreateConnection())
@@ -185,8 +197,13 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
         }
 
+        // ✅
         public async Task<List<MovimentacaoModel>> BuscarMovimentacao(string prt_numero)
         {
+
+            if (string.IsNullOrEmpty(prt_numero))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
 
             var query = @" SELECT  
                                  
@@ -214,6 +231,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             }
         }
 
+        // ✅
         public async Task<List<SetorModel>> BuscarSetor()
         {
 
@@ -234,8 +252,12 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
         }
 
+        // ✅
         public async Task<List<MembroModel>> BuscarMembros(string usuario)
         {
+            if (string.IsNullOrEmpty(usuario))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
 
             var query = @"  SELECT UPPER(SETSUBUSU_USUARIO) AS SETSUBUSU_USUARIO,
                                    UPPER(SETSUBUSU_NOMECOMPLETO) AS SETSUBUSU_NOMECOMPLETO
@@ -261,6 +283,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
         }
 
+        // ✅
         public async Task<List<MotivoVotoModel>> BuscarMotivoVoto()
         {
             var query = @"   select MOT_COD,  
@@ -277,8 +300,197 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             }
         }
 
+        // ✅
+        public async Task<JulgamentoProcessoModel> BuscarParecerRelator(int vlobusca)
+        {
+            if (vlobusca == 0)
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
+            var query = @"   Select   top 1 
+                                      Disjug_Id
+		                             ,Disjug_Dis_Id   
+		                             ,DISJUG_DIS_ID 
+		                             ,Disjug_Relator            
+		                             ,Convert(varchar(10),Disjug_Data,103)  as Disjug_Data           
+		                             ,Disjug_Parecer_Relatorio                                                                                                                                                                                                                                         
+		                             ,Case when Disjug_Resultado = 'D' then 'DEFERIDO' ELSE 'INDEFERIDO' END as Disjug_Resultado 
+		                             ,Disjug_Motivo_Voto                                
+		                             ,Convert(varchar(10),Disjug_Resultado_Data,103) as Disjug_Resultado_Data
+                                from Protocolo_Distribuicao_Julgamento where DISJUG_DIS_ID = @vlobusca order by Disjug_Id";
+
+
+            using (var connection = _context.CreateConnection())
+            {
+
+                var parametros = new { vlobusca };
+                var parecer = await connection.QueryFirstOrDefaultAsync<JulgamentoProcessoModel>(query, parametros);
+
+
+                return parecer;
+            }
+
+        }
+
+        // ✅
+        public async Task<List<JulgamentoProcessoModel>> BuscarVotacao(int vlobusca)
+        {
+            if (vlobusca == 0)
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
+            var query = @"   select 
+		                        DISJUG_RELATOR,
+                                FORMAT(DISJUG_RESULTADO_DATA, 'dd/MM/yyyy HH:mm') AS DISJUG_RESULTADO_DATA,
+		                        Case when DISJUG_RESULTADO = 'I' then 'INDEFERIDO'
+		                          when DISJUG_RESULTADO IN('D','O') then 'DEFERIDO' 
+		                       ELSE 'AGUARDANDO...' END AS DISJUG_RESULTADO,
+		                        Case when DISJUG_PARECER_RELATORIO is null then 'MEMBRO' else 'RELATOR' END AS Disjul_tipo 
+
+                         from Protocolo_Distribuicao_Julgamento
+                         where DISJUG_DIS_ID = @vlobusca ";
+
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parametros = new { vlobusca };
+                var command = await connection.QueryAsync<JulgamentoProcessoModel>(query, parametros);
+                return command.ToList();
+            }
+
+        }
+        
+        // ✅
+        public async Task<JulgamentoProcessoModel> VerificarVoto(string disjug_relator, int disjug_dis_id)
+        {
+            if (disjug_dis_id == 0 || string.IsNullOrEmpty(disjug_relator))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
+            var query = @"SELECT DISJUG_ID,
+                                 DISJUG_RESULTADO_DATA 
+                            FROM Protocolo_Distribuicao_Julgamento 
+                           WHERE DISJUG_RELATOR = @disjug_relator and 
+                                 DISJUG_DIS_ID = @disjug_dis_id  ";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parametros = new { disjug_relator, disjug_dis_id };
+                var result = await connection.QueryFirstOrDefaultAsync<JulgamentoProcessoModel>(query, parametros);
+                return result;
+            }
+        }
+
+        // ✅
+        public async Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero)
+        {
+
+            if (string.IsNullOrEmpty(prt_numero))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
+            try
+            {
+                List<AnexoModel> anexoModel = new List<AnexoModel>();
+
+                using (var connection = _context.CreateConnection())
+                {
+                    string selectQuery = @"   SELECT 
+                                              PRTDOC_ID,
+                                              PRTDOC_PRT_NUMERO,
+                                              PRTDOC_OBSERVACAO,
+                                              PRTDOC_IMAGEM,
+                                              PRTDOC_PRT_SETOR
+                                         FROM Protocolo_Documento_Imagem 
+                                        WHERE REPLACE(PRTDOC_PRT_NUMERO, '/', '') = @prt_numero";
+
+                    using (var selectCommand = connection.CreateCommand())
+                    {
+                        connection.Open();
+
+                        selectCommand.CommandText = selectQuery;
+                        var param = selectCommand.CreateParameter();
+                        param.ParameterName = "@prt_numero";
+                        param.Value = prt_numero;
+                        selectCommand.Parameters.Add(param);
+
+                        // Executa a consulta SELECT
+                        using (var reader = selectCommand.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var imagemBytes = (byte[])reader["PRTDOC_IMAGEM"];
+                                var imagemBase64 = Convert.ToBase64String(imagemBytes);
+                                var nomeArquivo = reader["PRTDOC_OBSERVACAO"].ToString();
+                                int prtdoc_id = reader.GetInt32(reader.GetOrdinal("PRTDOC_ID"));
+                                int prtdoc_prt_setor = reader.GetInt32(reader.GetOrdinal("PRTDOC_PRT_SETOR"));
+
+                                // Cria uma nova instância de AnexoModel
+                                var anexo = new AnexoModel
+                                {
+                                    nome = nomeArquivo,
+                                    caminhosrc = $"<img src='data:image/jpeg;base64,{imagemBase64}' alt='Imagem' style=\"width: 100%; height: 150px;\">",
+                                    caminhohref = $"data:image/jpeg;base64,{imagemBase64}",
+                                    prtdoc_id = prtdoc_id,
+                                    prt_numero = prt_numero,
+                                    prtdoc_prt_setor = prtdoc_prt_setor,
+                                };
+                                // Adiciona o objeto AnexoModel à lista
+                                anexoModel.Add(anexo);
+                            }
+                        }
+                    }
+
+                    return anexoModel;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
+
+        }
+
+        // ✅
+        public async Task<List<InstrucaoProcessoModel>> BuscarHistoricoInstrucao(string vlobusca)
+        {
+
+            if (string.IsNullOrEmpty(vlobusca))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
+
+            var query = @"   
+                           Select MOVPRO_USUARIO_ORIGEM as INSPRO_Usuario_origem,
+                                  MOVPRO_PARECER_ORIGEM as INSPRO_Parecer,
+                                  MOVPRO_DATA_ORIGEM as INSPRO_DATA_ORIGEM,
+                                  '' as INSPRO_Arquivo,
+                                  ssb.SETSUB_NOME AS INSPRO_Setor_origem ,
+		                          ssa.SETSUB_NOME AS INSPRO_Setor_destino
+                             from Movimentacao_Processo
+			                      inner join SetorSub ssa on(MOVPRO_SETOR_DESTINO = ssa.SETSUB_ID)
+			                      inner join SetorSub ssb on(MOVPRO_SETOR_ORIGEM = ssb.SETSUB_ID)
+                            where Movpro_instrucao = 1 and 
+                                  replace(MOVPRO_PRT_NUMERO,'/','') = @vlobusca 
+                                  order by MOVPRO_ID";
+
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parametros = new { vlobusca };
+                var command = await connection.QueryAsync<InstrucaoProcessoModel>(query, parametros);
+                return command.ToList();
+            }
+
+        }
+
+        // ✅
         public async Task EncamimharProcessoInstrucao(InstrucaoProcessoModel instrucaoProcesso)
         {
+        
+            //validando a model agendamento 
+            var validator = new InstrucaoValidator();
+            var result = validator.Validate(instrucaoProcesso);
+            if (result.IsValid == false)
+                throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
+            //fim
 
             // Adicionando parâmetros
             var dbParametro = new DynamicParameters();
@@ -343,40 +555,13 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             }
         }
 
-        public async Task<JulgamentoProcessoModel> BuscarParecerRelator(int vlobusca)
-        {
-
-            var query = @"   Select   top 1 
-                                      Disjug_Id
-		                             ,Disjug_Dis_Id   
-		                             ,DISJUG_DIS_ID 
-		                             ,Disjug_Relator            
-		                             ,Convert(varchar(10),Disjug_Data,103)  as Disjug_Data           
-		                             ,Disjug_Parecer_Relatorio                                                                                                                                                                                                                                         
-		                             ,Case when Disjug_Resultado = 'D' then 'DEFERIDO' ELSE 'INDEFERIDO' END as Disjug_Resultado 
-		                             ,Disjug_Motivo_Voto                                
-		                             ,Convert(varchar(10),Disjug_Resultado_Data,103) as Disjug_Resultado_Data
-                                from Protocolo_Distribuicao_Julgamento where DISJUG_DIS_ID = @vlobusca order by Disjug_Id";
-
-
-            using (var connection = _context.CreateConnection())
-            {
-
-                var parametros = new { vlobusca };
-                var parecer = await connection.QueryFirstOrDefaultAsync<JulgamentoProcessoModel>(query, parametros);
-
-
-                return parecer;
-            }
-
-        }
-
+        // ✅
         public async Task InserirVotoRelator(JulgamentoProcessoModel julgamentoProcesso)
         {
+       
 
-
-            //validando a model agendamento 
-            var validator = new VotoRelatorValidator();
+           //Validando
+           var validator = new VotoRelatorValidator();
             var result = validator.Validate(julgamentoProcesso);
             if (result.IsValid == false)
                 throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
@@ -474,10 +659,16 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             }
         }
 
+        // ✅
         public async Task InserirVotoMembro(JulgamentoProcessoModel julgamentoProcesso)
         {
 
 
+            //Validando
+            var validator = new VotoMembroValidator();
+            var result = validator.Validate(julgamentoProcesso);
+            if (result.IsValid == false)
+                throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
 
 
             var dbParametro = new DynamicParameters();
@@ -589,54 +780,37 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             }
         }
 
-        public async Task<List<JulgamentoProcessoModel>> BuscarVotacao(int vlobusca)
-        {
-
-            var query = @"   select 
-		                        DISJUG_RELATOR,
-                                FORMAT(DISJUG_RESULTADO_DATA, 'dd/MM/yyyy HH:mm') AS DISJUG_RESULTADO_DATA,
-		                        Case when DISJUG_RESULTADO = 'I' then 'INDEFERIDO'
-		                          when DISJUG_RESULTADO IN('D','O') then 'DEFERIDO' 
-		                       ELSE 'AGUARDANDO...' END AS DISJUG_RESULTADO,
-		                        Case when DISJUG_PARECER_RELATORIO is null then 'MEMBRO' else 'RELATOR' END AS Disjul_tipo 
-
-                         from Protocolo_Distribuicao_Julgamento
-                         where DISJUG_DIS_ID = @vlobusca ";
-
-
-            using (var connection = _context.CreateConnection())
-            {
-                var parametros = new { vlobusca };
-                var command = await connection.QueryAsync<JulgamentoProcessoModel>(query, parametros);
-                return command.ToList();
-            }
-
-        }
-
-        public async Task<JulgamentoProcessoModel> VerificarVoto(string disjug_relator, int disjug_dis_id)
-        {
-
-            var query = @"SELECT DISJUG_ID,
-                                 DISJUG_RESULTADO_DATA 
-                            FROM Protocolo_Distribuicao_Julgamento 
-                           WHERE DISJUG_RELATOR = @disjug_relator and 
-                                 DISJUG_DIS_ID = @disjug_dis_id  ";
-
-            using (var connection = _context.CreateConnection())
-            {
-                var parametros = new { disjug_relator, disjug_dis_id };
-                var result = await connection.QueryFirstOrDefaultAsync<JulgamentoProcessoModel>(query, parametros);
-                return result;
-            }
-        }
-
+        
         public async Task IntoAnexo(List<IFormFile> arquivos, ProtocoloModel protocolo)
         {
+
+
             // Verifica se há arquivos na lista
             if (arquivos != null && arquivos.Count > 0)
             {
                 foreach (var arquivo in arquivos)
                 {
+
+                    // ✅ Tratamento de erro
+                    if (arquivo == null || arquivo.Length == 0)
+                        throw new ErrorOnValidationException(new List<string> { "Arquivo vazio ou nulo." });
+    
+                    if (arquivo.Length > 5 * 1024 * 1024) // 5MB
+                        throw new ErrorOnValidationException(new List<string> { "Arquivo excede o tamanho máximo permitido de 5MB" });
+
+                    var extensao = Path.GetExtension(arquivo.FileName).ToLowerInvariant();
+                    if (extensao != ".jpg" && extensao != ".jpeg" && extensao != ".png")
+                        throw new ErrorOnValidationException(new List<string> { "Apenas imagens JPG e PNG são permitidas." });
+
+
+                    // ✅ Tratamento de erro
+                    var validator = new AnexarDocValidator();
+                    var result = validator.Validate(protocolo);
+                    if (result.IsValid == false)
+                        throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
+
+
+
                     string fileName = arquivo.FileName;
 
                     // Lê o arquivo como um array de bytes
@@ -660,10 +834,10 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                         Declare @PRTDOC_PRT_SETOR int
 
 					    Set @PRTDOC_PRT_SETOR = (Select top 1 SETSUBUSU_SETSUB_ID 
-								        from SetorSubXUsuario 
-								    where SETSUBUSU_USUARIO = @PRT_ATENDENTE )
+								                   from SetorSubXUsuario 
+								                  where SETSUBUSU_USUARIO = @PRT_ATENDENTE )
 
-                            INSERT INTO Protocolo_Documento_Imagem 
+                        INSERT INTO Protocolo_Documento_Imagem 
                         (PRTDOC_DOC_ID, 
                             PRTDOC_PRT_NUMERO, 
                             PRTDOC_IMAGEM, 
@@ -688,12 +862,16 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
                 }
             }
 
-
         }
 
         public async Task<List<Anexo_Model>> BuscarAnexo(string usuario, string ait)
         {
             {
+
+                if (string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(ait))
+                    throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
+
 
                 var query = @"
 
@@ -723,74 +901,11 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             }
         }
 
-        public async Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero)
-        {
-            try
-            {
-                List<AnexoModel> anexoModel = new List<AnexoModel>();
-
-                using (var connection = _context.CreateConnection())
-                {
-                    string selectQuery = @"   SELECT 
-                                              PRTDOC_ID,
-                                              PRTDOC_PRT_NUMERO,
-                                              PRTDOC_OBSERVACAO,
-                                              PRTDOC_IMAGEM,
-                                              PRTDOC_PRT_SETOR
-                                         FROM Protocolo_Documento_Imagem 
-                                        WHERE REPLACE(PRTDOC_PRT_NUMERO, '/', '') = @prt_numero";
-
-                    using (var selectCommand = connection.CreateCommand())
-                    {
-                        connection.Open();
-
-                        selectCommand.CommandText = selectQuery;
-                        var param = selectCommand.CreateParameter();
-                        param.ParameterName = "@prt_numero";
-                        param.Value = prt_numero;
-                        selectCommand.Parameters.Add(param);
-
-                        // Executa a consulta SELECT
-                        using (var reader = selectCommand.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                var imagemBytes = (byte[])reader["PRTDOC_IMAGEM"];
-                                var imagemBase64 = Convert.ToBase64String(imagemBytes);
-                                var nomeArquivo = reader["PRTDOC_OBSERVACAO"].ToString();
-                                int prtdoc_id = reader.GetInt32(reader.GetOrdinal("PRTDOC_ID"));
-                                int prtdoc_prt_setor = reader.GetInt32(reader.GetOrdinal("PRTDOC_PRT_SETOR"));
-
-                                // Cria uma nova instância de AnexoModel
-                                var anexo = new AnexoModel
-                                {
-                                    nome = nomeArquivo,
-                                    caminhosrc = $"<img src='data:image/jpeg;base64,{imagemBase64}' alt='Imagem' style=\"width: 100%; height: 150px;\">",
-                                    caminhohref = $"data:image/jpeg;base64,{imagemBase64}",
-                                    prtdoc_id = prtdoc_id,
-                                    prt_numero = prt_numero,
-                                    prtdoc_prt_setor = prtdoc_prt_setor,
-                                };
-                                // Adiciona o objeto AnexoModel à lista
-                                anexoModel.Add(anexo);
-                            }
-                        }
-                    }
-
-                    return anexoModel;
-                }
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
-
-
-        }
-
         public async Task ExcluirAnexo(int prtdoc_id)
         {
+            if (prtdoc_id == 0)
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
 
             var dbParametro = new DynamicParameters();
             dbParametro.Add("@prtdoc_id", prtdoc_id);
@@ -807,33 +922,23 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 
         }
 
-        public async Task<List<InstrucaoProcessoModel>> BuscarHistoricoInstrucao(string vlobusca)
+        public async Task<JulgamentoProcessoModel> BuscarParecerXMotivo(int mod_id)
         {
 
-            var query = @"   
-                           Select MOVPRO_USUARIO_ORIGEM as INSPRO_Usuario_origem,
-                                  MOVPRO_PARECER_ORIGEM as INSPRO_Parecer,
-                                  MOVPRO_DATA_ORIGEM as INSPRO_DATA_ORIGEM,
-                                  '' as INSPRO_Arquivo,
-                                  ssb.SETSUB_NOME AS INSPRO_Setor_origem ,
-		                          ssa.SETSUB_NOME AS INSPRO_Setor_destino
-                             from Movimentacao_Processo
-			                      inner join SetorSub ssa on(MOVPRO_SETOR_DESTINO = ssa.SETSUB_ID)
-			                      inner join SetorSub ssb on(MOVPRO_SETOR_ORIGEM = ssb.SETSUB_ID)
-                            where Movpro_instrucao = 1 and 
-                                  replace(MOVPRO_PRT_NUMERO,'/','') = @vlobusca 
-                                  order by MOVPRO_ID";
+            if (mod_id == 0)
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
 
+            var query = @" Select PAR_DES AS Disjug_Parecer_Relatorio
+                             from MotivoVoto inner join Parecer on (mot_Cod = PAR_MOT_ID) 
+                            where mot_Cod = @mod_id";
 
             using (var connection = _context.CreateConnection())
             {
-                var parametros = new { vlobusca };
-                var command = await connection.QueryAsync<InstrucaoProcessoModel>(query, parametros);
-                return command.ToList();
+                var parametros = new { mod_id };
+                var result = await connection.QueryFirstOrDefaultAsync<JulgamentoProcessoModel>(query, parametros);
+                return result;
             }
 
         }
-
-
     }
 }

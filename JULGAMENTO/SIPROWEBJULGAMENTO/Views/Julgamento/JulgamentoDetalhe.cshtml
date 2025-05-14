@@ -128,7 +128,7 @@
                                                                 {
                                                                     // Cria a opção manualmente com Html.Raw
                                                                     var isSelected = item.MOT_COD == motivoVotoSelecionado ? "selected" : "";
-                                                                                    @Html.Raw($"<option value='{item.MOT_COD}' {isSelected}>{item.MOT_NOME}</option>")
+                                                                     @Html.Raw($"<option value='{item.MOT_COD}' {isSelected}>{item.MOT_NOME}</option>")
                                                                 }
                                                             }
                                                         
@@ -408,22 +408,7 @@
 
                                         </div>
                                     </div>
-                                </div>
-                                @* <div class="client-detail">
-                                    <div class="full-height-scroll">
-                                        <h4>Arquivos anexados</h4>
-                                        <div class="ibox-content">
-                                            <div class="feed-activity-list" >
-
-                                                <div id="div_anexo">
-                                                    @await Html.PartialAsync("_AnexoJulgamento")
-                                                </div>
-                                               
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> *@
+                                </div>                             
 
                             </div>
                         </div>
@@ -481,6 +466,7 @@
 
 
     $(document).ready(function () {
+       
         $('#summernote').summernote({
             height: 180,
             toolbar: [
@@ -492,8 +478,6 @@
             tooltip: false // Desativa os tooltips
         });
 
-       
-
         var motivoVotoSelecionado = '@(ViewBag.ParecerRelator != null ? Html.Raw(ViewBag.ParecerRelator.Disjug_Parecer_Relatorio) : "")';
      
         $('#summernote').summernote('code', motivoVotoSelecionado);
@@ -502,67 +486,138 @@
         if (motivoVotoSelecionado != '') {
             $('#div_memebro').hide();
         }
-    });
 
 
-    $('#arquivos').change(function () {
-     
-        // Captura todo o formulário de uma única vez
-        var formData = new FormData($('#form_anexo')[0]);
+        $(document).on('change', '#Disjug_Motivo_Voto', async function () {
+            let valor = $(this).val();
 
-        // Envia os dados via AJAX
-        Notiflix.Loading.Standard('Aguarde...');
-        $.ajax({
-            url: '@Url.Action("AnexarDocumentos", "Julgamento")',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (result) {
-                Notiflix.Loading.Remove();
-                $('#div_anexo').html(result);
-            },
-            error: function (xhr, status, error) {
-                console.log('Erro ao enviar arquivo:', error);
+            try {
+                const response = await fetch('@Url.Action("BuscarParecerXMotivo", "Julgamento")?mod_id=' + valor);
+                const data = await response.json();
+              
+
+                if (!response.ok) {
+               
+                    Notiflix.Loading.Remove();
+
+                    if (data.redirectTo) {
+                        window.location.href = data.redirectTo;
+                    } else {
+                        Notiflix.Notify.Failure(data.message || 'Erro inesperado.');
+                    }
+                    return false;
+                }
+
+
+                if (data.parecerModel) {
+                    // Corrigido: remover parêntese extra
+                    console.log(data.parecerModel.disjug_Parecer_Relatorio);
+
+                    // Corrigido: usar o valor correto
+                   $('#summernote').summernote('code', data.parecerModel.disjug_Parecer_Relatorio);
+                }
+
+            } catch (error) {
+ 
+                Notiflix.Notify.Failure('Erro de comunicação com o servidor.');
+
+            } finally {
                 Notiflix.Loading.Remove();
             }
         });
+
     });
 
-    $('#btn_instrucao').click(function () {
 
-      
+
+
+    $('#arquivos').change(async function () {
+
+
+        var formData = new FormData($('#form_anexo')[0]);
+        Notiflix.Loading.Standard('Aguarde...');
+
+        try {
+            const response = await fetch('@Url.Action("AnexarDocumentos", "Julgamento")', {
+                method: 'POST',
+                body: formData
+            });
+
+            // ⛔ Tratamento de erro
+            if (!response.ok) {
+                Notiflix.Loading.Remove();
+                const data = await response.json();
+
+                if (data.redirectTo) {
+                    window.location.href = data.redirectTo;
+                } else {
+                    Notiflix.Notify.Failure(data.message);
+                }
+                return;
+            }
+
+            // ✅ OK
+            Notiflix.Loading.Remove();
+            const html = await response.text();
+            $('#div_anexo').html(html);
+
+        } catch (error) {
+            Notiflix.Notify.Failure("Erro ao enviar arquivos.");
+            console.error(error);
+            Notiflix.Loading.Remove();
+        } finally {
+           
+        }
+    });
+
+    $('#btn_instrucao').click(async function () {
+
         inicializarValidacaoFormulario("#form_instrucao");
 
         if ($("#form_instrucao").valid()) {
 
-            var formData = $("#form_instrucao").serialize();
+  
+
+            const formData = $("#form_instrucao").serialize();
+
             Notiflix.Loading.Standard('Aguarde...');
-            $.ajax({
-                url: '@Url.Action("EncaminharProcessoInstrucao", "Julgamento")',
-                type: 'POST',
-                data: formData,
-                success: function (response) {
+
+            try {
+                const response = await fetch('@Url.Action("EncaminharProcessoInstrucao", "Julgamento")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData
+                });
+
+                // ✅ Tratamento de erro
+                if (!response.ok) {
                     Notiflix.Loading.Remove();
-                    if (response.erro == false) {
-                        Notiflix.Notify.Success("Instrução enviada com sucesso!");
-                        window.location.href = '@Url.Action("Julgamento", "Julgamento")';
+                    const data = await response.json();
+                    if (data.redirectTo) {
+                        window.location.href = data.redirectTo;
+                    } else {
+                        Notiflix.Notify.Failure(data.message || "Erro ao enviar instrução.");
                     }
-                    else
-                        Notiflix.Notify.Failure("Não foi possível enviar a instrução!");
-                },
-                error: function (xhr, status, error) {
-                    Notiflix.Notify.Success("Erro interno!");
-                    Notiflix.Loading.Remove();
+                    return false;
                 }
-            });
 
+                // ✅ OK!
+                Notiflix.Loading.Remove();
+                Notiflix.Notify.Success("Instrução enviada com sucesso!");
+                window.location.href = '@Url.Action("Julgamento", "Julgamento")';
+           
 
+            } catch (error) {
+                Notiflix.Loading.Remove();
+                Notiflix.Notify.Failure("Erro interno!");
+                console.error("Erro ao enviar instrução:", error);
+            }
         }
     });
 
     function RealizarJulgamento(resultado) {
-
 
         Notiflix.Confirm.Show(
             'Aviso!',
@@ -571,10 +626,11 @@
             'Não',
             async function okCb() {
 
+  
+
                 inicializarValidacaoFormulario("#form_julgamento");
 
                 validarSummernote();
-
 
                 if ($("#form_julgamento").valid()) {
                     // Obtém os valores selecionados do campo Disjug_Membro1
@@ -582,6 +638,7 @@
 
                     // Verifica se há pelo menos dois membros selecionados
                     if (selectedMembers.length == 2) {
+
                         // Define name1 e name2 com base nos valores selecionados
                         var name1 = selectedMembers[0];
                         var name2 = selectedMembers[1];
@@ -596,27 +653,42 @@
 
                         Notiflix.Loading.Standard('Aguarde...');
 
-                        $.ajax({
-                            url: '@Url.Action("InserirVotoRelator", "Julgamento")',
-                            type: 'POST',
-                            data: $.param(formData), // Converte o array para uma string serializada
-                            success: function (response) {
+
+                        try {
+                            const response = await fetch('@Url.Action("InserirVotoRelator", "Julgamento")', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded'
+                                },
+                                body: $.param(formData)
+                            });
+
+                            // ⛔ Tratamento de erro
+                            if (!response.ok) {
                                 Notiflix.Loading.Remove();
-                                if (response.erro == false) {
-                                    Notiflix.Notify.Success("Julgamento realizada com sucesso!");
-                                    // Atraso de 2 segundos antes do redirecionamento
-                                    setTimeout(function () {
-                                        window.location.href = response.url;
-                                    }, 1000);
+                                const data = await response.json();
+                                if (data.redirectTo) {
+                                    window.location.href = data.redirectTo;
                                 } else {
-                                    Notiflix.Notify.Failure(response.message);
+                                    Notiflix.Notify.Failure(data.message || "Erro ao enviar instrução.");
                                 }
-                            },
-                            error: function (xhr, status, error) {
-                                Notiflix.Notify.Failure("Erro interno!");
-                                Notiflix.Loading.Remove();
+                                return false;
                             }
-                        });
+
+                            // ✅ OK!
+                            Notiflix.Notify.Success("Julgamento realizado com sucesso!");
+            
+                            setTimeout(function () {
+                                window.location.href = '@Url.Action("Julgamento", "Julgamento")';
+                            }, 1000);
+
+
+                        } catch (error) {
+                            Notiflix.Loading.Remove();
+                            Notiflix.Notify.Failure("Erro interno!");
+                            console.error("Erro ao enviar instrução:", error);
+                        }
+
                     } else {
                         Notiflix.Notify.Warning("Selecione dois membros.");
                         Notiflix.Loading.Remove();
@@ -631,10 +703,6 @@
                 // Configurações adicionais (opcional)
             }
         );
-
-
-
-
         
     };
 
@@ -670,34 +738,59 @@
             'Sim',
             'Não',
             async function okCb() {
+
+                if (isProcessing) return;
+                isProcessing = true;
+
                 Notiflix.Loading.Standard('Aguarde...');
-                $.ajax({
-                    url: '@Url.Action("ExcluirAnexo", "Julgamento")',
-                    type: 'POST',
-                    data: { prodoc_id: prodocid, prt_numero: prtnumero },
-                    success: function (result) {
-                        Notiflix.Loading.Remove();
-                        if (result.error == true) {
-                            Notiflix.Notify.Failure('Erro.');
-                            return false;
+
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('prodoc_id', prodocid);
+                    formData.append('prt_numero', prtnumero);
+
+                    Notiflix.Loading.Standard('Aguarde...');
+
+                    const response = await fetch('@Url.Action("ExcluirAnexo", "Julgamento")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: formData.toString()
+                    });
+
+                    Notiflix.Loading.Remove();
+                  
+                    // ⛔ Tratamento de erro
+                    if (!response.ok) {
+                        const data = await response.json();
+                        if (data.redirectTo) {
+                            window.location.href = data.redirectTo;
+                        } else {
+                            Notiflix.Notify.Failure(data.message || "Erro ao excluir anexo.");
                         }
-
-                        $('#div_anexo').html(result); // Atualiza a div com a Partial View
-                 
-
-                    },
-                    error: function (xhr, status, error) {
-                        // Lógica a ser executada em caso de erro
-                        console.log('Erro ao enviar arquivo:', error);
-                        Notiflix.Loading.Remove();
+                        return false;
                     }
-                });
+
+                    // ✅ OK
+                    const html = await response.text();
+                    isProcessing = false;
+                    $('#div_anexo').html(html);
+
+                } catch (error) {
+                    Notiflix.Loading.Remove();
+                    Notiflix.Notify.Failure("Erro interno!");
+                    console.error("Erro ao excluir anexo:", error);
+                }
+
+
+               
             },
             function cancelCb() {
                 Notiflix.Loading.Remove();
             },
             {
-                // Configurações adicionais (opcional)
+               
             }
         );
 

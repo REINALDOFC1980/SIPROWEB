@@ -27,7 +27,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
             //validação
             if (setor == 0)
             {
-                throw new ErrorOnValidationException(new List<string> { "Setor está vazio!" });
+                throw new ErrorOnValidationException(new List<string> { "Setor está vazio não foi passado!" });
             }
 
             var query = @"
@@ -58,11 +58,9 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
         {
             //validação
             if (string.IsNullOrEmpty(prt_numero))
-            {
                 throw new ErrorOnValidationException(new List<string> { "O número do processo não foi identificado." });
-            }
-
-            
+        
+                        
                 var query = @"				 
                  select MOVPRO_ID,
                         SETSUB_NOME,
@@ -86,9 +84,6 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
                     return result;
                 }
-           
-
-           
         }
 
         public async Task<List<Anexo_Model>> BuscarAnexo(string ait)
@@ -217,7 +212,6 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                 ";
                 await connection.ExecuteAsync(query, dbParametro, transaction);
            
-
 
         }
 

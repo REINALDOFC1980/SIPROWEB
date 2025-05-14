@@ -146,7 +146,13 @@
                         </li>
                     }                   
      
-                   
+                        var consultarProtocolo = new[] { "ATENDIMENTO_1", "ADM", "ATENDIMENTO_ADM", "JULGAMENTO_1", "JULGAMENTO_ADM" };
+                        if (consultarProtocolo.Contains(roles))
+                        {
+                            <li>
+                                <a href="~/Atendimento/LocalizarProtocolo"><i class="fa fa-list-ul"></i> <span class="nav-label">Consultar Protocolo</span></a>
+                            </li>
+                        }
                     var homologacao = new[] { "HOMOLOGACAO_ADM", "HOMOLOGACAO_1", "ADM", "ATENDIMENTO_ADM" };
                     if (homologacao.Contains(roles))
                     {
@@ -164,13 +170,7 @@
                         </li>
                     }
 
-                    var consultarProtocolo = new[] { "ATENDIMENTO_1", "ADM", "ATENDIMENTO_ADM", "JULGAMENTO_1", "JULGAMENTO_ADM" };
-                    if (consultarProtocolo.Contains(roles))
-                    {
-                        <li>
-                            <a href="~/Atendimento/LocalizarProtocolo"><i class="fa fa-list-ul"></i> <span class="nav-label">Consultar Protocolo</span></a>
-                        </li>
-                    }
+                   
 
                     var pessoa = new[] { "ATENDIMENTO_1", "ADM", "ATENDIMENTO_ADM" };
                     if (pessoa.Contains(roles))

@@ -31,9 +31,6 @@
                         <i class="fa fa-print"></i> Imprimir DOM
                     </button>
                 </form>
-
-
-
             </div>
 
 
@@ -112,6 +109,8 @@
 
 <script type="module">
 
+    let isProcessing = false; // Variável de controle para evitar múltiplos cliques
+
     function validarCampos() {
         var valido = true;
 
@@ -142,35 +141,44 @@
             'Sim',
             'Não',
             async function okCb() {
+
                 Notiflix.Loading.Standard('Aguarde...');
                 try {
                     const response = await fetch('@Url.Action("GerarLote", "publicacao")', {
                         method: 'POST'
                     });
 
+                    if (isProcessing) return;
+                    isProcessing = true;
 
+                    // ❌ ERRO
                     if (!response.ok) {
+                        isProcessing = false;
                         const data = await response.json();
                         Notiflix.Loading.Remove();
 
                         if (data.redirectTo) {
                             window.location.href = data.redirectTo;
                         } else {
-                            Notiflix.Notify.Failure(data.message || 'Erro ao gerar o lote.');
+                            Notiflix.Notify.Failure(data.message);
                         }
                         return false;
                     }
-
-                    Notiflix.Loading.Remove();
+                    
+                    // ✅ OK
+                    isProcessing = false;
+                    Notiflix.Loading.Remove();            
                     const html = await response.text();
                     $('#Div_Publicar').html(html);
-
+      
                 } catch (error) {
+                    isProcessing = false;
                     Notiflix.Loading.Remove();
                     Notiflix.Notify.Failure(error);           
                 }
             },
             function cancelCb() {
+                isProcessing = false;
                 Notiflix.Loading.Remove();
             },
             {
@@ -185,29 +193,35 @@
        
         e.preventDefault();
 
+
         var valor = $(this).data('id'); 
 
         const buscarLote = async () => {
-          
             Notiflix.Loading.Standard('Aguarde...');
-            
+
             try {
-
                 const response = await fetch('@Url.Action("Buscar_Lote", "Publicacao")?lote=' + valor);
+                const data = await response.json(); // ✅ Quando retorna Json tanto ok quando erro !
 
-                //Tratamento de erro!
-                if (!response.ok ) {
-                    const data = await response.json();
+                if (isProcessing) return;
+                isProcessing = true;
+
+                // ❌ ERRO
+                if (!response.ok) {
+                    
+                    isProcessing = false;
                     Notiflix.Loading.Remove();
 
                     if (data.redirectTo) {
-                        window.location.href = data.redirectTo; //Erros 500 e NotFoud
+                        window.location.href = data.redirectTo;
                     } else {
-                        Notiflix.Notify.Failure(data.message); //Erros 400 outros
+                        Notiflix.Notify.Failure(data.message || 'Erro inesperado.');
                     }
                     return false;
                 }
 
+                // ✅ OK
+                isProcessing = false;
                 if (data.publicacaoModel) {
                     let publicacao = data.publicacaoModel;
                     $('#prt_lote').val(publicacao.prt_lote);
@@ -216,8 +230,10 @@
                     $('#prt_publicacao_qtd').val(publicacao.prt_publicacao_qtd);
                     $('#myModal').modal('show');
                 }
+                               
 
             } catch (error) {
+                isProcessing = false;
                 Notiflix.Notify.Failure('Erro de comunicação com o servidor.');
                 console.error(error);
             } finally {
@@ -246,7 +262,8 @@
                 'Tem certeza registrar os dados da publicação?',
                 'Sim',
                 'Não',
-                async function okCb() {
+                async function okCb() {  
+
                     Notiflix.Loading.Standard('Aguarde...');
 
                     try {
@@ -254,10 +271,14 @@
                             method: 'POST',
                             body: formData
                         });
-                 
-                        //Tratamento de erro!
+
+                        if (isProcessing) return;
+                        isProcessing = true;
+
+                        // ❌ ERRO
                         if (!response.ok) {
-                            
+                           
+                            isProcessing = false;
                             Notiflix.Loading.Remove();
                             
                             const data = await response.json();                           
@@ -270,12 +291,15 @@
                             return false;
                         }
 
-                        $('#myModal').modal('hide');
-                        Notiflix.Loading.Remove();             
+                        // ✅ OK
+                        Notiflix.Loading.Remove();
+                        isProcessing = false;
+                        $('#myModal').modal('hide');                       
                         const html = await response.text();
                         $('#Div_Publicar').html(html);
 
                     } catch (error) {
+                        isProcessing = false;
                         Notiflix.Notify.Failure(error);
                         Notiflix.Loading.Remove();
                     }
@@ -308,12 +332,15 @@
                 try {
                     const response = await fetch(`@Url.Action("ExcluirLote", "Publicacao")?lote=${encodeURIComponent(Lote)}`, {
                     method: 'POST'// Aqui o corpo com o lote
-                    });                    
-                   
-                 
+                    });
 
-                    //Tratamento de erro!
+                    if (isProcessing) return;
+                    isProcessing = true;
+
+                    // ❌ ERRO
                     if (!response.ok) {
+                        isProcessing = false;
+
                         const data = await response.json();
                         Notiflix.Loading.Remove();
 
@@ -325,19 +352,23 @@
                         return false;
                     }
 
+                    // ✅ OK
+                    isProcessing = false;
                     Notiflix.Loading.Remove();
-                    $('#myModal').modal('hide'); 
-
+                    $('#myModal').modal('hide');
                     const html = await response.text();
                     $('#Div_Publicar').html(html);
+ 
 
                 } catch (error) {
+                    isProcessing = false;
                     console.log(error)
                     Notiflix.Notify.Failure(error);
                     Notiflix.Loading.Remove();
                 }                
             },
             function cancelCb() {
+                isProcessing = false;
                 Notiflix.Loading.Remove();
             }
            
@@ -356,7 +387,7 @@
             'Sim',
             'Não',
             async function okCb() {
-         
+
                 window.location.href = '@Url.Action("GerarWord", "Publicacao")' + '?lote=' + Lote;
               
             },

@@ -31,7 +31,7 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
 
         [HttpGet]
         [Route("localizar-homologacao/{setor}/{resultado}")]
-        public async Task<IActionResult> LocalizarInstrucao(int setor, string resultado)
+        public async Task<IActionResult> LocalizarHomolgacao(int setor, string resultado)
         {
             var processo = await _homologacaoService.LocalizarHomolgacao(setor, resultado);
 

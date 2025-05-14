@@ -48,42 +48,50 @@
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
 
 <script>
-    function mostrarLoading() {
-        Notiflix.Loading.Standard('Aguarde...');
-    }
-      
-        function LocalizarProtocolo(vlobusca) {
-      
-            $.ajax({
-            url: '@Url.Action("BuscarProtocolo", "Julgamento")',
-                datatype: 'html',
-                contentType: "application/html; charset=utf-8",
-                type: "GET",
-                data: { vlobusca: vlobusca },
-                success: function (result) {
 
-                $('#div_listaProtocolo').html(result);
-                },
-                error: function (xhr, status, error) {
-                    // console.error("Erro na busca do protocolo:", error);
+    async function LocalizarProtocolo(vlobusca) {
+        try {
+            const response = await fetch('@Url.Action("BuscarProtocolo", "Julgamento")?vlobusca=' + vlobusca);
+
+
+            // ✅ ERRO
+            if (!response.ok) {
+                Notiflix.Loading.Remove();
+                const data = await response.json(); // ok se o erro retorna JSON
+                if (data.redirectTo) {
+                    window.location.href = data.redirectTo;
+                } else {
+                    Notiflix.Notify.Failure(data.message);
                 }
-            });
-        }
-
-
-        $('#btmLocalizarProtocolo').click(function (event) {
-            var vlobusca = $('#Vlo_Busca').val();
-            event.preventDefault();
-            LocalizarProtocolo(vlobusca);
-        });
-
-
-        $('#Vlo_Busca').on('input', function () {
-            var searchTerm = $(this).val();
-            if (searchTerm === '') {
-                LocalizarProtocolo("Todos"); // Busca todos os resultados
+                return false;
             }
-        });      
+
+            // ✅ OK
+            const html = await response.text();
+            Notiflix.Loading.Remove();
+            $('#div_listaProtocolo').html(html);
+
+        } catch (error) {
+            Notiflix.Loading.Remove();
+            console.error("Erro ao enviar instrução:", error);
+        }
+    }
+
+
+
+    $('#btmLocalizarProtocolo').click(function (event) {
+        var vlobusca = $('#Vlo_Busca').val();
+        event.preventDefault();
+        LocalizarProtocolo(vlobusca);
+    });
+
+
+    $('#Vlo_Busca').on('input', function () {
+        var searchTerm = $(this).val();
+        if (searchTerm === '') {
+            LocalizarProtocolo("Todos"); // Busca todos os resultados
+        }
+    });      
 
 
 

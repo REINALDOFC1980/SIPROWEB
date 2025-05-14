@@ -183,8 +183,8 @@
                 <form id="form_distribuicao">
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label text-right">Processo:</label>
-                        <div class="col-lg-9"><input type="text" class="form-control" id="PRT_NUMERO_R" readonly></div>
-                        <input type="hidden" class="form-control" id="MOVPRO_ID" />
+                        <div class="col-lg-9"><input type="text" class="form-control" id="PRT_NUMERO_R" readonly name="MOVPRO_PRT_NUMERO" /></div>
+                        <input type="hidden" class="form-control" id="MOVPRO_ID" name="MOVPRO_ID" />
                     </div>
                   
                     <div class="form-group row">
@@ -215,24 +215,47 @@
     // });
 
 
+    let isProcessing = false; // Variável de controle para evitar múltiplos cliques
 
-    function LocalizarProtocolo(Setor, Resultado) {
-        $.ajax({
-            url: '@Url.Action("ListaHomologar", "Homologacao")',
-            datatype: 'html',
-            contentType: "application/html; charset=utf-8",
-            type: "GET",
-            data: { setor: Setor, resultado: Resultado }, // Corrigido '=' para ':'
-            success: function (result) {
-                $('#div_listaHomologacao').html(result);
-                AbrirHomologacao("/", "");
-                TabIndex();
-            },
-            error: function (xhr, status, error) {
-                Notiflix.Notify.Failure("Erro na busca do protocolo");
+    async function LocalizarProtocolo(Setor, Resultado) {
+        try {
+            const response = await fetch('@Url.Action("ListaHomologar", "Homologacao")?setor=' + Setor + '&resultado=' + Resultado);
+
+            if (isProcessing) return;
+            isProcessing = true;
+
+            // ❌ ERRO
+            if (!response.ok) {
+
+                isProcessing = false;
+                Notiflix.Loading.Remove();
+                const data = await response.json();
+                if (data.redirectTo) {
+                    window.location.href = data.redirectTo;
+                } else {
+                    Notiflix.Notify.Failure(data.message);
+                }
+                return;
             }
-        });
+
+            // ✅ OK
+            isProcessing = false;
+            const html = await response.text();
+            Notiflix.Loading.Remove();
+            $('#div_listaHomologacao').html(html);
+            AbrirHomologacao("/", "");
+            TabIndex();
+
+        } catch (error) {
+            isProcessing = false;
+            Notiflix.Loading.Remove();
+            console.error("Erro ao enviar instrução:", error);
+        }
     }
+           
+
+
+   
 
 
     function TabIndex() {
@@ -250,7 +273,6 @@
         document.getElementById('tab-1').classList.add('active', 'show');
     }
 
-
     $('#btmLocalizarProtocolo').click(function (event) {
         var Setor = $('#Setor').val();
         var Resultado = $('#resultado').val();
@@ -258,7 +280,6 @@
         event.preventDefault();
         LocalizarProtocolo(Setor, Resultado);
     });
-
 
     $('#Vlo_Busca').on('input', function () {
         var searchTerm = $(this).val();
@@ -269,7 +290,6 @@
 
     async function fetchAndUpdate(url, elementId) {
         try {
-            console.log(`Fetching: ${url}`);
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -308,11 +328,10 @@
         Notiflix.Loading.Remove();
     }
 
-    let isProcessing = false; // Variável de controle para evitar múltiplos cliques
-
     $(document).on('click', '.btnhomologacao', function () {
       
-        var formData = $("#form_homologacao").serialize();
+
+        var formData = new FormData($('#form_homologacao')[0]);
 
         var prt_numero = $('#MovPro_Prt_Numero').val();
 
@@ -321,39 +340,77 @@
             'Tem certeza que deseja homologar esse processo: ' + prt_numero +' ? ',
             'Sim',
             'Não',
-            async function okCb() {                
+            async function okCb() {
+
+                if (isProcessing) return;
+                isProcessing = true;
 
                 Notiflix.Loading.Standard('Aguarde...');
 
-                $.ajax({
-                    url: '@Url.Action("RealizarHomologacao", "Homologacao")',
-                    type: 'POST',
-                    data: formData,
-                    success: function (response) {
+                try {
+                    const response = await fetch('@Url.Action("RealizarHomologacao", "Homologacao")', {
+                        method: 'POST',
+                        body: formData
+                    });
 
-                        Notiflix.Loading.Remove();
-                        if (response.error == 'BadRequest') {
-                            Notiflix.Notify.Failure(response.message);
-                            return false;
-                        };
+                    Notiflix.Loading.Remove();
 
-                        AbrirHomologacao("pr0/000", "a00000");
-
-                        Notiflix.Notify.Success("Homologação realizada com sucesso!");
-                       
-                        $('#div_listaHomologacao').html(response);
-                    },
-                    error: function (xhr, status, error) {
-                        Notiflix.Loading.Remove();
-                        Notiflix.Notify.Failure("Erro interno!");
+                    // ❌ ERRO
+                    if (!response.ok) {
+                        isProcessing = false;
+                        const data = await response.json();
+                        if (data.redirectTo) {
+                            window.location.href = data.redirectTo; //Erros 500 e NotFoud
+                        } else {
+                            Notiflix.Notify.Failure(data.message); //Erros 400 outros
+                        }
+                        return false;
                     }
-                });
+
+                    // ✅ OK
+                    isProcessing = false;
+                    AbrirHomologacao("pr0/000", "a00000");
+                    Notiflix.Notify.Success("Homologação realizada com sucesso!");
+                    const html = await response.text();
+                    $('#div_listaHomologacao').html(html);
+
+                } catch (error) {
+                    Notiflix.Notify.Failure(error);
+                    Notiflix.Loading.Remove();
+                }
+               
+
+
+
+                // $.ajax({
+                //     url: '@Url.Action("RealizarHomologacao", "Homologacao")',
+                //     type: 'POST',
+                //     data: formData,
+                //     success: function (response) {
+                        
+                //         isProcessing = false;
+
+                //         Notiflix.Loading.Remove();
+                //         if (response.error == 'BadRequest') {
+                //             Notiflix.Notify.Failure(response.message);
+                //             return false;
+                //         };
+
+                //         AbrirHomologacao("pr0/000", "a00000");                        
+                //         Notiflix.Notify.Success("Homologação realizada com sucesso!");
+                       
+                //         $('#div_listaHomologacao').html(response);
+                //     },
+                //     error: function (xhr, status, error) {
+                //         isProcessing = false;
+                //         Notiflix.Loading.Remove();
+                //         Notiflix.Notify.Failure("Erro interno!");
+                //     }
+                //});
             },
             function cancelCb() {
+                isProcessing = false;
                 Notiflix.Loading.Remove();
-            },
-            {
-                // Configurações adicionais (opcional)
             }
         );
 
@@ -361,7 +418,7 @@
 
     $(document).on('click', '#btn_homologacao_todos', function () {
 
-        var formData = $("#form_buscar").serialize();
+        var formData = new FormData($('#form_buscar')[0]);
 
         Notiflix.Confirm.Show(
             'Aviso!',
@@ -369,35 +426,75 @@
             'Sim',
             'Não',
             async function okCb() {
+               
                 if (isProcessing) return;
                 isProcessing = true;
 
                 Notiflix.Loading.Standard('Aguarde...');
 
-                $.ajax({
-                    url: '@Url.Action("HomologarTodos", "Homologacao")',
-                    type: 'POST',
-                    data: formData,
 
-                    success: function (response) {
+                try {
+                    const response = await fetch('@Url.Action("HomologarTodos", "Homologacao")', {
+                        method: 'POST',
+                        body: formData
+                    });
 
-                        Notiflix.Loading.Remove();
-                        if (response.error == 'BadRequest') {
-                            Notiflix.Notify.Failure(response.message);
-                            return false;
-                        };
+                    Notiflix.Loading.Remove();
 
-                        AbrirHomologacao("pr0/000", "a00000");
-                        Notiflix.Notify.Success("Homologação realizada com sucesso!");
-                        $('#div_listaHomologacao').html(response);
-                    },
-                    error: function (xhr, status, error) {
-                        Notiflix.Loading.Remove();
-                        Notiflix.Notify.Failure("Erro interno!");
+                    // ❌ ERRO
+                    if (!response.ok) {
+                        isProcessing = false;
+                        const data = await response.json();
+                        if (data.redirectTo) {
+                            window.location.href = data.redirectTo; //Erros 500 e NotFoud
+                        } else {
+                            Notiflix.Notify.Failure(data.message); //Erros 400 outros
+                        }
+                        return false;
                     }
-                });
+
+                    // ✅ OK
+                    isProcessing = false;
+                    AbrirHomologacao("pr0/000", "a00000");
+                    Notiflix.Notify.Success("Homologação realizada com sucesso!");
+                    const html = await response.text();
+                    $('#div_listaHomologacao').html(html);
+
+                } catch (error) {
+                    Notiflix.Notify.Failure(error);
+                    Notiflix.Loading.Remove();
+                }
+
+
+
+                // $.ajax({
+                //     url: '@Url.Action("HomologarTodos", "Homologacao")',
+                //     type: 'POST',
+                //     data: formData,
+
+                //     success: function (response) {
+                        
+                //         isProcessing = false;
+
+                //         Notiflix.Loading.Remove();
+                //         if (response.error == 'BadRequest') {
+                //             Notiflix.Notify.Failure(response.message);
+                //             return false;
+                //         };
+
+                //         AbrirHomologacao("pr0/000", "a00000");              
+                //         Notiflix.Notify.Success("Homologação realizada com sucesso!");
+                //         $('#div_listaHomologacao').html(response);
+                //     },
+                //     error: function (xhr, status, error) {
+                //         isProcessing = false;
+                //         Notiflix.Loading.Remove();
+                //         Notiflix.Notify.Failure("Erro interno!");
+                //     }
+                // });
             },
             function cancelCb() {
+                isProcessing = false;
                 Notiflix.Loading.Remove();
             }
         );
@@ -414,13 +511,14 @@
         
 
     });
-    
+
     $(document).on('click', '#btnDevolver', function () {
         
         $('#myModal').modal('hide');
         $('#MovPro_Parecer_Origem').val($('#MOVPRO_PARECER_ORIGEM_R').val());
-
-        var formData = $("#form_homologacao").serialize();
+        $('#MOVPRO_PRT_NUMERO').val($('#MOVPRO_PARECER_ORIGEM_R').val());
+       
+        var formData = new FormData($('#form_distribuicao')[0]);
 
         Notiflix.Confirm.Show(
             'Aviso!',
@@ -429,44 +527,73 @@
             'Não',
             async function okCb() {
 
-                if (isProcessing) return; // Impede execução se já estiver em andamento
-                isProcessing = true; // Marca como em processamento
+               if (isProcessing) return;
+                isProcessing = true; 
+               
                 Notiflix.Loading.Standard('Aguarde...');
 
-                $.ajax({
-                    url: '@Url.Action("RetificarVoto", "Homologacao")',
-                    type: 'POST',
-                    data: formData,
-                    success: function (response) {
+                try {
+                    const response = await fetch('@Url.Action("RetificarVoto", "Homologacao")', {
+                        method: 'POST',
+                        body: formData
+                    });
 
-                        Notiflix.Loading.Remove();
-                        if (response.error == 'BadRequest') {
-                            Notiflix.Notify.Failure(response.message);
-                            return false;
-                        };
+                    Notiflix.Loading.Remove();
 
-                        AbrirHomologacao("pr0/000", "a00000");
-
-                        Notiflix.Notify.Success("Operação realizada com sucesso!");
-                        $('#div_listaHomologacao').html(response);
-                    },
-                    error: function (xhr, status, error) {
-                        Notiflix.Loading.Remove();
-                        Notiflix.Notify.Failure("Erro interno!");
+                    // ❌ ERRO
+                    if (!response.ok) {
+                        isProcessing = false;
+                        const data = await response.json();
+                        if (data.redirectTo) {
+                            window.location.href = data.redirectTo; //Erros 500 e NotFoud
+                        } else {
+                            Notiflix.Notify.Failure(data.message); //Erros 400 outros
+                        }
+                        return false;
                     }
-                });
+
+                    // ✅ OK
+                    isProcessing = false;
+                    AbrirHomologacao("pr0/000", "a00000");
+                    Notiflix.Notify.Success("Homologação realizada com sucesso!");
+                    const html = await response.text();
+                    $('#div_listaHomologacao').html(html);
+
+                } catch (error) {
+                    Notiflix.Notify.Failure(error);
+                    Notiflix.Loading.Remove();
+                }
+
+
+                // $.ajax({
+                //     url: '@Url.Action("RetificarVoto", "Homologacao")',
+                //     type: 'POST',
+                //     data: formData,
+                //     success: function (response) {
+
+                //         Notiflix.Loading.Remove();
+                //         if (response.error == 'BadRequest') {
+                //             Notiflix.Notify.Failure(response.message);
+                //             return false;
+                //         };
+
+                //         AbrirHomologacao("pr0/000", "a00000");
+                //         isProcessing = false;
+                //         Notiflix.Notify.Success("Operação realizada com sucesso!");
+                //         $('#div_listaHomologacao').html(response);
+                //     },
+                //     error: function (xhr, status, error) {
+                //         Notiflix.Loading.Remove();
+                //         Notiflix.Notify.Failure("Erro interno!");
+                //     }
+                // });
             },
             function cancelCb() {
                 Notiflix.Loading.Remove();
-            },
-            {
-                // Configurações adicionais (opcional)
             }
         );
 
 
-    });
-
-    
+    });   
 
 </script>

@@ -143,6 +143,22 @@ namespace SIPROAPIJULGAMENTO.Controllers
         }
 
 
+
+        [HttpGet]
+        [Route("buscar-parecer-motivo/{vlobusca}")]
+        public async Task<IActionResult> BuscarParecerXMotivo(int vlobusca)
+        {
+
+            var processo = await _julgamento.BuscarParecerXMotivo(vlobusca);
+
+            if (processo == null)
+                return NoContent();
+
+            return Ok(processo);
+
+        }
+
+
         [HttpPost]
         [Route("encaminhar-processo-instrucao")]
         public async Task<IActionResult> EncamimharProcessoInstrucao(InstrucaoProcessoModel instrucao)
@@ -213,7 +229,6 @@ namespace SIPROAPIJULGAMENTO.Controllers
             return Ok();
            
         }
-
 
         [HttpGet]
         [Route("buscar-anexo/{usuario}/{ait}")]
