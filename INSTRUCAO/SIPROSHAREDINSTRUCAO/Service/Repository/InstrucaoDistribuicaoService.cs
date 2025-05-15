@@ -2,6 +2,8 @@
 using SIPROSHARED.DbContext;
 using SIPROSHAREDINSTRUCAO.Models;
 using SIPROSHAREDINSTRUCAO.Service.IRepository;
+using SIPROSHAREDPUBLICACAO.Validator;
+using SIRPOEXCEPTIONS.ExceptionBase;
 using System.Data;
 
 namespace SIPROSHAREDINSTRUCAO.Service.Repository
@@ -17,9 +19,11 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
 
         public async Task<int> GetPresidente(string usuario)
         {
-            try
-            {
-                var query = @"select Count(1) from SetorSubXUsuario where SETSUBUSU_USUARIO = @Usuario and SETSUBUSU_PERFIL = 'Presidente' ";
+            if (string.IsNullOrEmpty(usuario))
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+
+
+               var query = @"select Count(1) from SetorSubXUsuario where SETSUBUSU_USUARIO = @Usuario and SETSUBUSU_PERFIL = 'Presidente' ";
 
                 using (var connection = _context.CreateConnection())
                 {
@@ -27,16 +31,16 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                     var count = await connection.ExecuteScalarAsync<int>(query, parametros);
                     return count;
                 }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Erro ao obter dados.", ex);
-            }
+            
         }
 
         public async Task<List<AssuntoQtd>> GetQtdProcessosPorAssunto(string usuario)
         {
-              var query = @"  
+
+            if (string.IsNullOrEmpty(usuario))
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+
+            var query = @"  
 	                 
                     Declare @Setor int
 
@@ -65,8 +69,10 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
 
         public async Task<List<ProtocoloDistribuicaoModel>>GetQtdProcessosDistribuidoPorUsuario(string usuario)
         {
-           
-                var query = @"
+            if (string.IsNullOrEmpty(usuario))
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+
+            var query = @"
 
                          DECLARE @Setor INT;
 
@@ -141,7 +147,10 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
 
         public async Task<List<ListaProcessoUsuario>> GetProcessosUsuario(string usuario)
         {
-        
+            if (string.IsNullOrEmpty(usuario))
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+
+
             var query = @"
 				
                          WITH PEOCESSOS AS (
@@ -193,8 +202,10 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
 
         public async Task<List<ListaProcessoUsuario>> GetProcessoSetor(string usuario)
         {
-            try
-            {
+            if (string.IsNullOrEmpty(usuario))
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+
+            
                 var query = @"
 					    select MOVPRO_ID,
 	                           PRT_NUMERO, 
@@ -214,19 +225,15 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                     var command = await connection.QueryAsync<ListaProcessoUsuario>(query, parametros);
                     return command.ToList();
                 }
-            }
-            catch (Exception ex)
-            {
-                // Melhor manipulação de exceções: log ou tratar adequadamente
-                throw new Exception("Erro ao obter dados.", ex);
-            }
+            
         }
 
         public async Task<ListaProcessoUsuario> GetProcesso(int movpro_id)
         {
-            try
-            {
-                var query = @"
+            if (movpro_id == 0)
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+
+            var query = @"
                              SELECT MOVPRO_ID,
                                     PRT_NUMERO, 
                                     PRT_AIT, 
@@ -247,18 +254,19 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                     var processo = await connection.QueryFirstOrDefaultAsync<ListaProcessoUsuario>(query, parametros);
                     return processo;
                 }
-            }
-            catch (Exception ex)
-            {
-                // Melhor manipulação de exceções: log ou tratar adequadamente
-                throw new Exception("Erro ao obter dados.", ex);
-            }
+            
         }
 
         public async Task DistribuicaoProcessoEspecifico(ProtocoloDistribuicaoModel distribuicaoModel, IDbConnection connection, IDbTransaction transaction)
         {
-            try
-            {
+           
+                //Validando 
+                var validator = new DistribuicaoEspecificaValidator();
+                var result = validator.Validate(distribuicaoModel);
+                if (result.IsValid == false)
+                    throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
+
+
                 // Adicionando parâmetros
                 var dbParametro = new DynamicParameters();
                 dbParametro.Add("@UsuarioOrigem", distribuicaoModel.DIS_ORIGEM_USUARIO);
@@ -292,8 +300,7 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                         FROM Movimentacao_Processo Mov
                   inner join #temp_Distribuicao PDis on Mov.MOVPRO_ID = PDis.MOVPRO_ID
 	  
-	                      
-
+	                     
                      Declare @UltimoID int,
 			                 @Dis_Id int
 
@@ -322,27 +329,24 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                              '' as Observaca,
                              'RECEBIDO' AS DIS_DESTINO_STATUS
                         from #temp_Distribuicao
-        
-                        
-                   
                 ";
 
            
                     await connection.ExecuteAsync(query, dbParametro, transaction);
-               
-            }
-            catch (Exception ex)
-            {
-                // É recomendável registrar o erro ou retornar uma mensagem específica.
-                throw new Exception("Erro ao distribuir o processo", ex);
-            }
+           
         }
         
         public async Task DistribuicaoProcesso(ProtocoloDistribuicaoModel distribuicaoModel, IDbConnection connection, IDbTransaction transaction)
         {
-            try
-            {
-                var dbParametro = new DynamicParameters();
+            //Validando 
+            var validator = new DistribuicaoInstrucaoValidator();
+            var result = validator.Validate(distribuicaoModel);
+            if (result.IsValid == false)
+                throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
+
+
+
+            var dbParametro = new DynamicParameters();
                 dbParametro.Add("@UsuarioOrigem", distribuicaoModel.DIS_ORIGEM_USUARIO);
                 dbParametro.Add("@UsuarioDestino", distribuicaoModel.DIS_DESTINO_USUARIO);
                 dbParametro.Add("@Qtd", distribuicaoModel.DIS_QTD);
@@ -435,21 +439,16 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
 
                 await connection.ExecuteAsync(query, dbParametro, transaction);
 
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
-                // Adicionando parâmetros
-              
+            
            
         }
 
         public async Task RetirarProcesso(ProtocoloDistribuicaoModel distribuicaoModel)
         {
-            try
-            {
+           
+                if (string.IsNullOrEmpty(distribuicaoModel.DIS_DESTINO_USUARIO))
+                    throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+
 
                 // Adicionando parâmetros
                 var dbParametro = new DynamicParameters();
@@ -494,14 +493,6 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                 {
                     await con.ExecuteAsync(query, dbParametro);
                 }
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
-
-
            
            
         }
@@ -509,63 +500,54 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
         public async Task RetirarProcessoEspecifico(ProtocoloDistribuicaoModel distribuicaoModel)
         {
 
-            try
-            {
-                // Adicionando parâmetros
-                var dbParametro = new DynamicParameters();
+            if (distribuicaoModel.DIS_ID == 0 || string.IsNullOrEmpty(distribuicaoModel.DIS_ORIGEM_USUARIO))
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+
+
+            // Adicionando parâmetros
+            var dbParametro = new DynamicParameters();
                 dbParametro.Add("@DIS_ID", distribuicaoModel.DIS_ID);
                 dbParametro.Add("@UsuarioOrigem", distribuicaoModel.DIS_ORIGEM_USUARIO);
 
-                string query = @"  
+            string query = @"  
 
 
-            	        DECLARE @SetorOrigem INT;
+                    DECLARE @SetorOrigem INT;
 
-				        SET @SetorOrigem = (
-					        SELECT TOP 1 SETSUBUSU_SETSUB_ID
-					        FROM SetorSubXUsuario
-					        WHERE SETSUBUSU_USUARIO = @UsuarioOrigem
-				        );
-		            
-                             SELECT @SetorOrigem AS SETOR,
-								    @UsuarioOrigem as USU_Origem,
-                                    MOVPRO_PRT_NUMERO,
-                                    INSDIS_ID,
-                                    MOVPRO_ID    
-                               INTO #temp_Retirar
-                               FROM Movimentacao_Processo 
-                         INNER JOIN Instrucao_Distribuicao ON (INSDIS_MOV_ID = MOVPRO_ID) 
-                              WHERE INSDIS_ID = @DIS_ID
-                               and  INSDIS_STATUS = 'RECEBIDO'
+			        SET @SetorOrigem = (
+				        SELECT TOP 1 SETSUBUSU_SETSUB_ID
+				        FROM SetorSubXUsuario
+				        WHERE SETSUBUSU_USUARIO = @UsuarioOrigem
+			        );
+		        
+                         SELECT @SetorOrigem AS SETOR,
+							    @UsuarioOrigem as USU_Origem,
+                                MOVPRO_PRT_NUMERO,
+                                INSDIS_ID,
+                                MOVPRO_ID    
+                           INTO #temp_Retirar
+                           FROM Movimentacao_Processo 
+                     INNER JOIN Instrucao_Distribuicao ON (INSDIS_MOV_ID = MOVPRO_ID) 
+                          WHERE INSDIS_ID = @DIS_ID
+                           and  INSDIS_STATUS = 'RECEBIDO'
 
 
-                             UPDATE Mov
-                                SET Mov.MOVPRO_STATUS ='RECEBIDO'
-                               FROM Movimentacao_Processo Mov, #temp_Retirar PDis
-                              WHERE Mov.MOVPRO_ID = PDis.MOVPRO_ID 
-		 
-                        DELETE pd
-                            FROM Instrucao_Distribuicao pd
-                    INNER JOIN #temp_Retirar tb ON pd.INSDIS_ID = tb.INSDIS_ID";
+                         UPDATE Mov
+                            SET Mov.MOVPRO_STATUS ='RECEBIDO'
+                           FROM Movimentacao_Processo Mov, #temp_Retirar PDis
+                          WHERE Mov.MOVPRO_ID = PDis.MOVPRO_ID 
+	 
+                    DELETE pd
+                        FROM Instrucao_Distribuicao pd
+                INNER JOIN #temp_Retirar tb ON pd.INSDIS_ID = tb.INSDIS_ID";
 
-                using (var con = _context.CreateConnection())
-                {
-                    await con.ExecuteAsync(query, dbParametro);
-                }
-
-            }
-            catch (Exception ex)
+            using (var con = _context.CreateConnection())
             {
-
-                throw;
+                await con.ExecuteAsync(query, dbParametro);
             }
 
              
         }
-
-
-
-
 
     }
 }

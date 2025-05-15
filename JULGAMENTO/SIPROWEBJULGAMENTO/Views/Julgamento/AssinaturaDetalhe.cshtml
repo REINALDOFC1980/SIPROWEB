@@ -1,5 +1,5 @@
 ﻿@model SIPROSHAREDJULGAMENTO.Models.ProtocoloJulgamento_Model
-
+@using Newtonsoft.Json
 
 
 
@@ -361,14 +361,14 @@
                 ['view', ['fullscreen']] // Mantém apenas o botão de tela cheia
             ],
             tooltip: false // Desativa os tooltips
-        });            
-        
-        var motivoVotoSelecionado = '@(ViewBag.ParecerRelator != null ? Html.Raw(ViewBag.ParecerRelator.Disjug_Parecer_Relatorio) : "")';
-        
-        var Resultado = '@(ViewBag.Disjug_Resultado != null ? Html.Raw(ViewBag.ParecerRelator.Disjug_Resultado) : "")';
-  
+        });
+
+        var motivoVotoSelecionado = @Html.Raw(JsonConvert.SerializeObject(ViewBag.ParecerRelator?.Disjug_Parecer_Relatorio ?? ""));
+        var Resultado = @Html.Raw(JsonConvert.SerializeObject(ViewBag.ParecerRelator?.Disjug_Resultado ?? ""));
 
         $('#summernote').summernote('code', motivoVotoSelecionado);
+
+
         // Desativa a edição, mas mantém os botões ativos
          setTimeout(function() {
         $('.note-editable').attr('contenteditable', false); // Bloqueia edição do conteúdo
@@ -404,9 +404,7 @@
                 Notiflix.Loading.Remove();
             }
         });
-    });
-
-   
+    });   
 
     function RealizarJulgamento(resultado) {
 
@@ -482,7 +480,6 @@
 
       
     };
-
 
     function validarSummernote() {
         // Obter o conteúdo do Summernote (sem tags HTML)

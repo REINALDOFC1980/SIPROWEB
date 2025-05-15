@@ -16,8 +16,6 @@ namespace SIPROSHAREDHOMOLOGACAO.Validator
                .NotEmpty().WithMessage("codigo da movimentação é obrigatória.")
                .GreaterThan(0).WithMessage("A origem deve ser um número maior que zero.");
 
-            RuleFor(user => user.MOVPRO_PARECER_ORIGEM)
-               .NotEmpty().WithMessage("Parecer é obrigatório.");
 
             RuleFor(user => user.MOVPRO_USUARIO_ORIGEM)
                .NotEmpty().WithMessage("Parecer é obrigatório.");

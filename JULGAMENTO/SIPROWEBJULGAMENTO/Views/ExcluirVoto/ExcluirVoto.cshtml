@@ -271,7 +271,8 @@
                         method: 'POST',
                         body: formData
                     });
-                    //Tratamento de erro!
+
+                    // ❌ ERRO
                     if (!response.ok) {
 
                         Notiflix.Loading.Remove();
@@ -286,6 +287,7 @@
                         return false;
                     }
 
+                    // ✅ OK
                     Notiflix.Loading.Remove();
                     Notiflix.Notify.Success("Operação realizada com sucesso.");
                     handleRowClick("0/0000")           

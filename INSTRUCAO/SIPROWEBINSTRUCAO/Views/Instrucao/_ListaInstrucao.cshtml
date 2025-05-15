@@ -35,8 +35,8 @@
                            string resultadoClasse = item?.PRT_SITUACAO == "Instrucao" ? "fa fa-edit" : "fa fa-edit";
                          }
                         <td>
-                             <a href="@Url.Action("InstrucaoDetalhe", "Instrucao", new { dis_id = item?.DIS_ID })" 
-                              class="client-link"
+                             <a href="@Url.Action("InstrucaoDetalhe", "Instrucao", new { dis_id = item?.DIS_ID })"
+                                   class=" btn btn btn-primary"
                               onclick="mostrarLoading()">
                              <i class="@resultadoClasse"></i> Instruir
                             </a>

@@ -280,7 +280,7 @@ namespace SIPROSHAREDPUBLICACAO.Service.Repository
         public async Task<List<PublicacaoDOMModel>> GerarDOM(string lote)
         {
             if (lote == "")
-                throw new ErrorOnValidationException(new List<string> { "O nome do lote não foi fornecido para exlução." });
+                throw new ErrorOnValidationException(new List<string> { "O nome do lote não foi fornecido para exclução." });
 
             var query = @"
                            SELECT PES_Nome,

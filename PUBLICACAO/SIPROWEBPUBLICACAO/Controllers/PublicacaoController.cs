@@ -297,9 +297,9 @@ namespace SIPROWEBPUBLICACAO.Controllers
 
                     body.Append(new Paragraph(
                         new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
-                        new Run(fonteNegrito8.CloneNode(true), new Text("FABRIZZIO M.MARTINEZ")),
+                        new Run(fonteNegrito8.CloneNode(true), new Text("André Santos Costa")),
                         new Break(), // quebra de linha sem criar novo parágrafo
-                        new Run(fonte8.CloneNode(true), new Text("Superintendente Executivo"))
+                        new Run(fonte8.CloneNode(true), new Text("Diretor"))
                       ));
 
 

@@ -203,7 +203,7 @@ namespace SIPROWEBJULGAMENTO.Controllers
             if (response.StatusCode == HttpStatusCode.InternalServerError)
                 return RedirectToAction("InternalServerError", "Home");
             if (response.StatusCode == HttpStatusCode.BadRequest)
-                return RedirectToAction("BadRequest", "Home", new { msg = "Erro ao inicializar a pagina." }); ;
+                return RedirectToAction("BadRequest", "Home", new { msg = "Erro ao inicializar a pagina." }); 
 
 
             if (response.StatusCode == HttpStatusCode.OK)
@@ -365,8 +365,6 @@ namespace SIPROWEBJULGAMENTO.Controllers
                 return null;
         }
 
-
-
         [HttpGet]
         public async Task<IActionResult> BuscarParecerXMotivo(int mod_id)
         {
@@ -389,9 +387,6 @@ namespace SIPROWEBJULGAMENTO.Controllers
 
             return Json(new { error = false, parecerModel });
         }
-
-
-
 
         [HttpPost]
         public async Task<IActionResult> EncaminharProcessoInstrucao(InstrucaoProcessoModel instrucaoProcesso)
@@ -527,7 +522,6 @@ namespace SIPROWEBJULGAMENTO.Controllers
 
 
         }
-
 
         [HttpGet]
         public async Task<List<AnexoModel>> BuscarAnexoBanco(string prt_numero)

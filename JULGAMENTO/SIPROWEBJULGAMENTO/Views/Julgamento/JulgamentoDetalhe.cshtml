@@ -477,25 +477,17 @@
             ],
             tooltip: false // Desativa os tooltips
         });
+                
 
-        var motivoVotoSelecionado = '@(ViewBag.ParecerRelator != null ? Html.Raw(ViewBag.ParecerRelator.Disjug_Parecer_Relatorio) : "")';
-     
-        $('#summernote').summernote('code', motivoVotoSelecionado);
-
-        //caso ja tenha descrição do voto deve ficar ocuto
-        if (motivoVotoSelecionado != '') {
-            $('#div_memebro').hide();
-        }
-
-
+        //Pegando MotivoxParecer
         $(document).on('change', '#Disjug_Motivo_Voto', async function () {
             let valor = $(this).val();
 
             try {
                 const response = await fetch('@Url.Action("BuscarParecerXMotivo", "Julgamento")?mod_id=' + valor);
                 const data = await response.json();
-              
 
+                // ✅ ERRO
                 if (!response.ok) {
                
                     Notiflix.Loading.Remove();
@@ -508,12 +500,8 @@
                     return false;
                 }
 
-
-                if (data.parecerModel) {
-                    // Corrigido: remover parêntese extra
-                    console.log(data.parecerModel.disjug_Parecer_Relatorio);
-
-                    // Corrigido: usar o valor correto
+                // ✅ OK
+                if (data.parecerModel) {                    
                    $('#summernote').summernote('code', data.parecerModel.disjug_Parecer_Relatorio);
                 }
 
@@ -530,7 +518,7 @@
 
 
 
-
+    //Anexando Documentos
     $('#arquivos').change(async function () {
 
 
@@ -543,7 +531,8 @@
                 body: formData
             });
 
-            // ⛔ Tratamento de erro
+
+            // ❌ ERRO
             if (!response.ok) {
                 Notiflix.Loading.Remove();
                 const data = await response.json();
@@ -570,6 +559,8 @@
         }
     });
 
+
+    //Encaminhando para Instrução 
     $('#btn_instrucao').click(async function () {
 
         inicializarValidacaoFormulario("#form_instrucao");
@@ -591,7 +582,7 @@
                     body: formData
                 });
 
-                // ✅ Tratamento de erro
+                // ❌ ERRO
                 if (!response.ok) {
                     Notiflix.Loading.Remove();
                     const data = await response.json();
@@ -617,6 +608,7 @@
         }
     });
 
+    //Realizando o Julgamento
     function RealizarJulgamento(resultado) {
 
         Notiflix.Confirm.Show(
@@ -663,7 +655,7 @@
                                 body: $.param(formData)
                             });
 
-                            // ⛔ Tratamento de erro
+                            // ❌ ERRO
                             if (!response.ok) {
                                 Notiflix.Loading.Remove();
                                 const data = await response.json();
@@ -760,8 +752,8 @@
                     });
 
                     Notiflix.Loading.Remove();
-                  
-                    // ⛔ Tratamento de erro
+
+                    // ❌ ERRO
                     if (!response.ok) {
                         const data = await response.json();
                         if (data.redirectTo) {

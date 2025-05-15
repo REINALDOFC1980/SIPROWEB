@@ -34,7 +34,6 @@
         });
     }
 
-
     function attachTouchspinEvents() {
         document.querySelectorAll('.bootstrap-touchspin-up').forEach(button => {
             button.addEventListener('click', function () {
@@ -55,11 +54,11 @@
         });
     }
 
-    // Chame essa função assim que a página for carregada para associar os eventos iniciais
+
     attachTouchspinEvents();
 
-    let isProcessing = false; // Variável de controle para evitar múltiplos cliques
-   
+    let isProcessing = false;    
+
     $(document).on('click', '#getAddBtn', async function () {
         let processoStatus = document.getElementById('processoStatus').value;
 
@@ -70,199 +69,257 @@
         }
 
         let addInputs = document.querySelectorAll('input[id^=add_]');
-        let todosZero = Array.from(addInputs).every(function (input) {
-            return input.value == 0;
-        });
+        let todosZero = Array.from(addInputs).every(input => input.value == 0);
 
         if (todosZero) {
             Notiflix.Notify.Warning('É necessário adicionar uma quantidade de processo ao usuário.');
-        } else {
-            Notiflix.Confirm.Show(
-                'Aviso!',
-                'Tem certeza que deseja distribuir esse(s) processo(s)?',
-                'Sim',
-                'Não',
-                async function okCb() {
-                    if (isProcessing) return; // Impede execução se já estiver em andamento
-                    isProcessing = true; // Marca como em processamento
-
-                    Notiflix.Loading.Standard('Aguarde...');
-                    document.getElementById('getAddBtn').disabled = true;
-
-                    let finalResult = '';
-
-                    for (const input of addInputs) {
-                        let usuario = input.id.replace('add_', '');
-                        let valorAdd = parseInt(input.value, 10);
-
-                        let distribuicaoModel = {
-                            DIS_DESTINO_USUARIO: usuario,
-                            DIS_QTD: valorAdd
-                        };
-
-                        try {
-                            finalResult = await $.ajax({
-                                url: '@Url.Action("addDistribuicaoProcesso", "InstrucaoDistribuicao")',
-                                type: "POST",
-                                contentType: 'application/json',
-                                data: JSON.stringify(distribuicaoModel),
-                            });
-                        } catch (error) {
-                            Notiflix.Notify.Failure('Erro ao realizar a operação.');
-                        }
-
-                        input.value = 0;
-                    }
-
-                    Notiflix.Notify.Success('Distribuição realizada com sucesso!');
-                    $('#Div_Assunto').html(finalResult);
-
-                    // Chame a função para associar os eventos aos novos botões
-                    attachTouchspinEvents();
-
-                    Notiflix.Loading.Remove();
-                    document.getElementById('getAddBtn').disabled = false;
-
-                    isProcessing = false; // Libera para futuras operações
-                },
-                function cancelCb() {
-                    Notiflix.Loading.Remove();
-                    document.getElementById('getAddBtn').disabled = false;
-                },
-                {
-                    // Configurações adicionais (opcional)
-                }
-            );
+            return;
         }
-    });
-
-
-    $(document).on('click', '#getRemoverBtn', async function () {
-
-
-        let qtdInputs = document.querySelectorAll('span[id^="qtd_"]');
-        let qtd = Array.from(qtdInputs).every(function (input) {
-            return input.value == 0;
-        });
-        if (qtd) {
-            Notiflix.Notify.Warning('Não existe processo distribuido para ser retirado.');
-            return false;
-        }
-
-        
-        let removeInputs = document.querySelectorAll('input[id^=remove_]');
-        let todosZero = Array.from(removeInputs).every(function (input) {
-            return input.value == 0;
-        });
-
-
-
-        if (todosZero) {
-            Notiflix.Notify.Warning('É necessário adicionar uma quantidade de processo ao usuário.');
-        } else {
-            Notiflix.Confirm.Show(
-                'Aviso!',
-                'Tem certeza que deseja retirar esse(s) processo(s)?',
-                'Sim',
-                'Não',
-                async function okCb() {
-                    Notiflix.Loading.Standard('Aguarde...');
-
-                    document.getElementById('getRemoverBtn').disabled = true;
-                    let Result = '';
-
-                    for (const input of removeInputs) {
-                        let usuario = input.id.replace('remove_', '');
-                        let valorAdd = parseInt(input.value, 10);
-
-                        let distribuicaoModel = {
-                            DIS_DESTINO_USUARIO: usuario,
-                            DIS_QTD: valorAdd
-                        };
-
-                        try {
-                            Result = await $.ajax({
-                                url: '@Url.Action("RetirarProcesso", "InstrucaoDistribuicao")',
-                                type: "POST",
-                                contentType: 'application/json',
-                                data: JSON.stringify(distribuicaoModel),
-                            });
-                        } catch (error) {
-                            Notiflix.Notify.Failure('Erro ao realizar a operação.');
-                        }
-
-                        input.value = 0;
-                    }
-
-                    Notiflix.Notify.Success('Operação realizada com sucesso!');
-                   
-                    $('#Div_Assunto').html(Result);
-
-                    // Chame a função para associar os eventos aos novos botões
-                    attachTouchspinEvents();
-
-                    Notiflix.Loading.Remove();
-                    document.getElementById('getRemoverBtn').disabled = false;
-
-                },
-                function cancelCb() {
-                    Notiflix.Loading.Remove();
-                    document.getElementById('getRemoverBtn').disabled = false;
-                },
-                {
-                    // Configurações adicionais (opcional)
-                }
-            );
-        }
-    });
-
-
-    $(document).on('click', '.retirar-processo', function (e) {
-        e.preventDefault();
-
-        var dIS_ID = $(this).data('id'); // Captura o ID corretamente
 
         Notiflix.Confirm.Show(
             'Aviso!',
-            'Tem certeza que deseja retirar esse processo?',
+            'Tem certeza que deseja distribuir esse(s) processo(s)?',
             'Sim',
             'Não',
             async function okCb() {
+                if (isProcessing) return;
+                isProcessing = true;
 
-                $.ajax({
-                    url: '@Url.Action("RetirarProcessoEspecifico", "InstrucaoDistribuicao")',
-                    type: 'POST',
-                    data: { DIS_ID: dIS_ID },
-                    success: function (result) {
-                        // Lógica a ser executada em caso de sucesso
-                        if (result.error == true) {
-                            Notiflix.Notify.Failure('Erro.');
-                            return false;
-                        }
+                Notiflix.Loading.Standard('Aguarde...');
+                document.getElementById('getAddBtn').disabled = true;
 
-                        $('#Div_Assunto').html(result); // Atualiza a div com a Partial View
-                        attachTouchspinEvents();
+                // 🔁 Monta a lista com todos os usuários e quantidades
+                let distribuicoes = [];
 
-                    },
-                    error: function (xhr, status, error) {
-                        // Lógica a ser executada em caso de erro
-                        console.log('Erro ao enviar arquivo:', error);
+                for (const input of addInputs) {
+                    let valorAdd = parseInt(input.value, 10);
+                    if (valorAdd > 0) {
+                        let usuario = input.id.replace('add_', '');
+                        distribuicoes.push({
+                            DIS_DESTINO_USUARIO: usuario,
+                            DIS_QTD: valorAdd
+                        });
+                        input.value = 0;
                     }
-                });
+                }
+
+                try {
+                    const response = await fetch('@Url.Action("DistribuirProcessos", "InstrucaoDistribuicao")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(distribuicoes)
+                    });
+
+                    if (!response.ok) {
+                        isProcessing = false;
+                        const data = await response.json();
+                        if (data.redirectTo) {
+                            window.location.href = data.redirectTo;
+                        } else {
+                            Notiflix.Notify.Failure(data.message || 'Erro ao realizar a operação.');
+                        }
+                        return;
+                    }
+
+                    isProcessing = false;
+                    const html = await response.text();
+                    $('#Div_Assunto').html(html);
+                    attachTouchspinEvents();
+                    Notiflix.Notify.Success('Distribuição realizada com sucesso!');
+
+                } catch (error) {
+                    Notiflix.Notify.Failure('Erro ao conectar com o servidor.');
+                }
+
+                Notiflix.Loading.Remove();
+                document.getElementById('getAddBtn').disabled = false;
+                isProcessing = false;
             },
             function cancelCb() {
+                isProcessing = false;
                 Notiflix.Loading.Remove();
-            },
-            {
-                // Configurações adicionais (opcional)
+                document.getElementById('getAddBtn').disabled = false;
             }
         );
-                
-
-
     });
 
-    //Buscar os dados para exibir na model de Area Trabalho
+    $(document).on('click', '#getRemoverBtn', async function () {
+        let qtdInputs = document.querySelectorAll('span[id^="qtd_"]');
+        let temProcessoDistribuido = Array.from(qtdInputs).some(span => parseInt(span.textContent || "0", 10) > 0);
+
+        if (!temProcessoDistribuido) {
+            Notiflix.Notify.Warning('Não existe processo distribuído para ser retirado.');
+            return;
+        }
+
+        let removeInputs = document.querySelectorAll('input[id^=remove_]');
+        let todosZero = Array.from(removeInputs).every(input => parseInt(input.value, 10) === 0);
+
+        if (todosZero) {
+            Notiflix.Notify.Warning('É necessário adicionar uma quantidade de processo ao usuário.');
+            return;
+        }
+
+        Notiflix.Confirm.Show(
+            'Aviso!',
+            'Tem certeza que deseja retirar esse(s) processo(s)?',
+            'Sim',
+            'Não',
+            async function okCb() {
+                if (isProcessing) return;
+                isProcessing = true;
+
+                Notiflix.Loading.Standard('Aguarde...');
+                document.getElementById('getRemoverBtn').disabled = true;
+
+                let removidos = [];
+
+                for (const input of removeInputs) {
+                    let valor = parseInt(input.value, 10);
+                    if (valor > 0) {
+                        let usuario = input.id.replace('remove_', '');
+                        removidos.push({
+                            DIS_DESTINO_USUARIO: usuario,
+                            DIS_QTD: valor
+                        });
+                        input.value = 0;
+                    }
+                }
+
+                try {
+                    const response = await fetch('@Url.Action("RetirarProcessos", "InstrucaoDistribuicao")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(removidos)
+                    });
+
+                    if (!response.ok) {
+                        isProcessing = false;
+                        const data = await response.json();
+                        if (data.redirectTo) {
+                            window.location.href = data.redirectTo;
+                        } else {
+                            Notiflix.Notify.Failure(data.message || 'Erro ao realizar a operação.');
+                        }
+                        return;
+                    }
+
+                    isProcessing = false;
+                    const html = await response.text();
+                    $('#Div_Assunto').html(html);
+                    attachTouchspinEvents();
+                    Notiflix.Notify.Success('Operação realizada com sucesso!');
+                } catch (error) {
+                    isProcessing = false;
+                    Notiflix.Notify.Failure('Erro ao conectar com o servidor.');
+                }
+
+                Notiflix.Loading.Remove();
+                document.getElementById('getRemoverBtn').disabled = false;
+                isProcessing = false;
+            },
+            function cancelCb() {
+                isProcessing = false;
+                Notiflix.Loading.Remove();
+                document.getElementById('getRemoverBtn').disabled = false;
+            }
+        );
+    });
+
+
+
+    $(document).on('click', '#btnDistribuir', async function () {
+       
+        const mOVPRO_ID = $('#MOVPRO_ID').val();
+        const dIS_DESTINO_USUARIO = $('#DIS_USUARIO').val();
+        const mOVPRO_PARECER_ORIGEM = $('#MOVPRO_PARECER_ORIGEM').val();
+
+        if (!dIS_DESTINO_USUARIO) {
+            Notiflix.Notify.Failure('Por favor, selecione um usuário.');
+            return;
+        }
+
+        const distribuicaoModel = {
+            DIS_MOV_ID: mOVPRO_ID,
+            DIS_DESTINO_USUARIO: dIS_DESTINO_USUARIO,
+            MOVPRO_PARECER_ORIGEM: mOVPRO_PARECER_ORIGEM
+        };
+
+        Notiflix.Loading.Standard('Aguarde...');
+
+        try {
+            const response = await fetch('@Url.Action("addDistribuicaoProcessoEspecifico", "InstrucaoDistribuicao")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(distribuicaoModel)
+            });
+
+            if (!response.ok) {
+                Notiflix.Notify.Failure('Erro ao distribuir o processo.');
+                Notiflix.Loading.Remove();
+                return;
+            }
+
+            isProcessing = false;
+            $('#myModal').modal('hide');
+            const html = await response.text();
+            $('#Div_Assunto').html(html);
+
+            attachTouchspinEvents();
+            Notiflix.Notify.Success('Processo distribuído com sucesso!');
+
+        } catch (error) {
+            console.error('Erro:', error);
+            Notiflix.Notify.Failure('Erro na conexão com o servidor.');
+        } finally {
+            Notiflix.Loading.Remove();
+        }
+    });
+
+
+    $(document).on('click', '.retirar-processo', async function (e) {
+        e.preventDefault();
+
+        const disId = $(this).data('id');
+
+        try {
+            Notiflix.Loading.Standard('Aguarde...');
+
+            const response = await fetch('@Url.Action("RetirarProcessoEspecifico", "InstrucaoDistribuicao")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(disId)
+            });
+
+            if (!response.ok) {
+                Notiflix.Notify.Failure('Erro ao realizar a operação.');
+                Notiflix.Loading.Remove();
+                return;
+            }
+
+            const html = await response.text();
+            $('#Div_Assunto').html(html);
+            attachTouchspinEvents(); // se precisar reativar os inputs
+            Notiflix.Notify.Success('Processo retirado com sucesso!');
+
+
+        } catch (error) {
+            console.error('Erro:', error);
+            Notiflix.Notify.Failure('Erro ao conectar com o servidor.');
+        } finally {
+            Notiflix.Loading.Remove();
+        }
+    });
+
+
     $(document).on('click', '.ret_processo', function (e) {
         e.preventDefault();
 
@@ -278,7 +335,7 @@
                     Notiflix.Notify.Failure('Erro ao realizar a operação.');
                     return false;
                 }
-   
+
                 $('#PRT_NUMERO').val(data.prT_NUMERO);
                 $('#PRT_AIT').val(data.prT_AIT);
                 $('#PRT_DT_ABERTURA').val(data.prT_DT_ABERTURA);
@@ -294,58 +351,6 @@
             }
         });
     });
- 
-
-    $(document).on('click', '#btnDistribuir', async function () {
-
-        var mOVPRO_ID = $('#MOVPRO_ID').val();
-        var dIS_DESTINO_USUARIO = $('#DIS_USUARIO').val();
-        var mOVPRO_PARECER_ORIGEM = $('#MOVPRO_PARECER_ORIGEM').val();
-
-
-        // Verifica se o valor foi realmente capturado
-        if (!dIS_DESTINO_USUARIO) {
-            Notiflix.Notify.Failure('Por favor, selecione um usuário.');
-            return;
-        }
-
-        var distribuicaoModel = {
-            DIS_MOV_ID: mOVPRO_ID,
-            DIS_DESTINO_USUARIO: dIS_DESTINO_USUARIO,
-            MOVPRO_PARECER_ORIGEM: mOVPRO_PARECER_ORIGEM
-        };
-        Notiflix.Loading.Standard('Aguarde...');
-        $.ajax({
-            url: '@Url.Action("addDistribuicaoProcessoEspecifico", "InstrucaoDistribuicao")',
-            type: 'POST',
-            contentType: 'application/json', // Define que o tipo de conteúdo é JSON
-            data: JSON.stringify(distribuicaoModel), // Serializa o objeto para JSON
-            success: function (result) {
-                
-                Notiflix.Loading.Remove();
-
-                if (result.error === true) {
-                    Notiflix.Notify.Failure('Erro.');
-                    return false;
-                }
-                $('#myModal').modal('hide');
-                $('#Div_Assunto').html(result); // Atualiza a div com a Partial View
-                attachTouchspinEvents();
-            },
-            error: function (xhr, status, error) {
-                console.log('Erro ao enviar arquivo:', error);
-                Notiflix.Loading.Remove();
-            }
-        });
-    });
-
-
-    // $('#DIS_USUARIO').on('change', function () {
-    //     var selectedValue = $(this).val();
-    //     console.log("Valor selecionado: ", selectedValue);
-    // });
-
-
 
 
 </script>

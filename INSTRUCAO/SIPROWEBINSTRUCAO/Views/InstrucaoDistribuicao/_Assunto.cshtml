@@ -82,7 +82,7 @@
                                             <td>@item.PRT_NUMERO</td>
                                             <td>@item.PRT_AIT</td>
                                             <td>
-                                                <a href="#" class="btn btn-white btn-sm ret_processo" data-id="@item.MOVPRO_ID">
+                                                <a href="#" class="btn btn-primary btn-sm ret_processo" data-id="@item.MOVPRO_ID">
                                                     <i class="fa fa-mail-forward"></i> Distribuir
                                                 </a>                                             
                                             </td>
@@ -199,7 +199,7 @@
                                                             <td>@processo.PRT_USUARIO</td>
                                                             <td>@processo.PRT_STATUS</td>
                                                             <td>
-                                                                <a href="#" class="btn btn-white btn-sm @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "" : "retirar-processo")"
+                                                            <a href="#" class="btn btn-primary btn-sm @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "" : "retirar-processo")"
                                                                     data-id="@processo.DIS_ID">
                                                                     <i class="fa @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "fa-lock" : "fa-minus-square-o")"></i>
                                                                                   @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "Bloqueado" : "Retirar")
@@ -208,24 +208,7 @@
                                                         </tr>
 
 
-                                                            @* <tr class="gradeX" style="@(processo.PRT_STATUS == "INSTRUCAO" ? "background-color: #f9e79f;" : "")">
-                                           
-                                                                    <td>@processo.DIS_ID</td>
-                                                                    <td>@processo.PRT_NUMERO</td>
-                                                                    <td>@processo.PRT_AIT</td>
-                                                                    <td>@processo.PRT_ASSUNTO</td>
-                                                                    <td>@processo.PRT_USUARIO</td>
-                                                                    <td>@processo.PRT_STATUS</td>
-                                                                    <td>
-                                                                        <a href="#" class="btn btn-white btn-sm @(processo.PRT_STATUS == "INSTRUCAO" ? "" : "retirar-processo")"
-                                                                           data-id="@processo.DIS_ID">
-                                                                            <i class="fa @(processo.PRT_STATUS == "INSTRUCAO" ? "fa-lock" : "fa-minus-square-o")"></i>
-                                                                                         @(processo.PRT_STATUS == "INSTRUCAO" ? "Bloqueado" : "Retirar")
-                                                                        </a>
-                                                                    </td>
-
-                                                                  
-                                                                </tr> *@
+                                                           
                                                             }
                                                         </tbody>
                                                     </table>

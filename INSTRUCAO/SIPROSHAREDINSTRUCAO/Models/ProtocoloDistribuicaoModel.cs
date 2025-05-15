@@ -4,7 +4,7 @@
     {
         //[JsonProperty("DIS_ID")]
         public int DIS_ID { get; set; }
-        public string? DIS_MOV_ID { get; set; }
+        public int DIS_MOV_ID { get; set; }
         public string? DIS_ORIGEM_USUARIO { get; set; }
         public string? DIS_ORIGEM_DATA { get; set; }
         public string? DIS_DESTINO_USUARIO { get; set; }
