@@ -214,58 +214,114 @@
 
 <script>
 
-    $('#arquivos').change(function () {
+    let isProcessing = false;
+
+
+    $(document).on('change', '#arquivos', async function (e) {
      
         // Captura todo o formulário de uma única vez
         var formData = new FormData($('#form_anexo')[0]);
+        try {
+            const response = await fetch('@Url.Action("AnexarDocumentos", "Instrucao")', {
+                method: 'POST',
+                body: formData
+            });
 
-        // Envia os dados via AJAX
-        $.ajax({
-            url: '@Url.Action("AnexarDocumentos", "Instrucao")',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (result) {
-                // Exibe o retorno do servidor no elemento #Div_Anexo
-                $('#div_anexo').html(result);
-            },
-            error: function (xhr, status, error) {
-                console.log('Erro ao enviar arquivo:', error);
+            if (isProcessing) return;
+            isProcessing = true;
+
+            // ❌ ERRO
+            if (!response.ok) {
+
+                isProcessing = false;
+                Notiflix.Loading.Remove();
+
+                const data = await response.json();
+
+                if (data.redirectTo) {
+                    window.location.href = data.redirectTo; //Erros 500 e NotFoud
+                } else {
+                    Notiflix.Notify.Failure(data.message); //Erros 400 outros
+                }
+                return false;
             }
-        });
+
+            // ✅ OK
+            Notiflix.Loading.Remove();
+            isProcessing = false;
+            const html = await response.text();
+            $('#div_anexo').html(html);
+
+        } catch (error) {
+            isProcessing = false;
+            Notiflix.Notify.Failure(error);
+            Notiflix.Loading.Remove();
+        }
+
+        // // Envia os dados via AJAX
+        // $.ajax({
+        //     url: '@Url.Action("AnexarDocumentos", "Instrucao")',
+        //     type: 'POST',
+        //     data: formData,
+        //     processData: false,
+        //     contentType: false,
+        //     success: function (result) {
+        //         // Exibe o retorno do servidor no elemento #Div_Anexo
+        //         $('#div_anexo').html(result);
+        //     },
+        //     error: function (xhr, status, error) {
+        //         console.log('Erro ao enviar arquivo:', error);
+        //     }
+        // });
     });
 
-    $('#btn_instrucao').click(function () {
-      
+   
+    $(document).on('click', '#btn_instrucao', async function () {
+
         inicializarValidacaoFormulario("#form_instrucao");
 
         if ($("#form_instrucao").valid()) {
 
-            var formData = $("#form_instrucao").serialize();
+            var formData = new FormData($('#form_instrucao')[0]);
             Notiflix.Loading.Standard('Aguarde...');
 
-            $.ajax({
-                url: '@Url.Action("EncaminharInstrucao", "instrucao")',
-                type: 'POST',
-                data: formData,
-                success: function (response) {
-                    if (response.erro == false) {
-                        Notiflix.Loading.Remove();
-                        Notiflix.Notify.Success("Instrução enviada com sucesso!");
-                        window.location.href = '@Url.Action("Instrucao", "Instrucao")';
-                    }
-                    else { 
-                        Notiflix.Loading.Remove();
-                        Notiflix.Notify.Failure("Não foi possível enviar a instrução!");
-                    }
-                       
-                },
-                error: function (xhr, status, error) {
+            try {
+                const response = await fetch('@Url.Action("EncaminharInstrucao", "instrucao")', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (isProcessing) return;
+                isProcessing = true;
+
+                // ❌ ERRO
+                if (!response.ok) {
+
+                    isProcessing = false;
                     Notiflix.Loading.Remove();
-                    Notiflix.Notify.Success("Erro interno!");
+
+                    const data = await response.json();
+                    if (data.redirectTo) {
+                        window.location.href = data.redirectTo; //Erros 500 e NotFoud
+                    } else {
+                        Notiflix.Notify.Failure(data.message); //Erros 400 outros
+                    }
+                    return false;
                 }
-            });
+
+                // ✅ OK
+                Notiflix.Loading.Remove();
+                isProcessing = false;                
+                Notiflix.Notify.Success("Instrução enviada com sucesso!");
+                window.location.href = '@Url.Action("Instrucao", "Instrucao")';
+
+
+            } catch (error) {
+                isProcessing = false;
+                Notiflix.Notify.Failure(error);
+            }
+
+
 
 
         }
@@ -273,15 +329,12 @@
 
 
     $(document).on('click', '.retirar-anexo', function (e) {
-
-
         e.preventDefault();
 
         var data = $(this).data('id'); // Exemplo: "123,456"
-        var parts = data.split(','); // Separa em ["123", "456"]
+        var parts = data.split(',');   // Separa em ["123", "456"]
         var prodocid = parts[0];
         var prtnumero = parts[1];
-
 
         Notiflix.Confirm.Show(
             'Aviso!',
@@ -290,39 +343,47 @@
             'Não',
             async function okCb() {
                 Notiflix.Loading.Standard('Aguarde...');
-                $.ajax({
-                    url: '@Url.Action("ExcluirAnexo", "Instrucao")',
-                    type: 'POST',
-                    data: { prodoc_id: prodocid, prt_numero: prtnumero },
-                    success: function (result) {
-                        // Lógica a ser executada em caso de sucesso
-                        if (result.error == true) {
-                            Notiflix.Notify.Failure('Erro.');
-                            return false;
+
+                try {
+                    const response = await fetch(`@Url.Action("ExcluirAnexo", "Instrucao")`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                        },
+                        body: new URLSearchParams({
+                            prodoc_id: prodocid,
+                            prt_numero: prtnumero
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        Notiflix.Loading.Remove();
+
+                        if (data.redirectTo) {
+                            window.location.href = data.redirectTo;
+                        } else {
+                            Notiflix.Notify.Failure(data.message || 'Erro ao excluir anexo.');
                         }
-
-                        $('#div_anexo').html(result); // Atualiza a div com a Partial View
-                        Notiflix.Loading.Remove();
-
-                    },
-                    error: function (xhr, status, error) {
-                        // Lógica a ser executada em caso de erro
-                        console.log('Erro ao enviar arquivo:', error);
-                        Notiflix.Loading.Remove();
+                        return;
                     }
-                });
+
+                    const html = await response.text();
+                    document.getElementById('div_anexo').innerHTML = html;
+                    Notiflix.Loading.Remove();
+
+                } catch (error) {
+                    console.error('Erro ao excluir anexo:', error);
+                    Notiflix.Loading.Remove();
+                    Notiflix.Notify.Failure('Erro de comunicação com o servidor.');
+                }
             },
             function cancelCb() {
                 Notiflix.Loading.Remove();
-            },
-            {
-                // Configurações adicionais (opcional)
             }
         );
-
-
-
     });
+
 
       
 </script>

@@ -34,6 +34,8 @@ namespace SIPROWEBINSTRUCAO.Controllers
             base.OnActionExecuting(context);
         }
 
+       
+
 
         public async Task<IActionResult> Instrucao()
         {
@@ -42,17 +44,48 @@ namespace SIPROWEBINSTRUCAO.Controllers
             var response = await _httpClient.GetAsync(apiUrl);
 
             //tratamento de erro 500
-            if (response.StatusCode == HttpStatusCode.InternalServerError)
-                return RedirectToAction("InternalServerError", "Home");
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    return RedirectToAction("InternalServerError", "Home");
+
+                return RedirectToAction("BadRequest", "Home");
+            }
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var protocolos = await response.Content.ReadFromJsonAsync<List<InstrucaoProcessosModel>>();
+                ViewBag.Protocolo = protocolos ?? new List<InstrucaoProcessosModel>();
+            }           
+
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> BuscarProtocolo(string vlobusca)
+        {
+
+            var valor = vlobusca?.Replace("/", "") ?? "";
+
+            ViewBag.Protocolo = new List<InstrucaoProcessosModel>();
+            string apiUrl = $"{_baseApiUrl}instrucao/localizar-instrucao/{userMatrix}/{valor}";
+            var response = await _httpClient.GetAsync(apiUrl);
+
+            // Verifica erros tratados
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
+
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var protocolos = await response.Content.ReadFromJsonAsync<List<InstrucaoProcessosModel>>();
                 ViewBag.Protocolo = protocolos ?? new List<InstrucaoProcessosModel>();
             }
-           
+            if (response.StatusCode == HttpStatusCode.NoContent)
+                ViewBag.Protocolo = new List<InstrucaoProcessosModel>();
 
-            return View();
+            return PartialView("_ListaInstrucao");
         }
 
         [HttpGet]
@@ -61,9 +94,9 @@ namespace SIPROWEBINSTRUCAO.Controllers
             string apiUrl = $"{_baseApiUrl}instrucao/get-instrucao/{dis_id}";
             var response = await _httpClient.GetAsync(apiUrl);
 
-            //tratamento de erro 500
-            if (response.StatusCode == HttpStatusCode.InternalServerError)
-                return RedirectToAction("InternalServerError", "Home");
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -126,63 +159,58 @@ namespace SIPROWEBINSTRUCAO.Controllers
             var apiUrl = $"{_baseApiUrl}instrucao/encaminhar-instrucao";
             var response = await _httpClient.PostAsJsonAsync(apiUrl, instrucao);
 
-            if (response.StatusCode == HttpStatusCode.InternalServerError)
-                return RedirectToAction("InternalServerError", "Home");
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
 
-            if (response.StatusCode == HttpStatusCode.OK)
-                return Json(new { erro = false, retorno = "Operação realizada com sucesso!" });
-            else 
-                return Json(new { erro = true, retorno = "Erro ao inserir!" });
 
+                return Json(new { erro = false });
+          
 
         }
 
        
         public async Task<IActionResult> AnexarDocumentos(List<IFormFile> arquivos, ProtocoloModel protocolo)
         {
-            try
+            
+            ViewBag.Anexo = new List<Anexo_Model>();
+
+            var apiUrl = $"{_baseApiUrl}instrucao/inserir-anexo";
+
+            protocolo.PRT_ATENDENTE = userMatrix;
+
+            // Cria o conteúdo do formulário multipart
+            var content = new MultipartFormDataContent();
+
+            // Adiciona os arquivos ao conteúdo
+            foreach (var arquivo in arquivos)
             {
-                ViewBag.Anexo = new List<Anexo_Model>();
-
-                var apiUrl = $"{_baseApiUrl}instrucao/inserir-anexo";
-
-                protocolo.PRT_ATENDENTE = userMatrix;
-
-                // Cria o conteúdo do formulário multipart
-                var content = new MultipartFormDataContent();
-
-                // Adiciona os arquivos ao conteúdo
-                foreach (var arquivo in arquivos)
-                {
-                    var fileContent = new StreamContent(arquivo.OpenReadStream());
-                    fileContent.Headers.ContentType = new MediaTypeHeaderValue(arquivo.ContentType);
-                    content.Add(fileContent, "arquivos", arquivo.FileName);
-                }
-
-                var protocoloJson = JsonSerializer.Serialize(protocolo);
-                content.Add(new StringContent(protocoloJson, Encoding.UTF8, "application/json"), "protocoloJson");
-
-                var response = await _httpClient.PostAsync(apiUrl, content);
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    await response.Content.ReadAsStringAsync();
-
-                    ViewBag.Anexos = await BuscarAnexoBanco(protocolo.PRT_NUMERO);
-                    return PartialView("_AnexoInstrucao");
-                }
-
-                //Exibe o erro com detalhes da resposta!!!!! 
-                var errorDetails = await response.Content.ReadAsStringAsync();
-                return PartialView("_ErrorPartialView");
-            }
-            catch (Exception ex)
-            {
-
-                throw;
+                var fileContent = new StreamContent(arquivo.OpenReadStream());
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(arquivo.ContentType);
+                content.Add(fileContent, "arquivos", arquivo.FileName);
             }
 
+            var protocoloJson = JsonSerializer.Serialize(protocolo);
+            content.Add(new StringContent(protocoloJson, Encoding.UTF8, "application/json"), "protocoloJson");
 
+            var response = await _httpClient.PostAsync(apiUrl, content);
+
+
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
+
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                await response.Content.ReadAsStringAsync();
+
+                ViewBag.Anexos = await BuscarAnexoBanco(protocolo.PRT_NUMERO);
+              
+            }
+
+            return PartialView("_AnexoInstrucao");
+        
         }
 
         [HttpGet]
@@ -210,8 +238,9 @@ namespace SIPROWEBINSTRUCAO.Controllers
             var apiUrl = $"{_baseApiUrl}instrucao/excluir-anexo/{prodoc_id}";
             var response = await _httpClient.PostAsJsonAsync(apiUrl, prodoc_id);
 
-            if (!response.IsSuccessStatusCode)
-                return PartialView("_ErrorPartialView");
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
 
             ViewBag.Anexos = await BuscarAnexoBanco(prt_numero);
             return PartialView("_AnexoInstrucao");

@@ -40,26 +40,53 @@
 <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
 
 <script>
+    let isProcessing = false;
 
     function mostrarLoading() {
         Notiflix.Loading.Standard('Aguarde...');
     }
 
-    function LocalizarProtocolo(vlobusca) {
-        $.ajax({
-            url: '@Url.Action("BuscarProtocolo", "Instrucao")',
-            datatype: 'html',
-            contentType: "application/html; charset=utf-8",
-            type: "GET",
-            data: { vlobusca: vlobusca },
-            success: function (result) {
-                $('#div_listaInstrucao').html(result);
-            },
-            error: function (xhr, status, error) {
-                // console.error("Erro na busca do protocolo:", error);
+    async function LocalizarProtocolo(vlobusca) {
+        try {
+           
+            Notiflix.Loading.Standard('Buscando...');
+            const response = await fetch(`@Url.Action("BuscarProtocolo", "Instrucao")?vlobusca=${encodeURIComponent(vlobusca)}`);
+
+
+            if (isProcessing) return;
+            isProcessing = true;
+
+            // ❌ ERRO
+            if (!response.ok) {
+                const data = await response.json(); 
+
+                isProcessing = false;
+                Notiflix.Loading.Remove();
+
+                if (data.redirectTo) {
+                    window.location.href = data.redirectTo;
+                } else {
+                    Notiflix.Notify.Failure(data.message || 'Erro inesperado.');
+                }
+                return false;
             }
-        });
+
+            // ✅ OK
+            const html = await response.text(); // PartialView como HTML
+            document.getElementById('div_listaInstrucao').innerHTML = html;
+
+            console.log('passou1');
+            isProcessing = false;
+            Notiflix.Loading.Remove();
+
+        } catch (error) {
+            isProcessing = false;
+            Notiflix.Loading.Remove();
+            Notiflix.Notify.Failure('Erro de comunicação com o servidor.');
+            console.error(error);
+        }
     }
+
 
 
     $('#btmLocalizarProtocolo').click(function (event) {

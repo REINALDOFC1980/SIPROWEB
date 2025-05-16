@@ -4,6 +4,8 @@ using SIPROSHARED.DbContext;
 using SIPROSHARED.Models;
 using SIPROSHAREDINSTRUCAO.Models;
 using SIPROSHAREDINSTRUCAO.Service.IRepository;
+using SIPROSHAREDPUBLICACAO.Validator;
+using SIRPOEXCEPTIONS.ExceptionBase;
 using System.Data;
 
 namespace SIPROSHAREDINSTRUCAO.Service.Repository
@@ -20,7 +22,10 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
 
         public async Task<List<InstrucaoProcessosModel>> LocalizarInstrucao(string usuario, string vlobusca)
         {
-            
+            if (string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(vlobusca))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
+
             var query = @"
 				Select 
                         INSDIS_ID as DIS_ID,
@@ -38,7 +43,8 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
 					   inner join Protocolo on(PRT_NUMERO = MOVPRO_PRT_NUMERO)
 					   inner join Assunto on (PRT_ASSUNTO = ASS_ID)							
                  where INSDIS_USUARIO_DESTINO = @usuario
-                   and PRT_AIT like case when @vlobusca = 'Todos' then '%' else @vlobusca end
+                   and (REPLACE(PRT_NUMERO,'/','') like case when @vlobusca = 'Todos' then '%' else @vlobusca end or
+	                    PRT_AIT like case when @vlobusca = 'Todos' then '%' else @vlobusca end)
                    and INSDIS_STATUS = 'RECEBIDO' 
 					";
 
@@ -54,7 +60,10 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
 
         public async Task<InstrucaoProcessosModel> GetInstrucao(int dis_id)
         {
-       
+            if (dis_id == 0)
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
+
             var query = @"
 						Select 
                                INSDIS_ID as DIS_ID,
@@ -111,7 +120,9 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
 
         public async Task<InstrucaoModel> BuscarMovimentacaoInstrucao(int dis_id)
         {
-        
+            if (dis_id == 0)
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
             var query = @"   
                   Select MOVPRO_USUARIO_ORIGEM as INSPRO_Usuario_origem,
                          MOVPRO_PARECER_ORIGEM as INSPRO_Parecer,
@@ -138,19 +149,22 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
            
             
         }
-
-
-        //EVITAR ENVIAR PARA O PROPRIO SETOR
+        
         public async Task EncaminharIntrucao(InstrucaoModel instrucaoProcesso, IDbConnection connection, IDbTransaction transaction)
         {
+
+            //validando a model agendamento 
+            var validator = new EncaminharInstrucaoValidator();
+            var result = validator.Validate(instrucaoProcesso);
+            if (result.IsValid == false)
+                throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
 
             try
             {
                 // Adicionando parâmetros
                 var dbParametro = new DynamicParameters();
                 dbParametro.Add("@DIS_ID", instrucaoProcesso.INSPRO_Dis_id);
-                dbParametro.Add("@MOVPRO_USUARIO_ORIGEM", instrucaoProcesso.INSPRO_Usuario_origem);
-                dbParametro.Add("@MOVPRO_SETOR_DESTINO", instrucaoProcesso.INSPRO_Setor_destino);
+                dbParametro.Add("@MOVPRO_USUARIO_ORIGEM", instrucaoProcesso.INSPRO_Usuario_origem);                
                 dbParametro.Add("@MOVPRO_PARECER_ORIGEM", instrucaoProcesso.INSPRO_Parecer);
 
                 string query = @"                     
@@ -218,6 +232,12 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
 
         public async Task IntoAnexo(List<IFormFile> arquivos, ProtocoloModel protocolo)
         {
+            //validando a model agendamento 
+            var validator = new AnexoValidator();
+            var result = validator.Validate(protocolo);
+            if (result.IsValid == false)
+                throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
+
             // Verifica se há arquivos na lista
             if (arquivos != null && arquivos.Count > 0)
             {
@@ -233,6 +253,10 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                         imagemBytes = memoryStream.ToArray();
                     }
 
+                    if (imagemBytes == null || imagemBytes.Length == 0)
+                        throw new ErrorOnValidationException(new List<string> { "A imagem não foi enviada ou está vazia." });
+
+
                     var dbParametro = new DynamicParameters();
                     dbParametro.Add("@PRTDOC_DOC_ID", 0);
                     dbParametro.Add("@PRTDOC_PRT_NUMERO", protocolo.PRT_NUMERO);
@@ -242,7 +266,6 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                     dbParametro.Add("@PRT_ATENDENTE", protocolo.PRT_ATENDENTE);
                     dbParametro.Add("@PRTDOC_MOVPRO_ID", protocolo.PRTDOC_MOVPRO_ID);
                     
-
                     string query = @"
 
                         Declare @PRTDOC_PRT_SETOR int
@@ -283,8 +306,14 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
 
         public async Task<List<Anexo_Model>> BuscarAnexo(string usuario, string ait)
         {
+
+
+            if (string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(ait))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
+
             {
-               
+
                 var query = @"
 
 	                 Declare @Setor int
@@ -313,8 +342,14 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
                
             }
         }
+      
         public async Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero, string usuario)
         {
+
+            if (string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(usuario))
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
+
             try
             {
                 using (var connection = _context.CreateConnection())
@@ -360,10 +395,13 @@ namespace SIPROSHAREDINSTRUCAO.Service.Repository
             }
         }
 
-
         public async Task ExcluirAnexo(int prtdoc_id)
         {
-           
+
+            if (prtdoc_id == 0)
+                throw new ErrorOnValidationException(new List<string> { "O valor do parametro não foi passado para realizar a busca." });
+
+
             // Adicionando parâmetros
             var dbParametro = new DynamicParameters();
             dbParametro.Add("@prtdoc_id", prtdoc_id);
