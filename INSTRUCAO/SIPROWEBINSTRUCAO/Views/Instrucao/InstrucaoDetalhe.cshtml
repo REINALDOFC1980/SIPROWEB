@@ -344,6 +344,7 @@
             async function okCb() {
                 Notiflix.Loading.Standard('Aguarde...');
 
+
                 try {
                     const response = await fetch(`@Url.Action("ExcluirAnexo", "Instrucao")`, {
                         method: 'POST',
@@ -356,6 +357,7 @@
                         })
                     });
 
+                    // ❌ ERRO
                     if (!response.ok) {
                         const data = await response.json();
                         Notiflix.Loading.Remove();
@@ -367,7 +369,7 @@
                         }
                         return;
                     }
-
+                    // ✅ OK
                     const html = await response.text();
                     document.getElementById('div_anexo').innerHTML = html;
                     Notiflix.Loading.Remove();
