@@ -200,7 +200,8 @@ namespace SIPROSHAREDINSTRUCAO.Controllers
                     return resultadoErro;
             }
 
-            await CarregarDistribuicao(userMatrix); // Ou apenas CarregarDistribuicao se não for async
+            _ = await CarregarDistribuicao(userMatrix);
+
             return PartialView("_Assunto");
         }
 

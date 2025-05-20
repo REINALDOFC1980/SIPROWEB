@@ -392,7 +392,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 	             
 
                     SELECT TOP 1 DIS_ID, DIS_MOV_ID, 
-			                     MOVPRO_SETOR_ORIGEM AS SetorDestino, 
+			                     MOVPRO_SETOR_DESTINO AS SetorDestino, 
 			                     MOVPRO_PRT_NUMERO 
                             INTO #Processo
                             FROM Movimentacao_Processo 

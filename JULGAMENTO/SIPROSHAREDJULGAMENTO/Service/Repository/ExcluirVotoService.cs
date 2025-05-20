@@ -23,7 +23,6 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-
         /*Excluir Voto*/
         public async Task<List<ExcluirModel>> LocalizarProcessosExcluirVoto(string usuario, string situacao, string processo)
         {
@@ -52,7 +51,7 @@ namespace SIPROSHAREDJULGAMENTO.Service.Repository
 		            join Assunto as d on (d.ASS_ID = PRT_ASSUNTO)
                     Where PRT_ACAO like case when @situacao = 'TODOS' then '%' else @situacao end and 
                             REPLACE(MOVPRO_PRT_NUMERO,'/','') like case when @processo = 'TODOS' then '%' else @processo end and  
-                            MOVPRO_SETOR_ORIGEM = @Setor AND
+                            MOVPRO_SETOR_DESTINO = @Setor AND
                             PRT_ACAO in ('EM JULGAMENTO', 'HOMOLOGAR')
                                 order by MOVPRO_PRT_NUMERO 
 							";

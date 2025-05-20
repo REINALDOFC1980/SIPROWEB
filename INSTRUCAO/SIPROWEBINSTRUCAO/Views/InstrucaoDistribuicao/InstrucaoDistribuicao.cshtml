@@ -24,7 +24,6 @@
 <!-- Importa o arquivo touchspin.js -->
 <script type="module">
 
-
     function zerarInputs() {
         const inputs = document.querySelectorAll('input[type="number"], input[type="text"]');
         inputs.forEach(input => {
@@ -82,6 +81,7 @@
             'Sim',
             'Não',
             async function okCb() {
+                
                 if (isProcessing) return;
                 isProcessing = true;
 
@@ -146,6 +146,7 @@
     });
 
     $(document).on('click', '#getRemoverBtn', async function () {
+       
         let qtdInputs = document.querySelectorAll('span[id^="qtd_"]');
         let temProcessoDistribuido = Array.from(qtdInputs).some(span => parseInt(span.textContent || "0", 10) > 0);
 

@@ -1,7 +1,9 @@
 ﻿using Dapper;
 using SIPROSHARED.DbContext;
+using SIPROSHARED.Validator;
 using SIPROSHAREDDISTRIBUICAO.Models;
 using SIPROSHAREDDISTRIBUICAO.Service.IRepository;
+using SIRPOEXCEPTIONS.ExceptionBase;
 using System.Data;
 
 namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
@@ -15,28 +17,14 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<int> GetPresidente(string usuario)
-        {
-            try
-            {
-                var query = @"select Count(1) from SetorSubXUsuario where SETSUBUSU_USUARIO = @Usuario and SETSUBUSU_PERFIL = 'Presidente' ";
-
-                using (var connection = _context.CreateConnection())
-                {
-                    var parametros = new { usuario };
-                    var count = await connection.ExecuteScalarAsync<int>(query, parametros);
-                    return count;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Erro ao obter dados.", ex);
-            }
-        }
 
         public async Task<List<AssuntoQtd>> GetQtdProcessosPorAssunto(string usuario)
         {
-              var query = @"  
+            if (string.IsNullOrEmpty(usuario))
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+
+
+            var query = @"  
 	                 
                     Declare @Setor int
 
@@ -65,8 +53,11 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
 
         public async Task<List<ProtocoloDistribuicaoModel>>GetQtdProcessosDistribuidoPorUsuario(string usuario)
         {
-           
-                var query = @"
+            if (string.IsNullOrEmpty(usuario))
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+
+
+            var query = @"
 
                        -- Declara a variável @Setor
                         DECLARE @Setor INT;
@@ -142,7 +133,10 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
 
         public async Task<List<ListaProcessoUsuario>> GetProcessosUsuario(string usuario)
         {
-        
+
+            if (string.IsNullOrEmpty(usuario))
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+
             var query = @"
 				
                 WITH Prioridade AS (
@@ -201,8 +195,10 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
 
         public async Task<List<ListaProcessoUsuario>> GetProcessoSetor(string usuario)
         {
-            try
-            {
+            if (string.IsNullOrEmpty(usuario))
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+
+
                 var query = @"
 					    select MOVPRO_ID,
 	                           PRT_NUMERO, 
@@ -222,19 +218,16 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
                     var command = await connection.QueryAsync<ListaProcessoUsuario>(query, parametros);
                     return command.ToList();
                 }
-            }
-            catch (Exception ex)
-            {
-                // Melhor manipulação de exceções: log ou tratar adequadamente
-                throw new Exception("Erro ao obter dados.", ex);
-            }
+            
         }
 
         public async Task<ListaProcessoUsuario> GetProcesso(int movpro_id)
         {
-            try
-            {
-                var query = @"
+
+            if (movpro_id == 0)
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+
+            var query = @"
                              SELECT MOVPRO_ID,
                                     PRT_NUMERO, 
                                     PRT_AIT, 
@@ -248,115 +241,80 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
                               AND SETSUBUSU_PERFIL = 'Presidente'
                               AND MOVPRO_ID = @movpro_id";
 
-                using (var connection = _context.CreateConnection())
-                {
-                    var parametros = new { movpro_id };
-                    // Aqui utilizamos QueryFirstOrDefaultAsync para mapear a linha retornada diretamente para o modelo ListaProcessoUsuario
-                    var processo = await connection.QueryFirstOrDefaultAsync<ListaProcessoUsuario>(query, parametros);
-                    return processo;
-                }
-            }
-            catch (Exception ex)
+            using (var connection = _context.CreateConnection())
             {
-                // Melhor manipulação de exceções: log ou tratar adequadamente
-                throw new Exception("Erro ao obter dados.", ex);
+                var parametros = new { movpro_id };
+                // Aqui utilizamos QueryFirstOrDefaultAsync para mapear a linha retornada diretamente para o modelo ListaProcessoUsuario
+                var processo = await connection.QueryFirstOrDefaultAsync<ListaProcessoUsuario>(query, parametros);
+                return processo;
             }
+           
         }
 
         public async Task DistribuicaoProcessoEspecifico(ProtocoloDistribuicaoModel distribuicaoModel, IDbConnection connection, IDbTransaction transaction)
         {
-            try
-            {
-                // Adicionando parâmetros
-                var dbParametro = new DynamicParameters();
-                dbParametro.Add("@UsuarioOrigem", distribuicaoModel.DIS_ORIGEM_USUARIO);
-                dbParametro.Add("@UsuarioDestino", distribuicaoModel.DIS_DESTINO_USUARIO);
-                dbParametro.Add("@dis_mov_id", distribuicaoModel.DIS_MOV_ID);
-                dbParametro.Add("@MOVPRO_PARECER_ORIGEM", distribuicaoModel.MOVPRO_PARECER_ORIGEM);
 
-                string query = @"                        
-                       Select
-                              MOVPRO_ID,
-                              MOVPRO_PRT_NUMERO,
-                              SETSUBUSU_SETSUB_ID,--sempre vai ser origem e destino
-                              SETSUBUSU_USUARIO,
-                              MOVPRO_INSTRUCAO,
-		                      PRT_ACAO
-                              INTO #temp_Distribuicao
-                         from Movimentacao_Processo inner join SetorSubxUsuario on (MOVPRO_SETOR_DESTINO = SETSUBUSU_SETSUB_ID AND SETSUBUSU_PERFIL = 'Presidente')
-	                                                inner join SetorSub on(SETSUBUSU_SETSUB_ID = SETSUB_ID)
-								                    inner join Protocolo on(MOVPRO_PRT_NUMERO = PRT_NUMERO)
-                        where MOVPRO_STATUS = 'RECEBIDO'
-                        and SETSUBUSU_USUARIO = @UsuarioOrigem
-                        and MOVPRO_ID = @dis_mov_id
-
-                             UPDATE Mov
-                          SET MOVPRO_STATUS = 'RECEBIDO->DISTRIBUIDO'
-                         FROM Movimentacao_Processo Mov
-                              INNER JOIN #temp_Distribuicao PDis
-                              ON Mov.MOVPRO_ID = PDis.MOVPRO_ID
-
-                 
-                       Insert into Movimentacao_Processo
-                       (
-                               MOVPRO_PRT_NUMERO    
-                              ,MOVPRO_SETOR_ORIGEM 
-                              ,MOVPRO_USUARIO_ORIGEM                                                                                
-                              ,MOVPRO_DATA_ORIGEM      
-                              ,MOVPRO_PARECER_ORIGEM                                                                                                                                                                                                                                            
-                              ,MOVPRO_ACAO_ORIGEM                                                                                                                                                                                                                                               
-                              ,MOVPRO_SETOR_DESTINO 
-                              ,MOVPRO_STATUS                                      
-                              ,MOVPRO_PRTDOC_ID 
-                         )
-
-                        SELECT MOVPRO_PRT_NUMERO
-                              ,SETSUBUSU_SETSUB_ID 
-                              ,SETSUBUSU_USUARIO     
-                              ,GETDATE()      
-                              ,Null 
-                              ,'Processo distribuido para o relator do setor'                          
-                              ,SETSUBUSU_SETSUB_ID 
-                              ,'DISTRIBUIDO'
-                              ,Null 
-                         FROM #temp_Distribuicao 
-                        WHERE MOVPRO_INSTRUCAO is null
-     
-                    Declare  @UltimoID int
-                         SET @UltimoID = SCOPE_IDENTITY();
-
-                       insert into Protocolo_Distribuicao
-                       select Case when MOVPRO_INSTRUCAO is null then @UltimoID else MOVPRO_ID end,
-                              @UsuarioOrigem,
-                              GETDATE(),
-                              @UsuarioDestino AS DIS_DESTINO_USUARIO,
-                              0 as DIS_DESTINO_STA_ID,
-                              'RECEBIDO' AS DIS_DESTINO_STATUS,
-                              0 AS DIS_NUMJULGADOS,
-                              CASE WHEN PRT_ACAO = 'RETIFICAR VOTO' THEN 1 ELSE 0 END AS DIS_RETORNO,
-                              NULL DIS_DATA_JULGAMENTO,
-                              '' as Retorno
-                         from #temp_Distribuicao
+            //Validando 
+            var validator = new ProtocoloDistribuicaoValidator();
+            var result = validator.Validate(distribuicaoModel);
+            if (result.IsValid == false)
+                throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
 
 
+            // Adicionando parâmetros
+            var dbParametro = new DynamicParameters();
+            dbParametro.Add("@UsuarioOrigem", distribuicaoModel.DIS_ORIGEM_USUARIO);
+            dbParametro.Add("@UsuarioDestino", distribuicaoModel.DIS_DESTINO_USUARIO);
+            dbParametro.Add("@dis_mov_id", distribuicaoModel.DIS_MOV_ID);
 
-                ";
+            string query = @"   
+                     DECLARE @SetorOrigem_Destino INT;    
 
+		                 SET @SetorOrigem_Destino = (
+                      SELECT TOP 1 SETSUBUSU_SETSUB_ID
+                        FROM SetorSubXUsuario
+                       WHERE SETSUBUSU_USUARIO = @UsuarioOrigem)
+                       
+                      Select
+                             MOVPRO_ID
+                        INTO #temp_Distribuicao
+                        from Movimentacao_Processo inner join SetorSubxUsuario on (MOVPRO_SETOR_DESTINO = SETSUBUSU_SETSUB_ID AND SETSUBUSU_PERFIL = 'Presidente')
+                                                   inner join SetorSub on(SETSUBUSU_SETSUB_ID = SETSUB_ID)
+					                               inner join Protocolo on(MOVPRO_PRT_NUMERO = PRT_NUMERO)
+                       where MOVPRO_STATUS = 'RECEBIDO'
+                         and SETSUBUSU_USUARIO = @UsuarioOrigem
+                         and MOVPRO_ID = @dis_mov_id
+
+                     UPDATE Mov
+                        SET MOVPRO_STATUS = 'RECEBIDO->DISTRIBUIDO'
+                       FROM Movimentacao_Processo Mov inner join  #temp_Distribuicao PDis
+                         ON Mov.MOVPRO_ID = PDis.MOVPRO_ID
+
+
+                     insert into Protocolo_Distribuicao(
+		                    DIS_MOV_ID,
+		                    DIS_ORIGEM_USUARIO,
+		                    DIS_ORIGEM_DATA,
+		                    DIS_DESTINO_USUARIO,
+		                    DIS_DESTINO_STATUS)
+                     select MOVPRO_ID,
+                            @UsuarioOrigem,
+                            GETDATE(),
+                            @UsuarioDestino,
+                            'RECEBIDO'
+                       from #temp_Distribuicao
+            ";
            
-                    await connection.ExecuteAsync(query, dbParametro, transaction);
-               
-            }
-            catch (Exception ex)
-            {
-                // É recomendável registrar o erro ou retornar uma mensagem específica.
-                throw new Exception("Erro ao distribuir o processo", ex);
-            }
+                await connection.ExecuteAsync(query, dbParametro, transaction);
+          
         }
         
         public async Task DistribuicaoProcesso(ProtocoloDistribuicaoModel distribuicaoModel, IDbConnection connection, IDbTransaction transaction)
         {
             try
             {
+                if (string.IsNullOrEmpty(distribuicaoModel.DIS_ORIGEM_USUARIO) || string.IsNullOrEmpty(distribuicaoModel.DIS_DESTINO_USUARIO))
+                    throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
 
                 // Adicionando parâmetros
                 var dbParametro = new DynamicParameters();
@@ -366,127 +324,89 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
 
                 string query = @"
 
-                      Select Top(@Qtd) 
-                             MOVPRO_ID,
-							 MOVPRO_PRT_NUMERO,
-							 SETSUBUSU_SETSUB_ID,--sempre vai ser origem e destino
-							 SETSUBUSU_USUARIO,
-							 MOVPRO_INSTRUCAO,
-							 PRT_ACAO
-                        INTO #temp_Distribuicao
-						From Movimentacao_Processo inner join SetorSubxUsuario on (MOVPRO_SETOR_DESTINO = SETSUBUSU_SETSUB_ID AND SETSUBUSU_PERFIL = 'Presidente')
-						   						   inner join SetorSub on(SETSUBUSU_SETSUB_ID = SETSUB_ID)
-														inner join Protocolo on(MOVPRO_PRT_NUMERO = PRT_NUMERO)
-					  where MOVPRO_STATUS = 'RECEBIDO'
-					    and SETSUBUSU_USUARIO = @UsuarioOrigem                          
-                        
-						
-						--Cursor--
-                        DECLARE @MOVPRO_ID int
-                        DECLARE cursorDistribuicao CURSOR FOR
+                     Select Top(@Qtd) 
+                            MOVPRO_ID
+                       INTO #temp_Distribuicao
+                       From Movimentacao_Processo inner join SetorSubxUsuario on (MOVPRO_SETOR_DESTINO = SETSUBUSU_SETSUB_ID AND SETSUBUSU_PERFIL = 'Presidente')
+			   				                      inner join SetorSub on(SETSUBUSU_SETSUB_ID = SETSUB_ID)
+							                      inner join Protocolo on(MOVPRO_PRT_NUMERO = PRT_NUMERO)
+                      where MOVPRO_STATUS = 'RECEBIDO'
+                        and SETSUBUSU_USUARIO = @UsuarioOrigem 
+
+			               --Cursor--
+                     DECLARE @MOVPRO_ID int
+                     DECLARE cursorDistribuicao CURSOR FOR
      
-                        SELECT MOVPRO_ID 
-                          FROM #temp_Distribuicao 
+                      SELECT MOVPRO_ID 
+                             FROM #temp_Distribuicao 
 
                         OPEN cursorDistribuicao;
 
-                        FETCH NEXT FROM cursorDistribuicao INTO @MOVPRO_ID;
+                       FETCH NEXT FROM cursorDistribuicao INTO @MOVPRO_ID;
 
-                        WHILE @@FETCH_STATUS = 0
-                        BEGIN
+                   WHILE @@FETCH_STATUS = 0
+                      BEGIN
 
-                           UPDATE Mov
-                              SET MOVPRO_STATUS = 'RECEBIDO->DISTRIBUIDO'
-                             FROM Movimentacao_Processo Mov
-	                        where Mov.MOVPRO_ID = @MOVPRO_ID
-
-                 
-                           Insert into Movimentacao_Processo
-                           (
-                                   MOVPRO_PRT_NUMERO    
-                                  ,MOVPRO_SETOR_ORIGEM 
-                                  ,MOVPRO_USUARIO_ORIGEM                                                                                
-                                  ,MOVPRO_DATA_ORIGEM      
-                                  ,MOVPRO_PARECER_ORIGEM                                                                                                                                                                                                                                            
-                                  ,MOVPRO_ACAO_ORIGEM                                                                                                                                                                                                                                               
-                                  ,MOVPRO_SETOR_DESTINO 
-                                  ,MOVPRO_STATUS                                      
-                                  ,MOVPRO_PRTDOC_ID 
-                             )
-
-                            SELECT MOVPRO_PRT_NUMERO
-                                   ,SETSUBUSU_SETSUB_ID 
-								   ,SETSUBUSU_USUARIO     
-								   ,GETDATE()      
-								   ,Null 
-								   ,'Processo distribuido para o relator do setor'                          
-								   ,SETSUBUSU_SETSUB_ID 
-								   ,'DISTRIBUIDO'
-								   ,Null 
-                             FROM #temp_Distribuicao 
-                            WHERE MOVPRO_INSTRUCAO is null
-	                          and MOVPRO_ID = @MOVPRO_ID
-     
-                        Declare  @UltimoID int
-                             SET @UltimoID = SCOPE_IDENTITY();
-
-                           insert into Protocolo_Distribuicao
-                           Select Case when MOVPRO_INSTRUCAO is null then @UltimoID else MOVPRO_ID end,
-                                  @UsuarioOrigem,
-                                  GETDATE(),
-                                  @UsuarioDestino AS DIS_DESTINO_USUARIO,
-                                  0 as DIS_DESTINO_STA_ID,
-                                  'RECEBIDO' AS DIS_DESTINO_STATUS,
-                                  0 AS DIS_NUMJULGADOS,
-                                  CASE WHEN PRT_ACAO = 'RETIFICAR VOTO' THEN 1 ELSE 0 END AS DIS_RETORNO,
-                                  NULL DIS_DATA_JULGAMENTO,
-                                  '' as Retorno
-                             from #temp_Distribuicao
-	                         where MOVPRO_ID = @MOVPRO_ID
+                        UPDATE Mov
+                           SET MOVPRO_STATUS = 'RECEBIDO->DISTRIBUIDO'
+                          FROM Movimentacao_Processo Mov
+                         where Mov.MOVPRO_ID = @MOVPRO_ID
+	   
+                        insert into Protocolo_Distribuicao(
+                               DIS_MOV_ID,
+                               DIS_ORIGEM_USUARIO,
+                               DIS_ORIGEM_DATA,
+                               DIS_DESTINO_USUARIO,
+                               DIS_DESTINO_STATUS)
+                        select MOVPRO_ID,
+                               @UsuarioOrigem,
+                               GETDATE(),
+                               @UsuarioDestino,
+                               'RECEBIDO'
+                          from #temp_Distribuicao
+	                     where MOVPRO_ID = @MOVPRO_ID
        
-	                         FETCH NEXT FROM cursorDistribuicao INTO  @MOVPRO_ID;
-                        END
+                         FETCH NEXT FROM cursorDistribuicao INTO  @MOVPRO_ID;
+                     END
 
   
-                        CLOSE cursorDistribuicao;
-                        DEALLOCATE cursorDistribuicao;
-   
-                ";
+                   CLOSE cursorDistribuicao
+                   DEALLOCATE cursorDistribuicao ";
 
-                await connection.ExecuteAsync(query, dbParametro, transaction);
+                using (var con = _context.CreateConnection())
+                {
+                    await con.ExecuteAsync(query, dbParametro);
+                }
             }
             catch (Exception)
             {
 
                 throw;
             }
+
             
-                
-           
+
+                        
         }
 
         public async Task RetirarProcesso(ProtocoloDistribuicaoModel distribuicaoModel)
         {
 
+            if (string.IsNullOrEmpty(distribuicaoModel.DIS_DESTINO_USUARIO))
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
 
 
-           
-             // Adicionando parâmetros
-             var dbParametro = new DynamicParameters();
+            // Adicionando parâmetros
+            var dbParametro = new DynamicParameters();
              dbParametro.Add("@UsuarioDestino", distribuicaoModel.DIS_DESTINO_USUARIO);
              dbParametro.Add("@Qtd", distribuicaoModel.DIS_QTD);
 
-             string query = @"  
-                   
+                string query = @"  
+
 		          --Pegando os processo movimentado automaticamente
                  SELECT Top(@Qtd) 
-                        PRT_NUMERO,
-                        MOVPRO_SETOR_DESTINO, --SEMPRE VAI SER ORIGEM E DESTINO
-                        DIS_ORIGEM_USUARIO,           
                         DIS_ID,
-                        MOVPRO_ID,
-                        MOVPRO_INSTRUCAO,
-                        DIS_RETORNO
+                        MOVPRO_ID
                     into #temp_Retirar
                     FROM Protocolo
                     INNER JOIN Movimentacao_Processo ON (PRT_NUMERO = MOVPRO_PRT_NUMERO)
@@ -494,54 +414,32 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
                     INNER JOIN Assunto ON (PRT_ASSUNTO = ASS_ID)
                     WHERE DIS_DESTINO_USUARIO = @UsuarioDestino
                     AND DIS_DESTINO_STATUS = 'RECEBIDO'
-   
 
-                       INSERT INTO Movimentacao_Processo
-                          (
-                          MOVPRO_PRT_NUMERO    
-                         ,MOVPRO_SETOR_ORIGEM 
-                         ,MOVPRO_USUARIO_ORIGEM                                                                                
-                         ,MOVPRO_DATA_ORIGEM      
-                         ,MOVPRO_PARECER_ORIGEM                                                                                                                                                                                                              
-                         ,MOVPRO_ACAO_ORIGEM                                                                                                                                                                                                                                               
-                         ,MOVPRO_SETOR_DESTINO 
-                         ,MOVPRO_STATUS                                      
-                         ,MOVPRO_PRTDOC_ID 
-	
-                         )
-                        select  PRT_NUMERO           
-                                ,MOVPRO_SETOR_DESTINO 
-                                ,DIS_ORIGEM_USUARIO        
-                                ,GETDATE()      
-                                ,null 
-                                ,'Processo retirado do relator e encaminhado ao setor responsável.'                                 
-                                ,MOVPRO_SETOR_DESTINO 
-                                ,'RECEBIDO' 
-                                ,NULL
-                          from #temp_Retirar	
-                         WHERE MOVPRO_INSTRUCAO is null
-  
-                        Update Mov
-                           set Mov.MOVPRO_STATUS = case when Mov.MOVPRO_INSTRUCAO is not null then 'RECEBIDO'  else 'DISTRIBUIDO->RETIRADO' end
-                          from Movimentacao_Processo Mov, #temp_Retirar PDis
-                         where Mov.MOVPRO_ID = PDis.MOVPRO_ID 
-                           and isnull(DIS_RETORNO,0)=0
-                  
+                    Update Mov
+                    set Mov.MOVPRO_STATUS = 'RECEBIDO' 
+                    from Movimentacao_Processo Mov, #temp_Retirar PDis
+                    where Mov.MOVPRO_ID = PDis.MOVPRO_ID 
+                 
 		 
                      -- Excluir da tabela Protocolo_Distribuicao
                      DELETE pd
                        FROM Protocolo_Distribuicao pd
                       INNER JOIN #temp_Retirar tb ON pd.DIS_ID = tb.DIS_ID    ";
 
-             using (var con = _context.CreateConnection())
-             {
-                 await con.ExecuteAsync(query, dbParametro);
-             }
-           
+                using (var con = _context.CreateConnection())
+                {
+                    await con.ExecuteAsync(query, dbParametro);
+                }
+
+          
+             
         }
 
         public async Task RetirarProcessoEspecifico(ProtocoloDistribuicaoModel distribuicaoModel)
         {
+            if (distribuicaoModel.DIS_ID == 0)
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+
 
             try
             { // Adicionando parâmetros
@@ -550,60 +448,24 @@ namespace SIPROSHAREDDISTRIBUICAO.Service.Repository
 
                 string query = @"                        
 		            
-                   Select   PRT_NUMERO,
-                            MOVPRO_SETOR_DESTINO, --SEMPRE VAI SER ORIGEM E DESTINO
-                            DIS_ORIGEM_USUARIO,   
-                            DIS_ID,
-                            MOVPRO_ID,
-                            DIS_RETORNO,
-                            MOVPRO_INSTRUCAO
-                      into #temp_Retirar
-                      FROM Protocolo
-                     INNER JOIN Movimentacao_Processo ON (PRT_NUMERO = MOVPRO_PRT_NUMERO)
-                     INNER JOIN Protocolo_Distribuicao ON (MOVPRO_ID = DIS_MOV_ID) 
-                     INNER JOIN Assunto ON (PRT_ASSUNTO = ASS_ID)
-                 where Dis_Id = @DIS_ID
-                 and  DIS_DESTINO_STATUS = 'RECEBIDO'
-	
-	
-
-                      INSERT INTO Movimentacao_Processo
-                          (
-                          MOVPRO_PRT_NUMERO    
-                         ,MOVPRO_SETOR_ORIGEM 
-                         ,MOVPRO_USUARIO_ORIGEM                                                                                
-                         ,MOVPRO_DATA_ORIGEM      
-                         ,MOVPRO_PARECER_ORIGEM                                                                                                                                                                                                              
-                         ,MOVPRO_ACAO_ORIGEM                                                                                                                                                                                                                                               
-                         ,MOVPRO_SETOR_DESTINO 
-                         ,MOVPRO_STATUS                                      
-                         ,MOVPRO_PRTDOC_ID 
-	
-                         )
-                        select  PRT_NUMERO           
-                                ,MOVPRO_SETOR_DESTINO 
-                                ,DIS_ORIGEM_USUARIO        
-                                ,GETDATE()      
-                                ,null 
-                                ,'Processo retirado do relator e encaminhado ao setor responsável.'                                 
-                                ,MOVPRO_SETOR_DESTINO 
-                                ,'RECEBIDO' 
-                                ,NULL
-                          from #temp_Retirar	
-                         WHERE MOVPRO_INSTRUCAO is null
-      
-  
-  
+                       Select  DIS_ID,
+                               MOVPRO_ID           
+                          into #temp_Retirar
+                          FROM Protocolo
+                         INNER JOIN Movimentacao_Processo ON (PRT_NUMERO = MOVPRO_PRT_NUMERO)
+                         INNER JOIN Protocolo_Distribuicao ON (MOVPRO_ID = DIS_MOV_ID) 
+                         where Dis_Id = @DIS_ID
+                           and DIS_DESTINO_STATUS = 'RECEBIDO'
+	  
                         Update Mov
-                           set Mov.MOVPRO_STATUS = case when Mov.MOVPRO_INSTRUCAO is not null then 'RECEBIDO'  else 'DISTRIBUIDO->RETIRADO' end
+                           set Mov.MOVPRO_STATUS = 'RECEBIDO'  
                           from Movimentacao_Processo Mov, #temp_Retirar PDis
                          where Mov.MOVPRO_ID = PDis.MOVPRO_ID 
-                           and isnull(DIS_RETORNO,0)=0
 		 
-                  -- Excluir da tabela Protocolo_Distribuicao
-                  DELETE pd
-                      FROM Protocolo_Distribuicao pd
-                      INNER JOIN #temp_Retirar tb ON pd.DIS_ID = tb.DIS_ID";
+                      -- Excluir da tabela Protocolo_Distribuicao
+                         DELETE pd
+                           FROM Protocolo_Distribuicao pd
+                          INNER JOIN #temp_Retirar tb ON pd.DIS_ID = tb.DIS_ID";
                 using (var con = _context.CreateConnection())
                 {
                     await con.ExecuteAsync(query, dbParametro);

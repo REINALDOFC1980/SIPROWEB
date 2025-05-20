@@ -40,16 +40,16 @@ namespace SIPROWEBDISTRIBUICAO.Controllers
             if (!response.IsSuccessStatusCode)
             {
                 if (response.StatusCode == HttpStatusCode.InternalServerError)
-                    return RedirectToAction("Error", "Home");
+                    return RedirectToAction("InternalServerError", "Home");
+
+                return RedirectToAction("BadRequest", "Home");
             }
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var result = await response.Content.ReadFromJsonAsync<List<AssuntoQtd>>();
-                ViewBag.Assunto = result;
+                ViewBag.Assunto = result ?? new List<AssuntoQtd>();
             }
-
-
 
             //buscando processo ja distribuidos
             ViewBag.Usuario = new List<ProtocoloDistribuicaoModel>();
@@ -97,16 +97,16 @@ namespace SIPROWEBDISTRIBUICAO.Controllers
 
         }
 
-
-        //parei aqui ver quem está usando BuscarProcesso!
-
         public async Task<IActionResult> BuscarProcesso(int movpro_id)
         {
             var apiUrl = $"{_baseApiUrl}distribuicao/GetProcesso/{movpro_id}"; 
             var response = await _httpClient.GetAsync(apiUrl);
 
-            if (!response.IsSuccessStatusCode)
-                return PartialView("_ErrorPartialView");
+            // Verifica erros tratados
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
+
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -141,302 +141,163 @@ namespace SIPROWEBDISTRIBUICAO.Controllers
         }
 
         [HttpGet]
-        public async Task<PartialViewResult> ProcessoPorAssuntoView(string userMatrix)
+        public async Task<IActionResult> ProcessoPorAssuntoView(string userMatrix)
         {
-            try
-            {
-                var apiUrl = $"{_baseApiUrl}distribuicao/GetProcessosDistribuidoUsuario/{userMatrix}";
-                var response = await _httpClient.GetAsync(apiUrl);
+            
+            var apiUrl = $"{_baseApiUrl}distribuicao/GetProcessosDistribuidoUsuario/{userMatrix}";
+            var response = await _httpClient.GetAsync(apiUrl);
 
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    List<ProtocoloDistribuicaoModel> result = await response.Content.ReadFromJsonAsync<List<ProtocoloDistribuicaoModel>>();
-                    ViewBag.Usuario = result;
-                }
+            // Verifica erros tratados
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
 
-                return PartialView("_ProcessoDistribuidos");
-            }
-            catch (Exception ex)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                throw;
+                List<ProtocoloDistribuicaoModel> result = await response.Content.ReadFromJsonAsync<List<ProtocoloDistribuicaoModel>>();
+                ViewBag.Usuario = result;
             }
+
+            return PartialView("_ProcessoDistribuidos");
+           
 
         }
         
+
+
         [HttpPost]
-        public async Task<PartialViewResult> addDistribuicaoProcessoEspecifico([FromBody] ProtocoloDistribuicaoModel distribuicaoModel)
+        public async Task<IActionResult> addDistribuicaoProcessoEspecifico([FromBody] ProtocoloDistribuicaoModel distribuicaoModel)
         {
-            var ProcessorDictionary = new Dictionary<string, List<ListaProcessoUsuario>>();
-            ViewBag.ListaProcessosSetor = new List<ListaProcessoUsuario>();
-            ViewBag.ListaProcessos = new List<ProtocoloDistribuicaoModel>();
-            ViewBag.Usuario = new List<ProtocoloDistribuicaoModel>();
-            ViewBag.Assunto = new List<AssuntoQtd>();
 
-            try
-            {
+          
+            distribuicaoModel.DIS_ORIGEM_USUARIO = userMatrix;
 
-                distribuicaoModel.DIS_ORIGEM_USUARIO = userMatrix;
+            //Add processo ao usuario
+            var apiUrl = $"{_baseApiUrl}distribuicao/adddistribuicaoprocessoespecifico";
+            var response = await _httpClient.PostAsJsonAsync(apiUrl, distribuicaoModel);
 
-                //Add processo ao usuario
-                var apiUrl = $"{_baseApiUrl}distribuicao/adddistribuicaoprocessoespecifico";
-                var response = await _httpClient.PostAsJsonAsync(apiUrl, distribuicaoModel);
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
 
-                if (!response.IsSuccessStatusCode)
-                    return PartialView("_ErrorPartialView");
+            await CarregarDistribuicao(userMatrix);
 
 
-                // atualizando tela de usuário
-                apiUrl = $"{_baseApiUrl}distribuicao/Getprocessosassunto/{userMatrix}";
-                response = await _httpClient.GetAsync(apiUrl);
-
-                if (!response.IsSuccessStatusCode)
-                    return PartialView("_ErrorPartialView");
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    var result = await response.Content.ReadFromJsonAsync<List<AssuntoQtd>>();
-                    ViewBag.Assunto = result;
-                    await ProcessoPorAssuntoView(userMatrix);
-                }
-
-
-                //Buscando os processo do usuario
-                apiUrl = $"{_baseApiUrl}distribuicao/GetProcessosDistribuidoUsuario/{userMatrix}";
-                response = await _httpClient.GetAsync(apiUrl);
-
-                if (!response.IsSuccessStatusCode)
-                    return PartialView("_ErrorPartialView");
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    List<ProtocoloDistribuicaoModel> result = await response.Content.ReadFromJsonAsync<List<ProtocoloDistribuicaoModel>>();
-                    ViewBag.Usuario = result;
-                    
-
-                    foreach (var item in result)
-                    {
-                        var itens = await BuscarProcessoUsuario(item.DIS_DESTINO_USUARIO);
-                        ProcessorDictionary[item.DIS_DESTINO_USUARIO] = itens;
-                    }
-                  
-                    ViewBag.ListaProcessos = ProcessorDictionary; 
-                    ViewBag.ListaProcessosSetor = await BuscarProcessoSetor(userMatrix);
-                }
-             
-                return PartialView("_Assunto");
-            }
-            catch (Exception ex)
-            {
-                // Log da exceção
-                return PartialView("_ErrorPartialView");
-                throw;
-            }
+            return PartialView("_Assunto");
+           
         }
 
         [HttpPost]
-        public async Task<PartialViewResult> addDistribuicaoProcesso([FromBody] ProtocoloDistribuicaoModel distribuicaoModel)
+        public async Task<IActionResult> RetirarProcessoEspecifico([FromBody] int DIS_ID)
         {
-            var ProcessorDictionary = new Dictionary<string, List<ListaProcessoUsuario>>();
-            ViewBag.ListaProcessosSetor = new List<ListaProcessoUsuario>();
-            ViewBag.ListaProcessos = new List<ProtocoloDistribuicaoModel>();
-            ViewBag.Usuario = new List<ProtocoloDistribuicaoModel>();
-            ViewBag.Assunto = new List<AssuntoQtd>();
-
-            try
+            var distribuicaoModel = new ProtocoloDistribuicaoModel
             {
+                DIS_ID = DIS_ID,
+                DIS_ORIGEM_USUARIO = userMatrix
+            };
 
+            var apiUrl = $"{_baseApiUrl}distribuicao/retirarprocessoespecifico";
+            var response = await _httpClient.PostAsJsonAsync(apiUrl, distribuicaoModel);
+
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
+
+            await CarregarDistribuicao(userMatrix);
+
+            return PartialView("_Assunto");
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> addDistribuicaoProcesso([FromBody] List<ProtocoloDistribuicaoModel> distribuicoes)
+        {
+            foreach (var distribuicaoModel in distribuicoes)
+            {
                 distribuicaoModel.DIS_ORIGEM_USUARIO = userMatrix;
 
-                //ADD 
                 var apiUrl = $"{_baseApiUrl}distribuicao/adddistribuicaoprocesso";
                 var response = await _httpClient.PostAsJsonAsync(apiUrl, distribuicaoModel);
 
-                if (!response.IsSuccessStatusCode)
-                   return PartialView("_ErrorPartialView");
-
-
-                // ATUALIZANDO A QTD NA TELA
-                apiUrl = $"{_baseApiUrl}distribuicao/Getprocessosassunto/{userMatrix}";
-                response = await _httpClient.GetAsync(apiUrl);
-
-                if (!response.IsSuccessStatusCode)
-                    return PartialView("_ErrorPartialView");
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    var result = await response.Content.ReadFromJsonAsync<List<AssuntoQtd>>();
-                    ViewBag.Assunto = result;
-                    await ProcessoPorAssuntoView(userMatrix);
-                }            
-
-
-                //BUSCANDO OS PROCESSOS VINCULADOS
-                apiUrl = $"{_baseApiUrl}distribuicao/GetProcessosDistribuidoUsuario/{userMatrix}";
-                response = await _httpClient.GetAsync(apiUrl);
-
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    List<ProtocoloDistribuicaoModel> result = await response.Content.ReadFromJsonAsync<List<ProtocoloDistribuicaoModel>>();
-                    ViewBag.Usuario = result;
-
-                    foreach (var item in result)
-                    {
-                        var itens = await BuscarProcessoUsuario(item.DIS_DESTINO_USUARIO);
-                        ProcessorDictionary[item.DIS_DESTINO_USUARIO] = itens;
-                    }
-
-                    ViewBag.ListaProcessos = ProcessorDictionary; //
-                    ViewBag.ListaProcessosSetor = await BuscarProcessoSetor(userMatrix);
-                }
-
-                return PartialView("_Assunto");
+                var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+                if (resultadoErro != null)
+                    return resultadoErro;
             }
-            catch (Exception ex)
-            {
-                return PartialView("_ErrorPartialView");
-                throw;
-            }
+            await CarregarDistribuicao(userMatrix);
+
+            return PartialView("_Assunto");                       
         }
 
         [HttpPost]
-        public async Task<PartialViewResult> RetirarProcesso([FromBody] ProtocoloDistribuicaoModel distribuicaoModel)
+        public async Task<IActionResult> RetirarProcesso([FromBody] List<ProtocoloDistribuicaoModel> distribuicoes)
         {
-            var ProcessorDictionary = new Dictionary<string, List<ListaProcessoUsuario>>();
-            ViewBag.ListaProcessosSetor = new List<ListaProcessoUsuario>();
-            ViewBag.ListaProcessos = new List<ProtocoloDistribuicaoModel>();
-            ViewBag.Usuario = new List<ProtocoloDistribuicaoModel>();
-            ViewBag.Assunto = new List<AssuntoQtd>();
-
-            try
+            foreach (var distribuicaoModel in distribuicoes)
             {
-               // string? userMatrix = "CAIOCSO";  // Pega o usuário
-                distribuicaoModel.DIS_ORIGEM_USUARIO = userMatrix;   
+                distribuicaoModel.DIS_ORIGEM_USUARIO = userMatrix;
 
-                //ADD 
                 var apiUrl = $"{_baseApiUrl}distribuicao/retirarprocesso";
                 var response = await _httpClient.PostAsJsonAsync(apiUrl, distribuicaoModel);
 
-                if (!response.IsSuccessStatusCode)
-                    return PartialView("_ErrorPartialView");            
 
-
-                // ATUALIZANDO A QTD NA TELA
-                apiUrl = $"{_baseApiUrl}distribuicao/Getprocessosassunto/{userMatrix}";
-                response = await _httpClient.GetAsync(apiUrl);
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    var result = await response.Content.ReadFromJsonAsync<List<AssuntoQtd>>();
-                    ViewBag.Assunto = result;
-                    await ProcessoPorAssuntoView(userMatrix);
-                }
-
-
-                //BUSCANDO OS PROCESSOS VINCULADOS
-                apiUrl = $"{_baseApiUrl}distribuicao/GetProcessosDistribuidoUsuario/{userMatrix}";
-                response = await _httpClient.GetAsync(apiUrl);
-
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    List<ProtocoloDistribuicaoModel> result = await response.Content.ReadFromJsonAsync<List<ProtocoloDistribuicaoModel>>();
-                    ViewBag.Usuario = result;
-
-                    //alimentando a grids de cada usaurio
-                    foreach (var item in result)
-                    {
-                        // Chama o método para buscar os itens e armazena no dicionário
-                        var itens = await BuscarProcessoUsuario(item.DIS_DESTINO_USUARIO);
-                        ProcessorDictionary[item.DIS_DESTINO_USUARIO] = itens;
-                    }
-
-                    ViewBag.ListaProcessos = ProcessorDictionary; //ATUALIZANDO OS PROCESSO VINCULADO AO USUARIO
-                    ViewBag.ListaProcessosSetor = await BuscarProcessoSetor(userMatrix);//ATUALIZANDO OS PROCESSO VINCULADO AO SETOR
-                }
-
-
-                return PartialView("_Assunto");
+                var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+                if (resultadoErro != null)
+                    return resultadoErro;
             }
-            catch (Exception ex)
-            {
-                // Log da exceção
-                return PartialView("_ErrorPartialView");
-                throw;
-            }
+
+            _ = await CarregarDistribuicao(userMatrix);
+
+            return PartialView("_Assunto");
+            
         }
 
-        [HttpPost]
-        public async Task<PartialViewResult> RetirarProcessoEspecifico(int DIS_ID)
+
+        private async Task<IActionResult?> CarregarDistribuicao(string userMatrix)
         {
             var ProcessorDictionary = new Dictionary<string, List<ListaProcessoUsuario>>();
-            ProtocoloDistribuicaoModel distribuicaoModel = new ProtocoloDistribuicaoModel();
-            ViewBag.ListaProcessosSetor = new List<ListaProcessoUsuario>();
-            ViewBag.ListaProcessos = new List<ProtocoloDistribuicaoModel>();
-            ViewBag.Usuario = new List<ProtocoloDistribuicaoModel>();
-            ViewBag.Assunto = new List<AssuntoQtd>();
 
-            distribuicaoModel.DIS_ID = DIS_ID;
-         
-            try 
+            // atualizando tela de usuário
+            var apiUrl = $"{_baseApiUrl}distribuicao/Getprocessosassunto/{userMatrix}";
+            var response = await _httpClient.GetAsync(apiUrl);
+
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
+
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                //ADD 
-                var apiUrl = $"{_baseApiUrl}distribuicao/retirarprocessoespecifico";
-                var response = await _httpClient.PostAsJsonAsync(apiUrl, distribuicaoModel);
+                var result = await response.Content.ReadFromJsonAsync<List<AssuntoQtd>>();
+                ViewBag.Assunto = result;
+                await ProcessoPorAssuntoView(userMatrix);
+            }
 
-                if (!response.IsSuccessStatusCode)
-                    return PartialView("_ErrorPartialView");
+            /*------------------------------------------------------*/
+
+            //Buscando os processo do usuario
+            apiUrl = $"{_baseApiUrl}distribuicao/GetProcessosDistribuidoUsuario/{userMatrix}";
+            response = await _httpClient.GetAsync(apiUrl);
+
+            resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                List<ProtocoloDistribuicaoModel> result = await response.Content.ReadFromJsonAsync<List<ProtocoloDistribuicaoModel>>();
+                ViewBag.Usuario = result;
 
 
-                // ATUALIZANDO A QTD NA TELA
-                apiUrl = $"{_baseApiUrl}distribuicao/Getprocessosassunto/{userMatrix}";
-                var getResponse = await _httpClient.GetAsync(apiUrl);
-
-                if (!response.IsSuccessStatusCode)
-                    return PartialView("_ErrorPartialView");
-
-                if (response.StatusCode == HttpStatusCode.OK)
+                foreach (var item in result)
                 {
-                    var result = await getResponse.Content.ReadFromJsonAsync<List<AssuntoQtd>>();
-                    ViewBag.Assunto = result;
-                    await ProcessoPorAssuntoView(userMatrix);
+                    var itens = await BuscarProcessoUsuario(item.DIS_DESTINO_USUARIO);
+                    ProcessorDictionary[item.DIS_DESTINO_USUARIO] = itens;
                 }
 
-                //BUSCANDO OS PROCESSOS VINCULADOS
-                apiUrl = $"{_baseApiUrl}distribuicao/GetProcessosDistribuidoUsuario/{userMatrix}";
-                response = await _httpClient.GetAsync(apiUrl);
-
-                if (!response.IsSuccessStatusCode)
-                    return PartialView("_ErrorPartialView");
-
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    List<ProtocoloDistribuicaoModel> result = await response.Content.ReadFromJsonAsync<List<ProtocoloDistribuicaoModel>>();
-                    ViewBag.Usuario = result;
-
-                    //alimentando a grids de cada usaurio
-                    foreach (var item in result)
-                    {
-                        // Chama o método para buscar os itens e armazena no dicionário
-                        var itens = await BuscarProcessoUsuario(item.DIS_DESTINO_USUARIO);
-                        ProcessorDictionary[item.DIS_DESTINO_USUARIO] = itens;
-                    }
-
-                    ViewBag.ListaProcessos = ProcessorDictionary;
-                    ViewBag.ListaProcessosSetor = await BuscarProcessoSetor(userMatrix);
-                }
-
-
-                return PartialView("_Assunto");
+                ViewBag.ListaProcessos = ProcessorDictionary;
+                ViewBag.ListaProcessosSetor = await BuscarProcessoSetor(userMatrix);
             }
-            catch (Exception ex)
-            {
-                // Log da exceção
-                return PartialView("_ErrorPartialView");
-                throw;
-            }
+            return null; // nenhum erro, segue o fluxo normal
         }
+
 
     }
 }
