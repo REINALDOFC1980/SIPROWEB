@@ -112,14 +112,13 @@
 <script src="~/js/IconeErro.js"></script>
 <script src="~/js/valorzeroesquerda.js"></script>
 
-
 <script src="~/js/notiflix-aio-2.1.3.min.js"></script>
 
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
 
-
+    let isProcessing = false;
     $('#PES_CPF').blur(function () {
         buscarcondutor();
     });
@@ -191,55 +190,6 @@
         }
     }
 
-
-
-     //        // Busca os dados do condutor
-     //        $.ajax({
-     //            url: '@Url.Action("GetPessoa", "Pessoa")',
-     //            type: 'GET',
-     //            data: { cpf: cpf },
-     //            success: function (response) {
-
-     //                // Preenche os campos com os dados recebidos
-     //                if (response.pessoaModel != null) {
-     //                    $("#PES_ID").val(response.pessoaModel.pes_ID);
-     //                    $("#PES_Celular").val(response.pessoaModel.pes_Celular);
-     //                    $("#PES_DT_Validade").val(response.pessoaModel.pes_DT_Validade);
-     //                    $("#PES_DataCadastro").val(response.pessoaModel.pes_DataCadastro);
-     //                    $("#PES_Email").val(response.pessoaModel.pes_Email);
-     //                    $("#PES_EndBairro").val(response.pessoaModel.pes_EndBairro);
-     //                    $("#PES_EndCEP").val(response.pessoaModel.pes_EndCEP);
-     //                    $("#PES_EndComplemento").val(response.pessoaModel.pes_EndComplemento);
-     //                    $("#PES_EndLogradouro").val(response.pessoaModel.pes_EndLogradouro);
-     //                    $("#PES_EndNumero").val(response.pessoaModel.pes_EndNumero);
-     //                    $("#PES_Municipio").val(response.pessoaModel.pes_Municipio);
-     //                    $("#PES_Nome").val(response.pessoaModel.pes_Nome);
-     //                    $("#PES_NomeFantasia").val(response.pessoaModel.pes_NomeFantasia);
-     //                    $("#PES_NumRegistroCNH").val(response.pessoaModel.pes_NumRegistroCNH);
-     //                    $("#PES_RG").val(response.pessoaModel.pes_RG);
-     //                    $("#PES_Telefone").val(response.pessoaModel.pes_Telefone);
-     //                    $("#PES_Tipo").val(response.pessoaModel.pes_Tipo);
-     //                    $("#PES_UF").val(response.pessoaModel.pes_UF);
-     //                    $("#PES_UFCNH").val(response.pessoaModel.pes_UFCNH);
-     //                    $("#PES_Pais").val(response.pessoaModel.pes_Pais);
-     //                } else {
-     //                    Notiflix.Notify.Warning(response.message);
-     //                $('#formpessoa input').val('');
-     //                $('#formpessoa textarea').val('');
-     //                $("#PES_CPF").val(cpf);
-     //                $("#PES_Nome").focus();
-     //                }
-     //                // Remove o loading após preenchimento completo
-     //                Notiflix.Loading.Remove();
-     //            },
-     //            error: function (xhr, status, error) {
-     //                // Tratar erros de requisição
-     //            Notiflix.Loading.Remove();
-     //            }
-     //        });
-     //    Notiflix.Loading.Remove();
-     // }
-    
     //Btm=n de cadastro de Usuario caso não tenha!
     $('#btnNovo').click(function () {
         $('#formpessoa input').val('');
@@ -247,46 +197,64 @@
         $("#PES_CPF").focus();
     });
       
-
     //buscar o CEP
     $('#PES_EndCEP').blur(function () {
         Notiflix.Loading.Standard('Aguarde...');
         BuscarCep($(this).val());
     });
 
-
     //Btm=n de cadastro de Usuario caso não tenha!
-    $('#btnCadastrarPessoa').click(function () {
 
-            ValidacaoFormPessoa("#formpessoa");
+    $(document).on('click', '#btnCadastrarPessoa', async function () {
 
-            if ($("#formpessoa").valid()) {
+        if (isProcessing) return;
+        isProcessing = true;
 
-                var formData = $("#formpessoa").serialize();
+        ValidacaoFormPessoa("#formpessoa");
 
-                $.ajax({
-                    url: '@Url.Action("CadastrarPessoa", "Pessoa")',
-                    type: 'POST',
-                    data: formData,
-                    success: function (response) {
+        if ($("#formpessoa").valid()) {
 
-                        if (response.error == 'InternalServerError') {
-                            window.location.href = '@Url.Action("Error", "Home")';
-                        }
-                        else if (response.error == 'BadRequest') {
-                            Notiflix.Notify.Failure(response.retorno);
-                        } 
-                        else { 
-                        Notiflix.Notify.Success(response.retorno);
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                    Notiflix.Notify.Failure("Erro interno!");
-                    }
+            var formData = new FormData($('#formpessoa')[0]);
+
+            Notiflix.Loading.Standard('Aguarde...');
+
+            try {
+                const response = await fetch('@Url.Action("CadastrarPessoa", "Pessoa")', {
+                        method: 'POST',
+                        body: formData,          
                 });
-            }
-    });
+                
+                const data = await response.json();
 
+                Notiflix.Loading.Remove();
+
+                // ❌ ERRO
+                if (!response.ok) {
+                    
+                    isProcessing = false;               
+                    if (data.redirectTo) {
+                        window.location.href = data.redirectTo; //Erros 500 e NotFoud
+                    } else {
+                        Notiflix.Notify.Failure(data.message); //Erros 400 outros
+                    }
+                    return false;
+                }
+
+                // ✅ OK
+              
+                isProcessing = false;
+                Notiflix.Notify.Success(data.message);
+
+            } catch (error) {
+                isProcessing = false;
+                Notiflix.Notify.Failure(error);
+                Notiflix.Loading.Remove();
+            }
+
+
+
+        }
+    });
 
 
 </script>

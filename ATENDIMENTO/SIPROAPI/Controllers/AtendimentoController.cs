@@ -281,23 +281,23 @@ namespace SIPROAPI.Controllers
             var condutor = await _pessoaService.GetDadosPessoa(protocoloModel.PRT_CPF_CONDUTOR);
 
             //Condutor
-            if (protocoloModel.PRT_ASSUNTO == 1 && (protocoloModel.PRT_RESTRICAO == 1 || protocoloModel.PRT_RESTRICAO == 5))
+            if (protocoloModel.PRT_ASSUNTO == 1 && (protocoloModel.PRT_RESTRICAO == 1 ))
             {
-                if (!string.IsNullOrEmpty(protocoloModel.PRT_CNH_ESTRANGEIRA))
+                if (!string.IsNullOrEmpty(protocoloModel.PRT_CNH_ESTRANGEIRA) && protocoloModel.PRT_RESTRICAO == 5)
                 {
                     var payload = new
                     {
                         recAitNumero = protocoloModel.PRT_AIT,
                         recTrocainfNomecond = protocoloModel.PRT_CNH_ESTRANGEIRA_NOME,
                         recTrocainfRegistro = protocoloModel.PRT_CNH_ESTRANGEIRA,
-                        recTrocainfUfcnh = "BA",
+                        recTrocainfUfcnh = "AL",
                         recModelocnh = 3,
-                        recTrocainfEndereco = "Av. Vale dos Barris",
-                        recTrocainfNumero = "501",
-                        recTrocainfComplemento = "TRANSALVADOR",
-                        recTrocainfBairro = "TRANSALVADOR",
-                        recTrocainfMunicipio = "3849",
-                        recTrocainfCep = "40070055",
+                        recTrocainfEndereco = "Av. Durval de Góes Monteiro",
+                        recTrocainfNumero = "829 ",
+                        recTrocainfComplemento = "DMTT",
+                        recTrocainfBairro = "Tabuleiro do Martins",
+                        recTrocainfMunicipio = "0000",
+                        recTrocainfCep = "57061000",
                         recTrocainfDataapre = DateTime.Now.ToString("yyyy-MM-dd"),
                         recTrocainfUsuario = protocoloModel.PRT_ATENDENTE,
                         numeroprocesso = protocoloModel.PRT_NUMERO,

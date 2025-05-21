@@ -23,12 +23,12 @@ namespace SIPROSHARED.Service.Repository
         public async Task<AgendaModel> GetAgendamento(string cpf)
         {
 
-            ////validação
-            //if (string.IsNullOrEmpty(cpf) || cpf.Length != 11)
-            //{
-            //    throw new ErrorOnValidationException(new List<string> { "O CPF deve ter exatamente 11 caracteres." });
-            //}
-         
+            //validação
+            if (string.IsNullOrEmpty(cpf) || cpf.Length != 11)
+            {
+                throw new ErrorOnValidationException(new List<string> { "O CPF deve ter exatamente 11 caracteres." });
+            }
+
             var query = @"  
              Select top 1
                      Age_Id   
@@ -68,7 +68,13 @@ namespace SIPROSHARED.Service.Repository
 
         public async Task UpdateAgendamento(string ait, int codservico, string situacao)
         {
-          
+
+            //validação
+            if (string.IsNullOrEmpty(ait) || string.IsNullOrEmpty(situacao) || codservico == 0)
+            {
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+            }
+
             var dbParametro = new DynamicParameters();
 
             dbParametro.Add("Age_AIT", ait);
@@ -76,11 +82,11 @@ namespace SIPROSHARED.Service.Repository
             dbParametro.Add("Age_Situacao", situacao);        
 
             string query = @"
-                           Update agendamento
-                            set Age_Situacao = @Age_Situacao
+                           Update Agendamento
+                              set Age_Situacao = @Age_Situacao
                             where Age_AIT = @Age_AIT
-                            and Age_Cod_Assunto = @Age_Cod_Assunto
-                            and Age_Situacao is null";
+                              and Age_Cod_Assunto = @Age_Cod_Assunto
+                              and Age_Situacao is null";
 
             using (var connection = _context.CreateConnection())
             {
@@ -92,7 +98,7 @@ namespace SIPROSHARED.Service.Repository
         public async Task<List<DocumentosModel>> BuscarDocumentos(int codservico)
         {
             if (codservico == 0)
-                throw new ErrorOnValidationException(new List<string> { "O código do serviço é obrigatório." });
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
 
 
             var query = @"  
@@ -116,7 +122,13 @@ namespace SIPROSHARED.Service.Repository
         public async Task<int> DuplicidadeServico(string ait, int codservico)
         {
 
-                var query = @" Select Count(1) as T                                                           
+            if (string.IsNullOrEmpty(ait) || codservico == 0)
+            {
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+            }
+
+
+            var query = @" Select Count(1) as T                                                           
                                  From Protocolo 
                                 where Prt_AIT = @ait
                                   and Prt_Assunto = @codservico  
@@ -133,13 +145,10 @@ namespace SIPROSHARED.Service.Repository
 
         public async Task<bool> CadastrarAberturaAsync(AgendaModel agendaModel)
         {
-        
-                //validando a model agendamento 
                 var validator = new AgendamentoValidator();
                 var result = validator.Validate(agendaModel);
                 if (result.IsValid == false)
                     throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
-                //fim
 
                 var dbParametro = new DynamicParameters();
 
@@ -534,8 +543,13 @@ namespace SIPROSHARED.Service.Repository
 
         public async Task<ProtocoloModel> BuscarProtocolo(string PRT_NUMERO)
         {
-            
-                var query = @" 
+            //validação
+            if (string.IsNullOrEmpty(PRT_NUMERO))
+            {
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+            }
+
+            var query = @" 
                  Select 
 	                    PRT_NUMERO
                        ,PRT_ORIGEM
@@ -610,7 +624,14 @@ namespace SIPROSHARED.Service.Repository
 
         public async Task<List<ProtocoloModel>> BuscarProtocoloAll(string vloBusca)
         {
-              var query = @" 
+            //validação
+            if (string.IsNullOrEmpty(vloBusca))
+            {
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+            }
+
+
+            var query = @" 
                  Select  
 	                    PRT_NUMERO
                        ,PRT_ORIGEM
@@ -681,9 +702,14 @@ namespace SIPROSHARED.Service.Repository
         }
 
         public async Task<List<MovimentacaoModel>> BuscarMovimentacao(string vloBusca)
-        {
-            
-                var query = @" SELECT  
+        {  
+
+            if (string.IsNullOrEmpty(vloBusca))
+            {
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+            }
+
+            var query = @" SELECT  
                                      
 		                       MOVPRO_PRT_NUMERO       
 		                      ,MOVPRO_USUARIO_ORIGEM   

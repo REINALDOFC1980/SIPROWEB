@@ -27,13 +27,13 @@
                                 <h2><i class="fa fa-file-text fa-1x"></i><string> Protocolo </string></h2>
                                 <form role="form_atendimento" id="form_atendimento">
                                     <div class="row">
-                                        <input type="hidden" class="form-control"  value="@Model.PRT_ASSUNTO"           id="PRT_ASSUNTO"           name="PRT_ASSUNTO">              @*Id do Servico*@
-                                        <input type="hidden" class="form-control"  value="@Model.PRT_CPF_SOLICITANTE"   id="PRT_CPF_SOLICITANTE"   name="PRT_CPF_SOLICITANTE">      @*CPF do Solicitante*@
-                                        <input type="hidden" class="form-control"  value="@Model.PRT_TIPO_SOLICITANTE"  id="PRT_TIPO_SOLICITANTE"  name="PRT_TIPO_SOLICITANTE">     @*CPF do Solicitante*@
-                                        <input type="hidden" class="form-control"  value="@Model.PRT_ORIGEM"            id="PRT_ORIGEM"            name="PRT_ORIGEM">               @*PRT_ORIGEM*@
-                                        <input type="hidden" class="form-control"  value="@Model.PRT_ATENDENTE"         id="PRT_ATENDENTE"         name="PRT_ATENDENTE">            @*PRT_ATENDENTE*@
-                                        <input type="hidden" class="form-control"  value="@Model.PRT_OBSERVACAO"        id="PRT_OBSERVACAO"        name="PRT_OBSERVACAO">           @*PRT_OBSERVACAO*@
-                                        <input type="hidden" class="form-control"  value="@Model.PRT_RESTRICAO"         id="PRT_RESTRICAO"         name="PRT_RESTRICAO">            @*PRT_RESTRICAO*@
+                                        <input type="hidden" class="form-control"  value="@Model.PRT_ASSUNTO"           id="PRT_ASSUNTO"           name="PRT_ASSUNTO">           
+                                        <input type="hidden" class="form-control"  value="@Model.PRT_CPF_SOLICITANTE"   id="PRT_CPF_SOLICITANTE"   name="PRT_CPF_SOLICITANTE">   
+                                        <input type="hidden" class="form-control"  value="@Model.PRT_TIPO_SOLICITANTE"  id="PRT_TIPO_SOLICITANTE"  name="PRT_TIPO_SOLICITANTE">  
+                                        <input type="hidden" class="form-control"  value="@Model.PRT_ORIGEM"            id="PRT_ORIGEM"            name="PRT_ORIGEM">            
+                                        <input type="hidden" class="form-control"  value="@Model.PRT_ATENDENTE"         id="PRT_ATENDENTE"         name="PRT_ATENDENTE">         
+                                        <input type="hidden" class="form-control"  value="@Model.PRT_OBSERVACAO"        id="PRT_OBSERVACAO"        name="PRT_OBSERVACAO">        
+                                        <input type="hidden" class="form-control"  value="@Model.PRT_RESTRICAO"         id="PRT_RESTRICAO"         name="PRT_RESTRICAO">         
 
                                         <div class="form-group col-md-3 has-warning"><label>Serviço</label> <input type="text" class="form-control" value="@Model.PRT_NOME_ASSUNTO" id="PRT_NOME_ASSUNTO" name="PRT_NOME_ASSUNTO" required readonly></div>
                                         <div class="form-group col-md-5"><label>Nome do Solicitante</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_NOME_SOLICITANTE" id="PRT_NOME_SOLICITANTE" name="PRT_NOME_SOLICITANTE" readonly></div>
@@ -41,23 +41,15 @@
 
 
 
-                                        @*   <div class="form-group col-md-2"><label>Data Postagem</label> <input type="text" class="form-control" data-mask="99/99/9999" placeholder="" id="PRT_DT_POSTAGEM" name="PRT_DT_POSTAGEM" readonly></div> *@
-                                            <div class="form-group col-md-2 ">
-                                                <div class="form-group" id="data_1">
-                                                    <label class="font-normal">Data de Postagem</label>
-                                                    <div class="input-group date">
-                                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" id="PRT_DT_POSTAGEM" name="PRT_DT_POSTAGEM" data-mask="99/99/9999">
-                                                    </div>
+                                        <div class="form-group col-md-2 ">
+                                            <div class="form-group" id="data_1">
+                                                <label class="font-normal">Data de Postagem</label>
+                                                <div class="input-group date">
+                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" id="PRT_DT_POSTAGEM" name="PRT_DT_POSTAGEM" data-mask="99/99/9999">
                                                 </div>
                                             </div>
-                                        @* 
-                                            <div class="form-group col-md-2">
-                                                <label>Processo GEP</label> 
-                                                <input type="text" placeholder="" class="form-control" id="Rec_Proc_GEP" name="Rec_Proc_GEP" >
-                                            </div> *@
-                                         
-
-                                        @*  <div class="form-group col-md-2"><label>Data Postagem</label> <input type="text" placeholder="" class="form-control"></div> *@
+                                        </div>
+                                        
 
                                     </div>
 
@@ -90,8 +82,7 @@
                                             <label>Nome do Proprietário</label> <input type="text" placeholder="" class="form-control" value="@Model.PRT_NOMEPROPRIETARIO" id="PRT_NOMEPROPRIETARIO" name="PRT_NOMEPROPRIETARIO" required readonly>
                                        
                                         </div>
-                                            <div class="form-group col-md-3"><label>Cidade</label> <input type="text" class="form-control" value="@Model.PRT_CIDADE_PROPRIETARIO" id="PRT_CIDADE_PROPRIETARIO" name="PRT_CIDADE_PROPRIETARIO" readonly></div>
-                                       @*  <div class="form-group col-md-3"><label>Endereço</label> <input type="text" class="form-control" value="@Model.PRT_ENDERECO_PROPRIETARIO" id="PRT_ENDERECO_PROPRIETARIO" name="PRT_ENDERECO_PROPRIETARIO" readonly></div> *@
+                                            <div class="form-group col-md-3"><label>Cidade</label> <input type="text" class="form-control" value="@Model.PRT_CIDADE_PROPRIETARIO" id="PRT_CIDADE_PROPRIETARIO" name="PRT_CIDADE_PROPRIETARIO" readonly></div>                                       
                                             <div class="form-group col-md-1"><label>UF</label>
                                                 <input type="text" class="form-control" value="@Model.PRT_UF_PROPRIETARIO" id="PRT_UF_PROPRIETARIO" name="PRT_UF_PROPRIETARIO" readonly></div>
                                     </div>
@@ -255,16 +246,10 @@
                                                         </div>
                                                         <div>
                                                             <label><input type="radio" value="2" id="optionsRadios1" name="optionsRadios"> Doc. sem autenticidade</label>
-                                                        </div>
-                                                        @*<div>
-                                                            <label><input type="radio" value="3" id="optionsRadios2" name="optionsRadios"> Jurídico sem condutor</label>
-                                                        </div> *@
+                                                        </div>                                                       
                                                         <div>
                                                             <label><input type="radio" value="4" id="optionsRadios3" name="optionsRadios"> Sem doc. do solicitante</label>
                                                         </div>
-                                                            @*   <div>
-                                                            <label><input type="radio" value="5" id="optionsRadios4" name="optionsRadios"> CNH Estrangeiro</label>
-                                                        </div> *@
                                                         <div>
                                                             <label><input type="radio" value="6" id="optionsRadios5" name="optionsRadios"> Doc. incompleta</label>
                                                         </div>
@@ -328,9 +313,6 @@
             <div class="modal-body">
          
                 <form role="formcondutor" id="formcondutor">
-          @*           <div class="row">
-                        <div class="form-group col-md-12"><label> <input type="checkbox" id="Pes_Estrangeiro" name="Pes_Estrangeiro"> Se for estrangeiro favor marcar!</label></div>
-                    </div> *@
                     <div class="row">
                         <input type="hidden" class="form-control" id="PES_ID" name="PES_ID">@*Id do Servico*@
                         <div class="form-group col-md-4">
@@ -494,7 +476,6 @@
 <script>
 
     $(document).ready(function () {
-
 
         var mem = $('#data_1 .input-group.date').datepicker({
             todayBtn: "linked",

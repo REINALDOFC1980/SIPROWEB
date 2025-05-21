@@ -60,7 +60,7 @@ namespace SIPROWEB.Controllers
                     pessoaModel.pes_UFCNH = pessoaDetranModel.pes_UFCNH;
                 }
                 else if (response.StatusCode == HttpStatusCode.NoContent)
-                    return Json(new { message = "Nenhuma pessoa encontrada.", pessoaModel });
+                    return Json(new { error = false, message = "Nenhuma pessoa encontrada.", pessoaModel });
                
             }           
 
@@ -69,8 +69,7 @@ namespace SIPROWEB.Controllers
 
         [HttpPost]
         public async Task<IActionResult> CadastrarPessoa(PessoaModel pessoa)
-        {
-            
+        {            
             if (pessoa.pes_ID == 0)
             {
                 var apiUrl = $"{_baseApiUrl}pessoa/addpessoa";
@@ -94,7 +93,7 @@ namespace SIPROWEB.Controllers
 
             }
 
-            return Json(new { erro = false, retorno = "Operação realizada com sucesso!" });
+            return Json(new { error = false, message = "Operação realizada com sucesso!" });
             
 
         }

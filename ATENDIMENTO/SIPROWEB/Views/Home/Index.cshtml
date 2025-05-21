@@ -386,8 +386,7 @@
                             $('#Modal2').modal('show');
                  
                             $('#Modal2').on('shown.bs.modal', function () {
-                                $('#formpessoa').find('input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], textarea').val('');
-                                // $('#Pes_Estrangeiro').prop('checked', false);
+                                $('#formpessoa').find('input[type=text], input[type=password], input[type=email], input[type=tel], input[type=number], textarea').val('');                                
                                 $('#PES_CPF').focus();
                                 $('#PES_CPF').val(cpf);
                                 $('#PES_CPF').prop('readonly', true);
@@ -455,9 +454,8 @@
                             $("#btnConfimarProprietario").focus();
                         } //add o if do AIT inexistente
                         else if (response.retorno == 'SemAgendamento') { //  CPF
-          
-                            window.location.href = '@Url.Action("AberturaAtendimento", "Atendimento")' + '?cpf=' + cpf;
-                        
+         
+                            window.location.href = '@Url.Action("AberturaAtendimento", "Atendimento")' + '?cpf=' + cpf;                        
                         }
 
                         Notiflix.Loading.Remove();
@@ -469,13 +467,7 @@
             }
         });
 
-        // buscar o CEP
-        // $('#Age_AIT').blur(function () {
-        //     var inputValue = $(this).val(); // Obtém o valor do campo
-        //     var formattedValue = formatValueWithLeadingZeros(inputValue); // Formata o valor
-        //     $(this).val(formattedValue);
-        // });
-       
+        
         //Confirmar se é Condutor
         $('#btnConfimarCondutor').click(function () {
             $('#Modal1').modal('hide');
