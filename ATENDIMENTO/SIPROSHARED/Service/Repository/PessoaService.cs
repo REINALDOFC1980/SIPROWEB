@@ -24,8 +24,10 @@ namespace SIPROSHARED.Service.Repository
         }
         public async Task<PessoaModel> GetDadosPessoa(string cpf_cnpj)
         {
-              
-                var query = @"   
+            if (string.IsNullOrEmpty(cpf_cnpj))
+                throw new ErrorOnValidationException(new List<string> { "Erro de parametro. Favor entrar em contato com ADM!" });
+
+            var query = @"   
                       Select Top 1
                              pes_ID     
                             ,pes_Tipo                                           

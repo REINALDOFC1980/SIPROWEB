@@ -134,7 +134,7 @@ namespace SIPROSHAREDINSTRUCAO.Controllers
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var processo = await response.Content.ReadFromJsonAsync<ListaProcessoUsuario>();
-                return Json(processo);
+                return Json(new { error = false, processo });
             }
             
             return Json(new { error = true, message = "Processo não encontrado" });

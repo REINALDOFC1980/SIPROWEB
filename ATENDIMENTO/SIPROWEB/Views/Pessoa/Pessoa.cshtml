@@ -124,74 +124,123 @@
         buscarcondutor();
     });
 
-     function buscarcondutor() {
+    async function buscarcondutor() {
+        let cpf = $('#PES_CPF').val();
+        cpf = cpf.replace(/\D/g, '');
+        $("#PES_CPF").val(cpf);
 
-            var cpf = $('#PES_CPF').val();
-            cpf = cpf.replace(/\D/g, ''); // remove caracteres especiais
-            $("#PES_CPF").val(cpf);
-           
-
-            // Valida o número do CPF
-            if (cpf.length != 11 || !validarCPF(cpf)) {
+        if (cpf.length !== 11 || !validarCPF(cpf)) {
             Addiconeerro(".error-cpf", " CPF Inválido!");
-                $('#PES_CPF').focus();
-                return false;
-            } else {
-                Removeiconeerro(".error-cpf");
+            $('#PES_CPF').focus();
+            return;
+        } else {
+            Removeiconeerro(".error-cpf");
+        }
+
+        Notiflix.Loading.Standard('Aguarde...');
+
+        try {
+            // Corrija a origem do valor de `movpro_id` (ajuste conforme sua lógica)
+            const valor = $('#movpro_id').val(); // Exemplo
+            const response = await fetch(`@Url.Action("GetPessoa", "Pessoa")?cpf=${cpf}`);
+            const data = await response.json();
+
+            if (!response.ok) {
+                if (data.redirectTo) {
+                    window.location.href = data.redirectTo;
+                } else {
+                    Notiflix.Notify.Failure(data.message || 'Erro inesperado.');
+                }
+                return;
             }
 
-           // var divAlerta = document.querySelector('.alert.alert-warning.text-center');         
+            if (data.pessoaModel) {
+                let p = data.pessoaModel;
+                $("#PES_ID").val(p.pes_ID);
+                $("#PES_Celular").val(p.pes_Celular);
+                $("#PES_DT_Validade").val(p.pes_DT_Validade);
+                $("#PES_DataCadastro").val(p.pes_DataCadastro);
+                $("#PES_Email").val(p.pes_Email);
+                $("#PES_EndBairro").val(p.pes_EndBairro);
+                $("#PES_EndCEP").val(p.pes_EndCEP);
+                $("#PES_EndComplemento").val(p.pes_EndComplemento);
+                $("#PES_EndLogradouro").val(p.pes_EndLogradouro);
+                $("#PES_EndNumero").val(p.pes_EndNumero);
+                $("#PES_Municipio").val(p.pes_Municipio);
+                $("#PES_Nome").val(p.pes_Nome);
+                $("#PES_NomeFantasia").val(p.pes_NomeFantasia);
+                $("#PES_NumRegistroCNH").val(p.pes_NumRegistroCNH);
+                $("#PES_RG").val(p.pes_RG);
+                $("#PES_Telefone").val(p.pes_Telefone);
+                $("#PES_Tipo").val(p.pes_Tipo);
+                $("#PES_UF").val(p.pes_UF);
+                $("#PES_UFCNH").val(p.pes_UFCNH);
+                $("#PES_Pais").val(p.pes_Pais);
+            } else {
+                Notiflix.Notify.Warning(data.message || 'Pessoa não encontrada.');
+                $('#formpessoa input, #formpessoa textarea').val('');
+                $("#PES_CPF").val(cpf);
+                $("#PES_Nome").focus();
+            }
 
-            Notiflix.Loading.Standard('Aguarde...');
+        } catch (error) {
+            Notiflix.Notify.Failure('Erro de comunicação com o servidor.');
+            console.error(error);
+        } finally {
+            Notiflix.Loading.Remove();
+        }
+    }
 
-            // Busca os dados do condutor
-            $.ajax({
-                url: '@Url.Action("GetPessoa", "Pessoa")',
-                type: 'GET',
-                data: { cpf: cpf },
-                success: function (response) {
 
-                    // Preenche os campos com os dados recebidos
-                    if (response.pessoaModel != null) {
-                        $("#PES_ID").val(response.pessoaModel.pes_ID);
-                        $("#PES_Celular").val(response.pessoaModel.pes_Celular);
-                        $("#PES_DT_Validade").val(response.pessoaModel.pes_DT_Validade);
-                        $("#PES_DataCadastro").val(response.pessoaModel.pes_DataCadastro);
-                        $("#PES_Email").val(response.pessoaModel.pes_Email);
-                        $("#PES_EndBairro").val(response.pessoaModel.pes_EndBairro);
-                        $("#PES_EndCEP").val(response.pessoaModel.pes_EndCEP);
-                        $("#PES_EndComplemento").val(response.pessoaModel.pes_EndComplemento);
-                        $("#PES_EndLogradouro").val(response.pessoaModel.pes_EndLogradouro);
-                        $("#PES_EndNumero").val(response.pessoaModel.pes_EndNumero);
-                        $("#PES_Municipio").val(response.pessoaModel.pes_Municipio);
-                        $("#PES_Nome").val(response.pessoaModel.pes_Nome);
-                        $("#PES_NomeFantasia").val(response.pessoaModel.pes_NomeFantasia);
-                        $("#PES_NumRegistroCNH").val(response.pessoaModel.pes_NumRegistroCNH);
-                        $("#PES_RG").val(response.pessoaModel.pes_RG);
-                        $("#PES_Telefone").val(response.pessoaModel.pes_Telefone);
-                        $("#PES_Tipo").val(response.pessoaModel.pes_Tipo);
-                        $("#PES_UF").val(response.pessoaModel.pes_UF);
-                        $("#PES_UFCNH").val(response.pessoaModel.pes_UFCNH);
-                        $("#PES_Pais").val(response.pessoaModel.pes_Pais);
-                    } else {
-                        Notiflix.Notify.Warning(response.message);
-                    $('#formpessoa input').val('');
-                    $('#formpessoa textarea').val('');
-                    $("#PES_CPF").val(cpf);
-                    $("#PES_Nome").focus();
-                    }
-                    // Remove o loading após preenchimento completo
-                    Notiflix.Loading.Remove();
-                },
-                error: function (xhr, status, error) {
-                    // Tratar erros de requisição
-                Notiflix.Loading.Remove();
-                }
-            });
-        Notiflix.Loading.Remove();
-     }
+
+     //        // Busca os dados do condutor
+     //        $.ajax({
+     //            url: '@Url.Action("GetPessoa", "Pessoa")',
+     //            type: 'GET',
+     //            data: { cpf: cpf },
+     //            success: function (response) {
+
+     //                // Preenche os campos com os dados recebidos
+     //                if (response.pessoaModel != null) {
+     //                    $("#PES_ID").val(response.pessoaModel.pes_ID);
+     //                    $("#PES_Celular").val(response.pessoaModel.pes_Celular);
+     //                    $("#PES_DT_Validade").val(response.pessoaModel.pes_DT_Validade);
+     //                    $("#PES_DataCadastro").val(response.pessoaModel.pes_DataCadastro);
+     //                    $("#PES_Email").val(response.pessoaModel.pes_Email);
+     //                    $("#PES_EndBairro").val(response.pessoaModel.pes_EndBairro);
+     //                    $("#PES_EndCEP").val(response.pessoaModel.pes_EndCEP);
+     //                    $("#PES_EndComplemento").val(response.pessoaModel.pes_EndComplemento);
+     //                    $("#PES_EndLogradouro").val(response.pessoaModel.pes_EndLogradouro);
+     //                    $("#PES_EndNumero").val(response.pessoaModel.pes_EndNumero);
+     //                    $("#PES_Municipio").val(response.pessoaModel.pes_Municipio);
+     //                    $("#PES_Nome").val(response.pessoaModel.pes_Nome);
+     //                    $("#PES_NomeFantasia").val(response.pessoaModel.pes_NomeFantasia);
+     //                    $("#PES_NumRegistroCNH").val(response.pessoaModel.pes_NumRegistroCNH);
+     //                    $("#PES_RG").val(response.pessoaModel.pes_RG);
+     //                    $("#PES_Telefone").val(response.pessoaModel.pes_Telefone);
+     //                    $("#PES_Tipo").val(response.pessoaModel.pes_Tipo);
+     //                    $("#PES_UF").val(response.pessoaModel.pes_UF);
+     //                    $("#PES_UFCNH").val(response.pessoaModel.pes_UFCNH);
+     //                    $("#PES_Pais").val(response.pessoaModel.pes_Pais);
+     //                } else {
+     //                    Notiflix.Notify.Warning(response.message);
+     //                $('#formpessoa input').val('');
+     //                $('#formpessoa textarea').val('');
+     //                $("#PES_CPF").val(cpf);
+     //                $("#PES_Nome").focus();
+     //                }
+     //                // Remove o loading após preenchimento completo
+     //                Notiflix.Loading.Remove();
+     //            },
+     //            error: function (xhr, status, error) {
+     //                // Tratar erros de requisição
+     //            Notiflix.Loading.Remove();
+     //            }
+     //        });
+     //    Notiflix.Loading.Remove();
+     // }
     
-        //Btm=n de cadastro de Usuario caso não tenha!
+    //Btm=n de cadastro de Usuario caso não tenha!
     $('#btnNovo').click(function () {
         $('#formpessoa input').val('');
         $('#formpessoa textarea').val('');

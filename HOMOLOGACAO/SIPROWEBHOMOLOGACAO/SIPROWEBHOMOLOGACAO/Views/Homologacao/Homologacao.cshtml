@@ -183,13 +183,13 @@
                 <form id="form_distribuicao">
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label text-right">Processo:</label>
-                        <div class="col-lg-9"><input type="text" class="form-control" id="PRT_NUMERO_R" readonly name="MOVPRO_PRT_NUMERO" /></div>
-                        <input type="hidden" class="form-control" id="MOVPRO_ID" name="MOVPRO_ID" />
+                        <div class="col-lg-9"><input type="text" class="form-control" id="MOVPRO_PRT_NUMERO" readonly name="MOVPRO_PRT_NUMERO" /></div>
+                        <input type="hidden" class="form-control" id="MOVPRO_ID" name="MOVPRO_ID" /> 
                     </div>
                   
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label text-right">Motivo:</label>
-                        <div class="col-lg-9"><textarea name="MOVPRO_PARECER_ORIGEM_R" id="MOVPRO_PARECER_ORIGEM_R" rows="5" cols="40" class="form-control" placeholder="Digite sua mensagem aqui..."></textarea></div>
+                        <div class="col-lg-9"><textarea name="MOVPRO_PARECER_ORIGEM" id="MOVPRO_PARECER_ORIGEM" rows="5" cols="40" class="form-control" placeholder="Digite sua mensagem aqui..."></textarea></div>
                     </div>
                    
                 </form>
@@ -504,19 +504,14 @@
 
     $(document).on('click', '#btn_retificar', function () {
 
-
         $('#myModal').modal('show');
-        $('#PRT_NUMERO_R').val($('#PRT_NUMERO').val());
-    
-        
+        $('#MOVPRO_PRT_NUMERO').val($('#PRT_NUMERO').val());
 
     });
 
     $(document).on('click', '#btnDevolver', function () {
         
         $('#myModal').modal('hide');
-        $('#MovPro_Parecer_Origem').val($('#MOVPRO_PARECER_ORIGEM_R').val());
-        $('#MOVPRO_PRT_NUMERO').val($('#MOVPRO_PARECER_ORIGEM_R').val());
        
         var formData = new FormData($('#form_distribuicao')[0]);
 
@@ -533,7 +528,7 @@
                 Notiflix.Loading.Standard('Aguarde...');
 
                 try {
-                    const response = await fetch('@Url.Action("RetificarVoto", "Homologacao")', {
+                    const response = await fetch('@Url.Action("DevolverVoto", "Homologacao")', {
                         method: 'POST',
                         body: formData
                     });
@@ -563,30 +558,6 @@
                     Notiflix.Notify.Failure(error);
                     Notiflix.Loading.Remove();
                 }
-
-
-                // $.ajax({
-                //     url: '@Url.Action("RetificarVoto", "Homologacao")',
-                //     type: 'POST',
-                //     data: formData,
-                //     success: function (response) {
-
-                //         Notiflix.Loading.Remove();
-                //         if (response.error == 'BadRequest') {
-                //             Notiflix.Notify.Failure(response.message);
-                //             return false;
-                //         };
-
-                //         AbrirHomologacao("pr0/000", "a00000");
-                //         isProcessing = false;
-                //         Notiflix.Notify.Success("Operação realizada com sucesso!");
-                //         $('#div_listaHomologacao').html(response);
-                //     },
-                //     error: function (xhr, status, error) {
-                //         Notiflix.Loading.Remove();
-                //         Notiflix.Notify.Failure("Erro interno!");
-                //     }
-                // });
             },
             function cancelCb() {
                 Notiflix.Loading.Remove();

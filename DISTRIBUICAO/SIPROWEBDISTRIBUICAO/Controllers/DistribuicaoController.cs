@@ -78,7 +78,7 @@ namespace SIPROWEBDISTRIBUICAO.Controllers
                 }
 
                 ViewBag.ListaProcessos = ProcessorDictionary;
-            }      
+            }
             //pegando os processo por setor
             ViewBag.ListaProcessosSetor = await BuscarProcessoSetor(userMatrix);
 
@@ -99,7 +99,7 @@ namespace SIPROWEBDISTRIBUICAO.Controllers
 
         public async Task<IActionResult> BuscarProcesso(int movpro_id)
         {
-            var apiUrl = $"{_baseApiUrl}distribuicao/GetProcesso/{movpro_id}"; 
+            var apiUrl = $"{_baseApiUrl}distribuicao/GetProcesso/{movpro_id}";
             var response = await _httpClient.GetAsync(apiUrl);
 
             // Verifica erros tratados
@@ -111,9 +111,9 @@ namespace SIPROWEBDISTRIBUICAO.Controllers
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var processo = await response.Content.ReadFromJsonAsync<ListaProcessoUsuario>();
-                return Json(processo);
+                return Json(new { error = false, processo });
             }
-            
+
             return Json(new { error = true, message = "Processo não encontrado" });
         }
 
@@ -124,7 +124,7 @@ namespace SIPROWEBDISTRIBUICAO.Controllers
 
             if (response.StatusCode == HttpStatusCode.OK)
                 return await response.Content.ReadFromJsonAsync<List<ProtocoloDistribuicaoModel>>();
-                
+
 
             return new List<ProtocoloDistribuicaoModel>();
         }
@@ -143,7 +143,7 @@ namespace SIPROWEBDISTRIBUICAO.Controllers
         [HttpGet]
         public async Task<IActionResult> ProcessoPorAssuntoView(string userMatrix)
         {
-            
+
             var apiUrl = $"{_baseApiUrl}distribuicao/GetProcessosDistribuidoUsuario/{userMatrix}";
             var response = await _httpClient.GetAsync(apiUrl);
 
@@ -159,17 +159,17 @@ namespace SIPROWEBDISTRIBUICAO.Controllers
             }
 
             return PartialView("_ProcessoDistribuidos");
-           
+
 
         }
-        
+
 
 
         [HttpPost]
         public async Task<IActionResult> addDistribuicaoProcessoEspecifico([FromBody] ProtocoloDistribuicaoModel distribuicaoModel)
         {
 
-          
+
             distribuicaoModel.DIS_ORIGEM_USUARIO = userMatrix;
 
             //Add processo ao usuario
@@ -184,7 +184,7 @@ namespace SIPROWEBDISTRIBUICAO.Controllers
 
 
             return PartialView("_Assunto");
-           
+
         }
 
         [HttpPost]
@@ -208,7 +208,6 @@ namespace SIPROWEBDISTRIBUICAO.Controllers
             return PartialView("_Assunto");
         }
 
-
         [HttpPost]
         public async Task<IActionResult> addDistribuicaoProcesso([FromBody] List<ProtocoloDistribuicaoModel> distribuicoes)
         {
@@ -225,7 +224,7 @@ namespace SIPROWEBDISTRIBUICAO.Controllers
             }
             await CarregarDistribuicao(userMatrix);
 
-            return PartialView("_Assunto");                       
+            return PartialView("_Assunto");
         }
 
         [HttpPost]
@@ -247,7 +246,7 @@ namespace SIPROWEBDISTRIBUICAO.Controllers
             _ = await CarregarDistribuicao(userMatrix);
 
             return PartialView("_Assunto");
-            
+
         }
 
 
@@ -297,6 +296,7 @@ namespace SIPROWEBDISTRIBUICAO.Controllers
             }
             return null; // nenhum erro, segue o fluxo normal
         }
+
 
 
     }

@@ -61,7 +61,6 @@
     let isProcessing = false; // Variável de controle para evitar múltiplos cliques
 
 
-
     //Add varios processo
     $(document).on('click', '#getAddBtn', async function () {
         let processoStatus = document.getElementById('processoStatus').value;
@@ -136,6 +135,7 @@
                     Notiflix.Notify.Success('Distribuição realizada com sucesso!');
 
                 } catch (error) {
+                    let isProcessing = false;
                     Notiflix.Notify.Failure('Erro ao conectar com o servidor.');
                 }
 
@@ -151,15 +151,16 @@
         );        
     });
 
-
-
-
-    //Tirar processo especifico
+    //Remove processo especifico
     $(document).on('click', '.retirar-processo', async function (e) {
 
         e.preventDefault();
 
         const disId = $(this).data('id');
+
+        if (isProcessing) return;
+        isProcessing = true;
+
 
         try {
             Notiflix.Loading.Standard('Aguarde...');
@@ -173,6 +174,7 @@
             });
 
             if (!response.ok) {
+                isProcessing = false;
                 const data = await response.json();
                 if (data.redirectTo) {
                     window.location.href = data.redirectTo;
@@ -182,6 +184,7 @@
                 return;
             }
 
+            isProcessing = false;
             const html = await response.text();
             $('#Div_Assunto').html(html);
             attachTouchspinEvents(); // se precisar reativar os inputs
@@ -189,48 +192,15 @@
 
 
         } catch (error) {
+            isProcessing = false;
             console.error('Erro:', error);
             Notiflix.Notify.Failure('Erro ao conectar com o servidor.');
         } finally {
+            isProcessing = false;
             Notiflix.Loading.Remove();
         }
+
     });
-
-
-
-    //Dispara a Modal
-    $(document).on('click', '.ret_processo', function (e) {
-        e.preventDefault();
-
-        var valor = $(this).data('id');
-
-        $.ajax({
-            url: '@Url.Action("BuscarProcesso", "Distribuicao")', // Substitua 'Controller' pelo nome correto do seu controlador
-            type: 'GET',
-            data: { movpro_id: valor },
-            success: function (data) {
-
-                if (data.error == true) {
-                    Notiflix.Notify.Failure('Erro ao realizar a operação.');
-                    return false;
-                }
-
-                $('#PRT_NUMERO').val(data.prT_NUMERO);
-                $('#PRT_AIT').val(data.prT_AIT);
-                $('#PRT_DT_ABERTURA').val(data.prT_DT_ABERTURA);
-                $('#PRT_ASSUNTO').val(data.prT_ASSUNTO);
-                $('#MOVPRO_ID').val(data.movprO_ID);
-
-                $('#myModal').modal('show');
-
-            },
-            error: function (xhr, status, error) {
-                // Lida com erros, se houver
-                console.log(xhr.responseText);
-            }
-        });
-    });
-
 
     //Add processo especifico
     $(document).on('click', '#btnDistribuir', async function () {
@@ -252,6 +222,9 @@
 
         Notiflix.Loading.Standard('Aguarde...');
 
+        if (isProcessing) return;
+        isProcessing = true;
+
         try {
             const response = await fetch('@Url.Action("addDistribuicaoProcessoEspecifico", "Distribuicao")', {
                 method: 'POST',
@@ -262,6 +235,7 @@
             });
 
             if (!response.ok) {
+                isProcessing = false;
                 const data = await response.json();
                 if (data.redirectTo) {
                     window.location.href = data.redirectTo;
@@ -280,15 +254,18 @@
             Notiflix.Notify.Success('Processo distribuído com sucesso!');
 
         } catch (error) {
+            isProcessing = false;
             console.error('Erro:', error);
             Notiflix.Notify.Failure('Erro na conexão com o servidor.');
         } finally {
+            isProcessing = false;
             Notiflix.Loading.Remove();
         }
     });
 
-
+    //Remove vários processo
     $(document).on('click', '#getRemoverBtn', async function () {
+
 
         let qtdInputs = document.querySelectorAll('span[id^="qtd_"]');
         let temProcessoDistribuido = Array.from(qtdInputs).some(span => parseInt(span.textContent || "0", 10) > 0);
@@ -312,6 +289,7 @@
             'Sim',
             'Não',
             async function okCb() {
+
                 if (isProcessing) return;
                 isProcessing = true;
 
@@ -374,15 +352,66 @@
         );
     });
 
+    //Dispara a Modal
+    $(document).on('click', '.ret_processo', async function (e) {
+
+        if (isProcessing) return;
+        isProcessing = true;
 
 
+        e.preventDefault();
 
- 
+        var valor = $(this).data('id');
+
+        const buscarLote = async () => {
+
+            Notiflix.Loading.Standard('Aguarde...');
+
+            try {
+                const response = await fetch('@Url.Action("BuscarProcesso", "Distribuicao")?movpro_id=' + valor);
+                const data = await response.json();
 
 
+                // ❌ ERRO
+                if (!response.ok) {
+                    console.log(data.processo);
+                    isProcessing = false;
+                    Notiflix.Loading.Remove();
+
+                    if (data.redirectTo) {
+                        window.location.href = data.redirectTo;
+                    } else {
+                        Notiflix.Notify.Failure(data.message || 'Erro inesperado.');
+                    }
+                    return false;
+                }
+
+                // ✅ OK
+                console.log(data.processo);
+
+                if (data.processo) {
+                    isProcessing = false;
+                    let publicacao = data.processo;
+                    $('#PRT_NUMERO').val(publicacao.prT_NUMERO);
+                    $('#PRT_AIT').val(publicacao.prT_AIT);
+                    $('#PRT_DT_ABERTURA').val(publicacao.prT_DT_ABERTURA);
+                    $('#PRT_ASSUNTO').val(publicacao.prT_ASSUNTO);
+                    $('#MOVPRO_ID').val(publicacao.movprO_ID);
+                    $('#myModal').modal('show');
+                }
 
 
+            } catch (error) {
+                isProcessing = false;
+                Notiflix.Notify.Failure('Erro de comunicação com o servidor.');
+                console.error(error);
+            } finally {
+                Notiflix.Loading.Remove();
+            }
+        };
 
-
+        // Chama a função async
+        buscarLote();
+    });
 
 </script>

@@ -310,7 +310,7 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RetificarVoto(RetificacaoModel retificacaoModel)
+        public async Task<IActionResult> DevolverVoto(RetificacaoModel retificacaoModel)
         {
             var prtnumero = retificacaoModel.MOVPRO_PRT_NUMERO.Replace("/", "");
             HomologacaoModel homologacaoModel = await BuscarPrtHomologar(prtnumero); 

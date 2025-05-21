@@ -327,7 +327,7 @@
                                                  
                                                     <h3 class="m-t-none m-b">Parecer</h3>
 
-                                                    <textarea id="INSPRO_Parecer" name="INSPRO_Parecer" rows="5" class="form-control" required> </textarea>
+                                                    <textarea id="INSPRO_Parecer" name="INSPRO_Parecer" rows="5" class="form-control" required></textarea>
                                                     <p><small>  <i class="fa fa-twitch"></i> Por favor, digite a instrução para o setor responsável de forma clara e objetiva, detalhando seu pedido. </small></p>
                                                                                                        
                                                     <div>
@@ -565,9 +565,7 @@
 
         inicializarValidacaoFormulario("#form_instrucao");
 
-        if ($("#form_instrucao").valid()) {
-
-  
+        if ($("#form_instrucao").valid()) {  
 
             const formData = $("#form_instrucao").serialize();
 

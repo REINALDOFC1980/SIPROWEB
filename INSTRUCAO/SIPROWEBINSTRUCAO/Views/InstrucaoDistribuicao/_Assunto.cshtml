@@ -72,24 +72,24 @@
                         </thead>
                         <tbody>
 
-                            @{
-                                if (ViewBag.ListaProcessosSetor != null)
+                        @{
+                            if (ViewBag.ListaProcessosSetor != null)
+                            {
+
+                                @foreach (var item in ViewBag.ListaProcessosSetor)
                                 {
+                                    <tr class="gradeX">
+                                        <td>@item.PRT_NUMERO</td>
+                                        <td>@item.PRT_AIT</td>
+                                        <td>
+                                            <a href="#" class="btn btn-primary btn-sm ret_processo" data-id="@item.MOVPRO_ID">
+                                                <i class="fa fa-mail-forward"></i> Distribuir
+                                            </a>                                             
+                                        </td>
+                                    </tr>
 
-                                    @foreach (var item in ViewBag.ListaProcessosSetor)
-                                    {
-                                        <tr class="gradeX">
-                                            <td>@item.PRT_NUMERO</td>
-                                            <td>@item.PRT_AIT</td>
-                                            <td>
-                                                <a href="#" class="btn btn-primary btn-sm ret_processo" data-id="@item.MOVPRO_ID">
-                                                    <i class="fa fa-mail-forward"></i> Distribuir
-                                                </a>                                             
-                                            </td>
-                                        </tr>
-
-                                    }
                                 }
+                            }
                             }
 
                         </tbody>
@@ -199,7 +199,7 @@
                                                             <td>@processo.PRT_USUARIO</td>
                                                             <td>@processo.PRT_STATUS</td>
                                                             <td>
-                                                            <a href="#" class="btn btn-primary btn-sm @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "" : "retirar-processo")"
+                                                            <a href="#" class="btn btn-danger btn-sm @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "" : "retirar-processo")"
                                                                     data-id="@processo.DIS_ID">
                                                                     <i class="fa @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "fa-lock" : "fa-minus-square-o")"></i>
                                                                                   @(processo.PRT_STATUS == "INSTRUCAO" || processo.PRT_STATUS == "JULGANDO" ? "Bloqueado" : "Retirar")

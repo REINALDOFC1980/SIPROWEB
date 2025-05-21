@@ -20,17 +20,6 @@ namespace SIPROWEB.Controllers
             _baseApiUrl = configuration.GetValue<string>("BaseApiUrl");        
         }
 
-
-        private async Task<JsonResult> HandleErrorResponse(HttpResponseMessage response)
-        {
-            var errorResponse = await response.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorResponseModel>(errorResponse);
-            var errorMessage = errorData?.Errors?.FirstOrDefault() ?? "Erro ao processar sua solicitação.";
-
-            return Json(new { error = "BadRequest", message = errorMessage });
-        }
-
-
         //[AutorizacaoTokenAttribute("ADM")]
         public IActionResult Pessoa()
         {
@@ -38,28 +27,30 @@ namespace SIPROWEB.Controllers
         }
 
         [HttpGet]
-        public async Task<JsonResult> GetPessoa(string cpf)
+        public async Task<IActionResult> GetPessoa(string cpf)
         {
+            PessoaModel? pessoaModel = null;
+
             string apiUrl = $"{_baseApiUrl}pessoa/getpessoa/{cpf}";
             var response = await _httpClient.GetAsync(apiUrl);
 
-            PessoaModel? pessoaModel = null;
-
-            var retornodetran = 0;
+            // Verifica erros tratados
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
 
             if (response.StatusCode == HttpStatusCode.OK)
                 pessoaModel = await response.Content.ReadFromJsonAsync<PessoaModel>();
 
 
+            //Caso não ache buscar no Detran
             else if (response.StatusCode == HttpStatusCode.NoContent)
             {
-                //Pegando dados do Detran Para atualizar os campos no formulário
                 apiUrl = $"{_baseApiUrl}pessoa/getpessoadetram/{cpf}";
                 response = await _httpClient.GetAsync(apiUrl);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    retornodetran = 1;
                     pessoaModel = new PessoaModel();
 
                     var pessoaDetranModel = await _httpClient.GetFromJsonAsync<PessoaModel>(apiUrl);
@@ -70,8 +61,7 @@ namespace SIPROWEB.Controllers
                 }
                 else if (response.StatusCode == HttpStatusCode.NoContent)
                     return Json(new { message = "Nenhuma pessoa encontrada.", pessoaModel });
-                else if (response.StatusCode == HttpStatusCode.InternalServerError)
-                    return Json(new { message = "Erro na busca.", pessoaModel });
+               
             }           
 
             return Json(new { pessoaModel });
@@ -80,41 +70,32 @@ namespace SIPROWEB.Controllers
         [HttpPost]
         public async Task<IActionResult> CadastrarPessoa(PessoaModel pessoa)
         {
-            try
+            
+            if (pessoa.pes_ID == 0)
             {
+                var apiUrl = $"{_baseApiUrl}pessoa/addpessoa";
+                var response = await _httpClient.PostAsJsonAsync(apiUrl, pessoa);
 
-                if (pessoa.pes_ID == 0)
-                {
-                    var apiUrl = $"{_baseApiUrl}pessoa/addpessoa";
-                    var response = await _httpClient.PostAsJsonAsync(apiUrl, pessoa);
+                // Verifica erros tratados
+                var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+                if (resultadoErro != null)
+                    return resultadoErro;
 
-                    if (response.StatusCode == HttpStatusCode.InternalServerError)
-                        return Json(new { error = "InternalServerError"});
-
-                    else if (response.StatusCode == HttpStatusCode.BadRequest)
-                        return await HandleErrorResponse(response);
-                }
-                else
-                {
-                    var apiUrl = $"{_baseApiUrl}pessoa/alterpessoa";
-                    var response = await _httpClient.PostAsJsonAsync(apiUrl, pessoa);
-
-                    if (response.StatusCode == HttpStatusCode.InternalServerError)
-                        return Json(new { error = "InternalServerError" });
-
-                    else if (response.StatusCode == HttpStatusCode.BadRequest)
-                        return await HandleErrorResponse(response);
-
-
-                }
-
-                return Json(new { erro = false, retorno = "Operação realizada com sucesso!" });
             }
-            catch (Exception)
+            else
             {
+                var apiUrl = $"{_baseApiUrl}pessoa/alterpessoa";
+                var response = await _httpClient.PostAsJsonAsync(apiUrl, pessoa);
 
-                throw;
+                // Verifica erros tratados
+                var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+                if (resultadoErro != null)
+                    return resultadoErro;
+
             }
+
+            return Json(new { erro = false, retorno = "Operação realizada com sucesso!" });
+            
 
         }
 

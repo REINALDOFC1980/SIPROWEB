@@ -22,336 +22,381 @@
 
 
 <!-- Importa o arquivo touchspin.js -->
-<script type="module">
 
-    function zerarInputs() {
-        const inputs = document.querySelectorAll('input[type="number"], input[type="text"]');
-        inputs.forEach(input => {
-            if (input.value !== "") {
-                input.value = "0";
-            }
-        });
-    }
+    <script type="module">
 
-    function attachTouchspinEvents() {
-        document.querySelectorAll('.bootstrap-touchspin-up').forEach(button => {
-            button.addEventListener('click', function () {
-                const input = this.closest('.input-group').querySelector('.user-input');
-                let currentValue = parseInt(input.value) || 0;
-                input.value = currentValue + 1;
-            });
-        });
-
-        document.querySelectorAll('.bootstrap-touchspin-down').forEach(button => {
-            button.addEventListener('click', function () {
-                const input = this.closest('.input-group').querySelector('.user-input');
-                let currentValue = parseInt(input.value) || 0;
-                if (currentValue > 0) {
-                    input.value = currentValue - 1;
+        function zerarInputs() {
+            const inputs = document.querySelectorAll('input[type="number"], input[type="text"]');
+            inputs.forEach(input => {
+                if (input.value !== "") {
+                    input.value = "0";
                 }
             });
-        });
-    }
-
-
-    attachTouchspinEvents();
-
-    let isProcessing = false;    
-
-    $(document).on('click', '#getAddBtn', async function () {
-        let processoStatus = document.getElementById('processoStatus').value;
-
-        if (processoStatus === "NÃO CONSTA PROCESSO") {
-            Notiflix.Notify.Warning('Não existe processo para ser distribuído.');
-            zerarInputs();
-            return;
         }
 
-        let addInputs = document.querySelectorAll('input[id^=add_]');
-        let todosZero = Array.from(addInputs).every(input => input.value == 0);
-
-        if (todosZero) {
-            Notiflix.Notify.Warning('É necessário adicionar uma quantidade de processo ao usuário.');
-            return;
-        }
-
-        Notiflix.Confirm.Show(
-            'Aviso!',
-            'Tem certeza que deseja distribuir esse(s) processo(s)?',
-            'Sim',
-            'Não',
-            async function okCb() {
-                
-                if (isProcessing) return;
-                isProcessing = true;
-
-                Notiflix.Loading.Standard('Aguarde...');
-                document.getElementById('getAddBtn').disabled = true;
-
-                // 🔁 Monta a lista com todos os usuários e quantidades
-                let distribuicoes = [];
-
-                for (const input of addInputs) {
-                    let valorAdd = parseInt(input.value, 10);
-                    if (valorAdd > 0) {
-                        let usuario = input.id.replace('add_', '');
-                        distribuicoes.push({
-                            DIS_DESTINO_USUARIO: usuario,
-                            DIS_QTD: valorAdd
-                        });
-                        input.value = 0;
-                    }
-                }
-
-                try {
-                    const response = await fetch('@Url.Action("DistribuirProcessos", "InstrucaoDistribuicao")', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(distribuicoes)
-                    });
-
-                    if (!response.ok) {
-                        isProcessing = false;
-                        const data = await response.json();
-                        if (data.redirectTo) {
-                            window.location.href = data.redirectTo;
-                        } else {
-                            Notiflix.Notify.Failure(data.message || 'Erro ao realizar a operação.');
-                        }
-                        return;
-                    }
-
-                    isProcessing = false;
-                    const html = await response.text();
-                    $('#Div_Assunto').html(html);
-                    attachTouchspinEvents();
-                    Notiflix.Notify.Success('Distribuição realizada com sucesso!');
-
-                } catch (error) {
-                    Notiflix.Notify.Failure('Erro ao conectar com o servidor.');
-                }
-
-                Notiflix.Loading.Remove();
-                document.getElementById('getAddBtn').disabled = false;
-                isProcessing = false;
-            },
-            function cancelCb() {
-                isProcessing = false;
-                Notiflix.Loading.Remove();
-                document.getElementById('getAddBtn').disabled = false;
-            }
-        );
-    });
-
-    $(document).on('click', '#getRemoverBtn', async function () {
-       
-        let qtdInputs = document.querySelectorAll('span[id^="qtd_"]');
-        let temProcessoDistribuido = Array.from(qtdInputs).some(span => parseInt(span.textContent || "0", 10) > 0);
-
-        if (!temProcessoDistribuido) {
-            Notiflix.Notify.Warning('Não existe processo distribuído para ser retirado.');
-            return;
-        }
-
-        let removeInputs = document.querySelectorAll('input[id^=remove_]');
-        let todosZero = Array.from(removeInputs).every(input => parseInt(input.value, 10) === 0);
-
-        if (todosZero) {
-            Notiflix.Notify.Warning('É necessário adicionar uma quantidade de processo ao usuário.');
-            return;
-        }
-
-        Notiflix.Confirm.Show(
-            'Aviso!',
-            'Tem certeza que deseja retirar esse(s) processo(s)?',
-            'Sim',
-            'Não',
-            async function okCb() {
-                if (isProcessing) return;
-                isProcessing = true;
-
-                Notiflix.Loading.Standard('Aguarde...');
-                document.getElementById('getRemoverBtn').disabled = true;
-
-                let removidos = [];
-
-                for (const input of removeInputs) {
-                    let valor = parseInt(input.value, 10);
-                    if (valor > 0) {
-                        let usuario = input.id.replace('remove_', '');
-                        removidos.push({
-                            DIS_DESTINO_USUARIO: usuario,
-                            DIS_QTD: valor
-                        });
-                        input.value = 0;
-                    }
-                }
-
-                try {
-                    const response = await fetch('@Url.Action("RetirarProcessos", "InstrucaoDistribuicao")', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(removidos)
-                    });
-
-                    if (!response.ok) {
-                        isProcessing = false;
-                        const data = await response.json();
-                        if (data.redirectTo) {
-                            window.location.href = data.redirectTo;
-                        } else {
-                            Notiflix.Notify.Failure(data.message || 'Erro ao realizar a operação.');
-                        }
-                        return;
-                    }
-
-                    isProcessing = false;
-                    const html = await response.text();
-                    $('#Div_Assunto').html(html);
-                    attachTouchspinEvents();
-                    Notiflix.Notify.Success('Operação realizada com sucesso!');
-                } catch (error) {
-                    isProcessing = false;
-                    Notiflix.Notify.Failure('Erro ao conectar com o servidor.');
-                }
-
-                Notiflix.Loading.Remove();
-                document.getElementById('getRemoverBtn').disabled = false;
-                isProcessing = false;
-            },
-            function cancelCb() {
-                isProcessing = false;
-                Notiflix.Loading.Remove();
-                document.getElementById('getRemoverBtn').disabled = false;
-            }
-        );
-    });
-
-
-
-    $(document).on('click', '#btnDistribuir', async function () {
-       
-        const mOVPRO_ID = $('#MOVPRO_ID').val();
-        const dIS_DESTINO_USUARIO = $('#DIS_USUARIO').val();
-        const mOVPRO_PARECER_ORIGEM = $('#MOVPRO_PARECER_ORIGEM').val();
-
-        if (!dIS_DESTINO_USUARIO) {
-            Notiflix.Notify.Failure('Por favor, selecione um usuário.');
-            return;
-        }
-
-        const distribuicaoModel = {
-            DIS_MOV_ID: mOVPRO_ID,
-            DIS_DESTINO_USUARIO: dIS_DESTINO_USUARIO,
-            MOVPRO_PARECER_ORIGEM: mOVPRO_PARECER_ORIGEM
-        };
-
-        Notiflix.Loading.Standard('Aguarde...');
-
-        try {
-            const response = await fetch('@Url.Action("addDistribuicaoProcessoEspecifico", "InstrucaoDistribuicao")', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(distribuicaoModel)
+        function attachTouchspinEvents() {
+            document.querySelectorAll('.bootstrap-touchspin-up').forEach(button => {
+                button.addEventListener('click', function () {
+                    const input = this.closest('.input-group').querySelector('.user-input');
+                    let currentValue = parseInt(input.value) || 0;
+                    input.value = currentValue + 1;
+                });
             });
 
-            if (!response.ok) {
-                Notiflix.Notify.Failure('Erro ao distribuir o processo.');
-                Notiflix.Loading.Remove();
+            document.querySelectorAll('.bootstrap-touchspin-down').forEach(button => {
+                button.addEventListener('click', function () {
+                    const input = this.closest('.input-group').querySelector('.user-input');
+                    let currentValue = parseInt(input.value) || 0;
+                    if (currentValue > 0) {
+                        input.value = currentValue - 1;
+                    }
+                });
+            });
+        }
+
+        attachTouchspinEvents();
+
+        let isProcessing = false;
+
+        $(document).on('click', '#getAddBtn', async function () {
+            let processoStatus = document.getElementById('processoStatus').value;
+
+            if (processoStatus === "NÃO CONSTA PROCESSO") {
+                Notiflix.Notify.Warning('Não existe processo para ser distribuído.');
+                zerarInputs();
                 return;
             }
 
-            isProcessing = false;
-            $('#myModal').modal('hide');
-            const html = await response.text();
-            $('#Div_Assunto').html(html);
+            let addInputs = document.querySelectorAll('input[id^=add_]');
+            let todosZero = Array.from(addInputs).every(input => input.value == 0);
 
-            attachTouchspinEvents();
-            Notiflix.Notify.Success('Processo distribuído com sucesso!');
+            if (todosZero) {
+                Notiflix.Notify.Warning('É necessário adicionar uma quantidade de processo ao usuário.');
+                return;
+            }
 
-        } catch (error) {
-            console.error('Erro:', error);
-            Notiflix.Notify.Failure('Erro na conexão com o servidor.');
-        } finally {
-            Notiflix.Loading.Remove();
-        }
-    });
+            Notiflix.Confirm.Show(
+                'Aviso!',
+                'Tem certeza que deseja distribuir esse(s) processo(s)?',
+                'Sim',
+                'Não',
+                async function okCb() {
+
+                    if (isProcessing) return;
+                    isProcessing = true;
+
+                    Notiflix.Loading.Standard('Aguarde...');
+                    document.getElementById('getAddBtn').disabled = true;
+
+                    // 🔁 Monta a lista com todos os usuários e quantidades
+                    let distribuicoes = [];
+
+                    for (const input of addInputs) {
+                        let valorAdd = parseInt(input.value, 10);
+                        if (valorAdd > 0) {
+                            let usuario = input.id.replace('add_', '');
+                            distribuicoes.push({
+                                DIS_DESTINO_USUARIO: usuario,
+                                DIS_QTD: valorAdd
+                            });
+                            input.value = 0;
+                        }
+                    }
+
+                    try {
+                        const response = await fetch('@Url.Action("DistribuirProcessos", "InstrucaoDistribuicao")', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(distribuicoes)
+                        });
+
+                        if (!response.ok) {
+                            isProcessing = false;
+                            const data = await response.json();
+                            if (data.redirectTo) {
+                                window.location.href = data.redirectTo;
+                            } else {
+                                Notiflix.Notify.Failure(data.message || 'Erro ao realizar a operação.');
+                            }
+                            return;
+                        }
+
+                        isProcessing = false;
+                        const html = await response.text();
+                        $('#Div_Assunto').html(html);
+                        attachTouchspinEvents();
+                        Notiflix.Notify.Success('Distribuição realizada com sucesso!');
+
+                    } catch (error) {
+                        Notiflix.Notify.Failure('Erro ao conectar com o servidor.');
+                    }
+
+                    Notiflix.Loading.Remove();
+                    document.getElementById('getAddBtn').disabled = false;
+                    isProcessing = false;
+                },
+                function cancelCb() {
+                    isProcessing = false;
+                    Notiflix.Loading.Remove();
+                    document.getElementById('getAddBtn').disabled = false;
+                }
+            );
+        });
+
+        $(document).on('click', '#getRemoverBtn', async function () {
+
+            let qtdInputs = document.querySelectorAll('span[id^="qtd_"]');
+            let temProcessoDistribuido = Array.from(qtdInputs).some(span => parseInt(span.textContent || "0", 10) > 0);
+
+            if (!temProcessoDistribuido) {
+                Notiflix.Notify.Warning('Não existe processo distribuído para ser retirado.');
+                return;
+            }
+
+            let removeInputs = document.querySelectorAll('input[id^=remove_]');
+            let todosZero = Array.from(removeInputs).every(input => parseInt(input.value, 10) === 0);
+
+            if (todosZero) {
+                Notiflix.Notify.Warning('É necessário adicionar uma quantidade de processo ao usuário.');
+                return;
+            }
+
+            Notiflix.Confirm.Show(
+                'Aviso!',
+                'Tem certeza que deseja retirar esse(s) processo(s)?',
+                'Sim',
+                'Não',
+                async function okCb() {
+                    if (isProcessing) return;
+                    isProcessing = true;
+
+                    Notiflix.Loading.Standard('Aguarde...');
+                    document.getElementById('getRemoverBtn').disabled = true;
+
+                    let removidos = [];
+
+                    for (const input of removeInputs) {
+                        let valor = parseInt(input.value, 10);
+                        if (valor > 0) {
+                            let usuario = input.id.replace('remove_', '');
+                            removidos.push({
+                                DIS_DESTINO_USUARIO: usuario,
+                                DIS_QTD: valor
+                            });
+                            input.value = 0;
+                        }
+                    }
+
+                    try {
+                        const response = await fetch('@Url.Action("RetirarProcessos", "InstrucaoDistribuicao")', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(removidos)
+                        });
 
 
-    $(document).on('click', '.retirar-processo', async function (e) {
-        e.preventDefault();
+                        // ❌ ERRO
+                        if (!response.ok) {
+                            isProcessing = false;
+                            const data = await response.json();
+                            if (data.redirectTo) {
+                                window.location.href = data.redirectTo;
+                            } else {
+                                Notiflix.Notify.Failure(data.message || 'Erro ao realizar a operação.');
+                            }
+                            return;
+                        }
 
-        const disId = $(this).data('id');
+                        // ✅ OK
+                        isProcessing = false;
+                        const html = await response.text();
+                        $('#Div_Assunto').html(html);
+                        attachTouchspinEvents();
+                        Notiflix.Notify.Success('Operação realizada com sucesso!');
+                    } catch (error) {
+                        isProcessing = false;
+                        Notiflix.Notify.Failure('Erro ao conectar com o servidor.');
+                    }
 
-        try {
+                    Notiflix.Loading.Remove();
+                    document.getElementById('getRemoverBtn').disabled = false;
+                    isProcessing = false;
+                },
+                function cancelCb() {
+                    isProcessing = false;
+                    Notiflix.Loading.Remove();
+                    document.getElementById('getRemoverBtn').disabled = false;
+                }
+            );
+        });
+
+        $(document).on('click', '#btnDistribuir', async function () {
+
+            const mOVPRO_ID = $('#MOVPRO_ID').val();
+            const dIS_DESTINO_USUARIO = $('#DIS_USUARIO').val();
+            const mOVPRO_PARECER_ORIGEM = $('#MOVPRO_PARECER_ORIGEM').val();
+
+            if (!dIS_DESTINO_USUARIO) {
+                Notiflix.Notify.Failure('Por favor, selecione um usuário.');
+                return;
+            }
+
+            const distribuicaoModel = {
+                DIS_MOV_ID: mOVPRO_ID,
+                DIS_DESTINO_USUARIO: dIS_DESTINO_USUARIO,
+                MOVPRO_PARECER_ORIGEM: mOVPRO_PARECER_ORIGEM
+            };
+
             Notiflix.Loading.Standard('Aguarde...');
 
-            const response = await fetch('@Url.Action("RetirarProcessoEspecifico", "InstrucaoDistribuicao")', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(disId)
-            });
-
-            if (!response.ok) {
-                Notiflix.Notify.Failure('Erro ao realizar a operação.');
-                Notiflix.Loading.Remove();
-                return;
-            }
-
-            const html = await response.text();
-            $('#Div_Assunto').html(html);
-            attachTouchspinEvents(); // se precisar reativar os inputs
-            Notiflix.Notify.Success('Processo retirado com sucesso!');
+            try {
+                const response = await fetch('@Url.Action("addDistribuicaoProcessoEspecifico", "InstrucaoDistribuicao")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(distribuicaoModel)
+                });
 
 
-        } catch (error) {
-            console.error('Erro:', error);
-            Notiflix.Notify.Failure('Erro ao conectar com o servidor.');
-        } finally {
-            Notiflix.Loading.Remove();
-        }
-    });
-
-
-    $(document).on('click', '.ret_processo', function (e) {
-        e.preventDefault();
-
-        var valor = $(this).data('id');
-
-        $.ajax({
-            url: '@Url.Action("BuscarProcesso", "InstrucaoDistribuicao")', // Substitua 'Controller' pelo nome correto do seu controlador
-            type: 'GET',
-            data: { movpro_id: valor },
-            success: function (data) {
-
-                if (data.error == true) {
-                    Notiflix.Notify.Failure('Erro ao realizar a operação.');
-                    return false;
+                // ❌ ERRO
+                if (!response.ok) {
+                    isProcessing = false;
+                    const data = await response.json();
+                    if (data.redirectTo) {
+                        window.location.href = data.redirectTo;
+                    } else {
+                        Notiflix.Notify.Failure(data.message || 'Erro ao realizar a operação.');
+                    }
+                    return;
                 }
 
-                $('#PRT_NUMERO').val(data.prT_NUMERO);
-                $('#PRT_AIT').val(data.prT_AIT);
-                $('#PRT_DT_ABERTURA').val(data.prT_DT_ABERTURA);
-                $('#PRT_ASSUNTO').val(data.prT_ASSUNTO);
-                $('#MOVPRO_ID').val(data.movprO_ID);
+                // ✅ OK
+                isProcessing = false;
+                $('#myModal').modal('hide');
+                const html = await response.text();
+                $('#Div_Assunto').html(html);
 
-                $('#myModal').modal('show');
+                attachTouchspinEvents();
+                Notiflix.Notify.Success('Processo distribuído com sucesso!');
 
-            },
-            error: function (xhr, status, error) {
-                // Lida com erros, se houver
-                console.log(xhr.responseText);
+            } catch (error) {
+                console.error('Erro:', error);
+                Notiflix.Notify.Failure('Erro na conexão com o servidor.');
+            } finally {
+                Notiflix.Loading.Remove();
             }
         });
-    });
+
+        $(document).on('click', '.retirar-processo', async function (e) {
+            e.preventDefault();
+
+            const disId = $(this).data('id');
+
+            try {
+                Notiflix.Loading.Standard('Aguarde...');
+
+                const response = await fetch('@Url.Action("RetirarProcessoEspecifico", "InstrucaoDistribuicao")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(disId)
+                });
 
 
-</script>
+                // ❌ ERRO
+                if (!response.ok) {
+                    isProcessing = false;
+                    const data = await response.json();
+                    if (data.redirectTo) {
+                        window.location.href = data.redirectTo;
+                    } else {
+                        Notiflix.Notify.Failure(data.message || 'Erro ao realizar a operação.');
+                    }
+                    return;
+                }
+
+                const html = await response.text();
+                $('#Div_Assunto').html(html);
+                attachTouchspinEvents(); // se precisar reativar os inputs
+                Notiflix.Notify.Success('Processo retirado com sucesso!');
+
+
+            } catch (error) {
+                console.error('Erro:', error);
+                Notiflix.Notify.Failure('Erro ao conectar com o servidor.');
+            } finally {
+                Notiflix.Loading.Remove();
+            }
+        });
+
+        $(document).on('click', '.ret_processo', async function (e) {
+
+            if (isProcessing) return;
+            isProcessing = true;
+
+
+            e.preventDefault();
+
+            var valor = $(this).data('id');
+
+            const buscarLote = async () => {
+
+                Notiflix.Loading.Standard('Aguarde...');
+
+                try {
+                    const response = await fetch('@Url.Action("BuscarProcesso", "InstrucaoDistribuicao")?movpro_id=' + valor);
+                    const data = await response.json();
+
+
+                    // ❌ ERRO
+                    if (!response.ok) {
+                        console.log(data.processo);
+                        isProcessing = false;
+                        Notiflix.Loading.Remove();
+
+                        if (data.redirectTo) {
+                            window.location.href = data.redirectTo;
+                        } else {
+                            Notiflix.Notify.Failure(data.message || 'Erro inesperado.');
+                        }
+                        return false;
+                    }
+
+                    // ✅ OK
+                    console.log(data.processo);
+
+                    if (data.processo) {
+                        isProcessing = false;
+                        let publicacao = data.processo;
+                        $('#PRT_NUMERO').val(publicacao.prT_NUMERO);
+                        $('#PRT_AIT').val(publicacao.prT_AIT);
+                        $('#PRT_DT_ABERTURA').val(publicacao.prT_DT_ABERTURA);
+                        $('#PRT_ASSUNTO').val(publicacao.prT_ASSUNTO);
+                        $('#MOVPRO_ID').val(publicacao.movprO_ID);
+                        $('#myModal').modal('show');
+                    }
+
+
+                } catch (error) {
+                    isProcessing = false;
+                    Notiflix.Notify.Failure('Erro de comunicação com o servidor.');
+                    console.error(error);
+                } finally {
+                    Notiflix.Loading.Remove();
+                }
+            };
+
+            // Chama a função async
+            buscarLote();
+        });
+
+
+    </script>
+
+

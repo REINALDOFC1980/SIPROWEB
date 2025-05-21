@@ -44,8 +44,7 @@ namespace SIPROAPI.Controllers
         [Route("getpessoadetram/{cpf}")]
         public async Task<IActionResult> GetPessoaDetram(string cpf)
         {
-            try
-            {
+           
                 ResultGetCnhPorCpf resultGetCnhPorCpf = await _detran.CnhCpfAsync(cpf);
 
                 if (resultGetCnhPorCpf == null)
@@ -76,12 +75,7 @@ namespace SIPROAPI.Controllers
                 }
 
                 return Ok(pessoaModel);
-            }
-            catch (Exception ex)
-            {
-                //_logger.LogError(ex, "Ocorreu um erro ao buscar os dados do solicitante.");
-                return StatusCode(500, "Ocorreu um erro interno no servidor.");
-            }
+            
 
         }
 

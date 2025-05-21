@@ -1,20 +1,16 @@
 ﻿using Dapper;
-using FluentValidation;
 using SIPROSHARED.DbContext;
 using SIPROSHARED.Models;
-using SIPROSHARED.Validator;
 using SIPROSHAREDHOMOLOGACAO.Models;
 using SIPROSHAREDHOMOLOGACAO.Service.IRepository;
 using SIPROSHAREDHOMOLOGACAO.Validator;
 using SIRPOEXCEPTIONS.ExceptionBase;
 using System.Data;
-using System.Data.Common;
 
 namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 {
     public class HomologacaoService : IHomologacaoService
     {
-
         private readonly DapperContext _context;
 
         public HomologacaoService(DapperContext context)
@@ -59,9 +55,9 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
             //validação
             if (string.IsNullOrEmpty(prt_numero))
                 throw new ErrorOnValidationException(new List<string> { "O número do processo não foi identificado." });
-        
-                        
-                var query = @"				 
+
+
+            var query = @"				 
                  select MOVPRO_ID,
                         SETSUB_NOME,
                         SETSUB_ID,
@@ -77,13 +73,13 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 		          WHERE REPLACE(PRT_NUMERO, '/', '') = @prt_numero
 		            and MOVPRO_STATUS = 'HOMOLOGAR'";
 
-                using (var connection = _context.CreateConnection())
-                {
-                    var parametros = new { prt_numero };
-                    var result = await connection.QueryFirstOrDefaultAsync<HomologacaoModel>(query, parametros);
+            using (var connection = _context.CreateConnection())
+            {
+                var parametros = new { prt_numero };
+                var result = await connection.QueryFirstOrDefaultAsync<HomologacaoModel>(query, parametros);
 
-                    return result;
-                }
+                return result;
+            }
         }
 
         public async Task<List<Anexo_Model>> BuscarAnexo(string ait)
@@ -106,31 +102,31 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                              where PRTDOC_PRT_AIT = @ait ";
 
 
-                using (var connection = _context.CreateConnection())
-                {
-                    var parametros = new { ait };
-                    var command = await connection.QueryAsync<Anexo_Model>(query, parametros);
-                    return command.ToList();
-                }
+            using (var connection = _context.CreateConnection())
+            {
+                var parametros = new { ait };
+                var command = await connection.QueryAsync<Anexo_Model>(query, parametros);
+                return command.ToList();
+            }
 
 
-            
+
         }
 
         public async Task<List<SetorModel>> BuscarSetor()
         {
-              var query = @" SELECT 
-                               SETSUB_ID, 
-                               UPPER(SETSUB_NOME) AS SETSUB_NOME 
-                          FROM SetorSub  
-                         WHERE SETSUB_Ativo = 1  
-                         ORDER BY SETSUB_NOME ";
+            var query = @" SELECT 
+                        SETSUB_ID, 
+                        UPPER(SETSUB_NOME) AS SETSUB_NOME 
+                    FROM SetorSub  
+                    WHERE SETSUB_Ativo = 1  
+                    ORDER BY SETSUB_NOME ";
 
-                using (var connection = _context.CreateConnection())
-                {
-                    var command = await connection.QueryAsync<SetorModel>(query);
-                    return command.ToList();
-                }
+            using (var connection = _context.CreateConnection())
+            {
+                var command = await connection.QueryAsync<SetorModel>(query);
+                return command.ToList();
+            }
 
         }
 
@@ -141,7 +137,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
             {
                 throw new ErrorOnValidationException(new List<string> { "O número do processo não foi identificado." });
             }
-           
+
             var query = @"  select 
                                 MOVPRO_ID, 
 		                        DISJUG_RELATOR,
@@ -163,30 +159,30 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                 return command.ToList();
             }
 
-            
+
         }
 
-        public async Task RealizarHomologacao(JulgamentoModel julgamentoModel,  IDbConnection connection, IDbTransaction transaction)
+        public async Task RealizarHomologacao(JulgamentoModel julgamentoModel, IDbConnection connection, IDbTransaction transaction)
         {
-           
-                //validando a model agendamento 
-                var validator = new HomologarValidator();
-                var result = validator.Validate(julgamentoModel);
-                if (result.IsValid == false)
-                    throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
-                //fim
+
+            //validando a model agendamento 
+            var validator = new HomologarValidator();
+            var result = validator.Validate(julgamentoModel);
+            if (result.IsValid == false)
+                throw new ErrorOnValidationException(result.Errors.Select(e => e.ErrorMessage).ToList());
+            //fim
 
 
 
-                var dbParametro = new DynamicParameters();
-                dbParametro.Add("@MOVPRO_ID", julgamentoModel.MovPro_id);
-                dbParametro.Add("@USUARIOORIGEM", julgamentoModel.Disjug_Homologador);
-                dbParametro.Add("@MOVPRO_PARECER_ORIGEM", julgamentoModel.Disjug_Parecer_Relatorio);
-                dbParametro.Add("@PRT_NUMERO", julgamentoModel.MovPro_Prt_Numero);
-                dbParametro.Add("@SETORDESTINO", julgamentoModel.Disjul_SetSub_Id);
+            var dbParametro = new DynamicParameters();
+            dbParametro.Add("@MOVPRO_ID", julgamentoModel.MovPro_id);
+            dbParametro.Add("@USUARIOORIGEM", julgamentoModel.Disjug_Homologador);
+            dbParametro.Add("@MOVPRO_PARECER_ORIGEM", julgamentoModel.Disjug_Parecer_Relatorio);
+            dbParametro.Add("@PRT_NUMERO", julgamentoModel.MovPro_Prt_Numero);
+            dbParametro.Add("@SETORDESTINO", julgamentoModel.Disjul_SetSub_Id);
 
 
-                var query = @"
+            var query = @"
 	             UPDATE Movimentacao_Processo
 	                Set MOVPRO_STATUS = 'HOMOLOGADO->PUBLICAR'
 	              WHERE MOVPRO_ID = @MOVPRO_ID
@@ -210,8 +206,8 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                         PRT_ACAO = 'PUBLICAR'  
                   Where PRT_NUMERO = @PRT_NUMERO  
                 ";
-                await connection.ExecuteAsync(query, dbParametro, transaction);
-           
+            await connection.ExecuteAsync(query, dbParametro, transaction);
+
 
         }
 
@@ -285,7 +281,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
             }
 
 
-          
+
 
 
 
@@ -293,7 +289,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
         public async Task<JulgamentoModel> BuscarParecer(string processo)
         {
-           
+
             var query = @"  select top 1 
                                     MovPro_id,
                                     MovPro_Prt_Numero,
@@ -312,7 +308,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                 return command;
             }
 
-           
+
         }
 
         public async Task<List<AnexoModel>> BuscarAnexosBanco(string prt_numero)
@@ -320,7 +316,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
             List<AnexoModel> anexoModel = new List<AnexoModel>();
 
             using (var connection = _context.CreateConnection())
-            {                
+            {
                 string selectQuery = @" SELECT PRTDOC_ID,
                                                PRTDOC_PRT_NUMERO,
                                                PRTDOC_OBSERVACAO,
@@ -354,7 +350,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                                 caminhosrc = $"<img src='data:image/jpeg;base64,{imagemBase64}' alt='Imagem' style=\"width: 100%; height: 150px;\">",
                                 caminhohref = $"data:image/jpeg;base64,{imagemBase64}"
                             };
-                            
+
                             // Adiciona o objeto AnexoModel à lista
                             anexoModel.Add(anexo);
                         }
@@ -363,7 +359,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
                 return anexoModel;
             }
-           
+
         }
 
         public async Task RetornarJulgamento(RetificacaoModel retificacaoModel, IDbConnection connection, IDbTransaction transaction)
@@ -377,12 +373,12 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
 
 
             var dbParametro = new DynamicParameters();
-                dbParametro.Add("@MOVPRO_ID", retificacaoModel.MOVPRO_ID);
-                dbParametro.Add("@MOVPRO_PARECER_ORIGEM", retificacaoModel.MOVPRO_PARECER_ORIGEM);
-                dbParametro.Add("@MOVPRO_USUARIO_ORIGEM", retificacaoModel.MOVPRO_USUARIO_ORIGEM);
+            dbParametro.Add("@MOVPRO_ID", retificacaoModel.MOVPRO_ID);
+            dbParametro.Add("@MOVPRO_PARECER_ORIGEM", retificacaoModel.MOVPRO_PARECER_ORIGEM);
+            dbParametro.Add("@MOVPRO_USUARIO_ORIGEM", retificacaoModel.MOVPRO_USUARIO_ORIGEM);
 
 
-                var query = @"
+            var query = @"
 		             DECLARE @SetorOrigem int
 
 			             SET @SetorOrigem = (Select top 1 
@@ -398,8 +394,8 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                             FROM Movimentacao_Processo 
                       INNER JOIN Protocolo_Distribuicao ON (MovPro_id = DIS_MOV_ID)
                            WHERE MOVPRO_PRT_NUMERO = ( SELECT TOP 1 Movpro_prt_numero 
-					        		                    FROM Movimentacao_Processo 
-							                           WHERE MovPro_id = @MOVPRO_ID)
+					        		                     FROM Movimentacao_Processo 
+							                            WHERE MovPro_id = @MOVPRO_ID)
 
                           DELETE PD
                             FROM Protocolo_Distribuicao_Julgamento pd INNER JOIN #Processo ap ON (pd.DISJUG_DIS_ID = ap.DIS_ID)
@@ -442,12 +438,11 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
                         DROP TABLE #Processo;
 
                 ";
-                await connection.ExecuteAsync(query, dbParametro, transaction);
-           
+            await connection.ExecuteAsync(query, dbParametro, transaction);
 
-         
+
+
         }
-
 
     }
 }

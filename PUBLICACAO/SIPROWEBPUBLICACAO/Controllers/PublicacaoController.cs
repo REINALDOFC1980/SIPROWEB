@@ -138,7 +138,7 @@ namespace SIPROWEBPUBLICACAO.Controllers
         public async Task<IActionResult> Buscar_Lote(string lote)
         {
           
-            PublicacaoModel publicacaoModel = new PublicacaoModel();
+            PublicacaoModel processo = new PublicacaoModel();
             var valor = lote?.Replace("/", "") ?? "";
 
             var apiUrl = $"{_baseApiUrl}publicacao/buscar-lote/{valor}";
@@ -151,12 +151,12 @@ namespace SIPROWEBPUBLICACAO.Controllers
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                publicacaoModel = await response.Content.ReadFromJsonAsync<PublicacaoModel>();
-                publicacaoModel.prt_publicacao_dom = userMatrix;
-                return Json(new { error = false, publicacaoModel });
+                processo = await response.Content.ReadFromJsonAsync<PublicacaoModel>();
+                processo.prt_publicacao_dom = userMatrix;
+                return Json(new { error = false, processo });
             }
 
-            return Json(new { error = false, publicacaoModel });
+            return Json(new { error = false, processo });
         }
 
         [HttpPost]
