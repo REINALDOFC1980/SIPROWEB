@@ -54,7 +54,8 @@
             const response = await fetch('@Url.Action("BuscarProtocolo", "Julgamento")?vlobusca=' + vlobusca);
 
 
-            // ✅ ERRO
+            /
+            // ❌ ERRO
             if (!response.ok) {
                 Notiflix.Loading.Remove();
                 const data = await response.json(); // ok se o erro retorna JSON
@@ -65,7 +66,6 @@
                 }
                 return false;
             }
-
             // ✅ OK
             const html = await response.text();
             Notiflix.Loading.Remove();

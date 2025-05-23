@@ -60,33 +60,24 @@ namespace SIPROWEBHOMOLOGACAO.Controllers
         [HttpGet]
         public async Task<IActionResult> ListaHomologar(int setor, string resultado)
         {
-            try
+
+            ViewBag.Protocolo = new List<HomologacaoModel>();
+
+            string apiUrl = $"{_baseApiUrl}homologacao/localizar-homologacao/{setor}/{resultado}";
+            var response = await _httpClient.GetAsync(apiUrl);
+
+            // Tratamento centralizado de erros
+            var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
+            if (resultadoErro != null)
+                return resultadoErro;
+
+            // Fluxo normal
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                //buscando os documentos necessários
-                string apiUrl = $"{_baseApiUrl}homologacao/localizar-homologacao/{setor}/{resultado}";
-                var response = await _httpClient.GetAsync(apiUrl);
-
-                // Verifica erros tratados
-                var resultadoErro = await ApiErrorHandler.TratarErrosHttpResponse(response, Url);
-                if (resultadoErro != null)
-                    return resultadoErro;
-
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                    ViewBag.Protocolo = await response.Content.ReadFromJsonAsync<List<HomologacaoModel>>();
-
-                if (response.StatusCode == HttpStatusCode.NoContent)
-                    ViewBag.Protocolo = new List<HomologacaoModel>();
-
-                return PartialView("_ListaHomologacao");
+                ViewBag.Protocolo = await response.Content.ReadFromJsonAsync<List<HomologacaoModel>>();
             }
-            catch (Exception)
-            {
-
-                throw;
-            }
-
-
+            
+            return PartialView("_ListaHomologacao");
         }
 
 

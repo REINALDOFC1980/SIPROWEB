@@ -147,9 +147,6 @@ namespace SIPROWEBJULGAMENTO.Controllers
             if (resultadoErro != null)
                 return resultadoErro;
 
-
-  
-
              if (response.StatusCode == HttpStatusCode.OK)
                 ViewBag.Protocolo = await response.Content.ReadFromJsonAsync<List<ProtocoloJulgamento_Model>>();
 

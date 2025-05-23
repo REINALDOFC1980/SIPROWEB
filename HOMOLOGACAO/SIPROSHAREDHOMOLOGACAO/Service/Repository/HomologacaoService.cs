@@ -27,7 +27,7 @@ namespace SIPROSHAREDHOMOLOGACAO.Service.Repository
             }
 
             var query = @"
-				 select Movpro_id,
+				 select MOVPRO_ID,
 	                    SETSUB_NOME,
                         PRT_NUMERO,
                         PRT_AIT,
