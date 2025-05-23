@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SIPROSHARED.DbContext;
 using SIPROSHAREDPUBLICACAO.Model;
 using SIPROSHAREDPUBLICACAO.Service.IRepository;
+using SIRPOEXCEPTIONS.Log;
 
 namespace SIPROAPIPUBLICACAO.Controllers
 {
@@ -11,20 +12,22 @@ namespace SIPROAPIPUBLICACAO.Controllers
     public class PublicacaoController : ControllerBase
     {
 
-        private readonly ILogger<PublicacaoController> _logger;
-        private readonly IPublicacaoService _publicacao;
-        private readonly IHttpClientFactory _httpClientFactory;
+        //private readonly ILogger<PublicacaoController> _logger;
         private readonly DapperContext _context;
+        private readonly IPublicacaoService _publicacao;
+        private readonly IHttpClientFactory _httpClientFactory;        
+        private readonly ILoggerManagerService _logger;
 
         public PublicacaoController(IPublicacaoService distribuicao,
                                       IHttpClientFactory httpClientFactory,
-                                      DapperContext context)
+                                      DapperContext context,
+                                      ILoggerManagerService logger)
         {
             _publicacao = distribuicao;
             _httpClientFactory = httpClientFactory;
             _context = context;
+            _logger = logger;
         }
-
 
         [HttpGet]
         [Route("quantidade-processo/{usuario}")]

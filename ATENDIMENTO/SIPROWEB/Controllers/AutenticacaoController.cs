@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using SIPROSHARED.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
@@ -14,18 +15,17 @@ namespace SIPROWEB.Controllers
         private readonly HttpClient _httpClient;
         private readonly string _baseApiUrl;
 
-
-        public AutenticacaoController(HttpClient httpClient, IConfiguration configuration)
+        public AutenticacaoController(HttpClient httpClient, IConfiguration configuration, ILogger<AutenticacaoController> logger)
         {
             _httpClient = httpClient;
             _baseApiUrl = configuration.GetValue<string>("AutenticacaoApiUrl");
-
         }
-     
+
         public IActionResult Login()
         {
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> Login(string login, string senha)
         {
@@ -41,24 +41,11 @@ namespace SIPROWEB.Controllers
                 var apiUrl = $"{_baseApiUrl}";
                 var response = await _httpClient.PostAsJsonAsync(apiUrl, loginRequest);
 
-
                 if (response.IsSuccessStatusCode)
                 {
                     var token = await response.Content.ReadAsStringAsync();
-
-                    // Salvar o token onde necessário (por exemplo, em cookies ou na sessão)
                     HttpContext.Session.SetString("Token", token);
 
-
-                    //var handler = new JwtSecurityTokenHandler();
-                    //var jwtToken = handler.ReadJwtToken(token);
-                    //var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
-                    //var AtendRoles = new[] { "ADM", "ATENDIMENTO_ADM" };
-                    //if (AtendRoles.Contains(roleClaim))
-                    //    return RedirectToAction("Index", "Home");
-
-                    // Redirecionar para a página autorizada
                     return RedirectToAction("Apresentacao", "Home");
                 }
                 else if (response.StatusCode == HttpStatusCode.NotFound)
@@ -87,14 +74,22 @@ namespace SIPROWEB.Controllers
             }
         }
 
-        public IActionResult Logout()
-        {
-            // Limpa a sessão do usuário
-            HttpContext.Session.Clear();
 
-            // Redireciona para a página de login
+        public async Task<IActionResult> Logout()
+        {
+            var token = HttpContext.Session.GetString("Token");
+
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+
+            var login = jwtToken.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+
+            HttpContext.Session.Clear();
+            var apiUrl = $"{_baseApiUrl}logout?login={login}";
+            var response = await _httpClient.GetAsync(apiUrl);
             return RedirectToAction("Login", "Autenticacao");
         }
+
 
     }
 }

@@ -23,13 +23,13 @@ builder.Services.AddMvc(options => options.Filters.Add(typeof(ExceptionFilter)))
 
 
 
-// Configurar Serilog para gravar logs em um arquivo
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
-    .CreateLogger();
+//// Configurar Serilog para gravar logs em um arquivo
+//Log.Logger = new LoggerConfiguration()
+//    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+//    .CreateLogger();
 
-builder.Logging.ClearProviders();
-builder.Logging.AddSerilog();
+//builder.Logging.ClearProviders();
+//builder.Logging.AddSerilog();
 
 
 var app = builder.Build();

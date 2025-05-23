@@ -35,8 +35,6 @@ namespace SIPROAPI.Controllers
             _context = context;
             _baseApiUrl = configuration.GetValue<string>("SipApiUrl");
             _logger = logger;
-
-
         }
 
 
@@ -187,7 +185,9 @@ namespace SIPROAPI.Controllers
                     } 
                     else
                     {
-                        // Confirmar a transação se tudo ocorrer bem
+                        
+                        _logger.LogInformation("Protocolo gerado por: " + protocoloModel.PRT_ATENDENTE);
+
                         transaction.Commit();
                         return Ok(new { protocolo = protocoloModel.PRT_NUMERO });
                     }
@@ -270,7 +270,6 @@ namespace SIPROAPI.Controllers
                 return StatusCode(500, "Ocorreu um erro interno no servidor.");
             }
         }
-
 
         private async Task<HttpResponseMessage> EnviarRequisicaoAsync(ProtocoloModel protocoloModel)
         {

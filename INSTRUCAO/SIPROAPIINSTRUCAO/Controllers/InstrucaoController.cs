@@ -109,7 +109,7 @@ namespace SIPROAPIINSTRUCAO.Controllers
                                              
 
                         transaction.Commit();
-
+                        _logger.LogInformation("Encaminhado por: {DIS_ORIGEM_USUARIO}", instrucao.INSPRO_Usuario_origem);
                         return Ok();
 
                     }

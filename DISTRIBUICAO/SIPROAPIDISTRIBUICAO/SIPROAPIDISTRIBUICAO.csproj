@@ -18,4 +18,8 @@
     <ProjectReference Include="..\SIPROSHAREDDISTRIBUICAO\SIPROSHAREDDISTRIBUICAO.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Logs\" />
+  </ItemGroup>
+
 </Project>

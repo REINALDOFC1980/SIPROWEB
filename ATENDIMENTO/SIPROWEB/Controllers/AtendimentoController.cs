@@ -29,7 +29,7 @@ namespace SIPROWEB.Controllers
         private readonly string? _baseSipApiUrl;
         private readonly string? _relatorioApiUrl;
         private string? userMatrix;
-
+        private readonly ILogger<AtendimentoController> _logger;
 
         public AtendimentoController(HttpClient httpClient, IConfiguration configuration)
         {
@@ -665,8 +665,8 @@ namespace SIPROWEB.Controllers
                     {
                         string protocolo = result["protocolo"];
                         protocolo = Uri.UnescapeDataString(protocolo);
-                        protocoloModel.PRT_NUMERO = protocolo;                           
-
+                        protocoloModel.PRT_NUMERO = protocolo;
+                        _logger.LogInformation("Protocolo gerado por: " + protocoloModel.PRT_ATENDENTE);
                         return Json(new { error = false, protocolo });
                     }
                     else
@@ -682,7 +682,7 @@ namespace SIPROWEB.Controllers
             }
             catch (Exception ex)
             {
-                // Logar a exceção (não mostrado aqui por brevidade)
+                _logger.LogInformation("ERRO: " + ex);
                 return Json(new { error = true, message = "Erro interno do servidor" });
             }
         }
@@ -703,6 +703,8 @@ namespace SIPROWEB.Controllers
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
+                 
+
                     protocoloModel = await response.Content.ReadFromJsonAsync<ProtocoloModel>();
                     return View(protocoloModel);
                 }
@@ -711,7 +713,7 @@ namespace SIPROWEB.Controllers
             }
             catch (Exception ex)
             {
-                // Log a exceção detalhada
+                _logger.LogInformation("ERRO: " + ex);
                 return RedirectToAction("InternalServerError", "Home"); 
             }
         }

@@ -120,7 +120,10 @@ namespace SIPROSHAREDINSTRUCAO.Controllers
                     {
                         await _distribuicao.DistribuicaoProcesso(distribuicaoModel, connection, transaction);
                         transaction.Commit();
+
+                        _logger.LogInformation("Distribuido por: {DIS_ORIGEM_USUARIO}", distribuicaoModel.DIS_ORIGEM_USUARIO);
                         return Ok(new { message = "Processo distribuído com sucesso." });
+
                     }
                     catch
                     {
@@ -148,6 +151,7 @@ namespace SIPROSHAREDINSTRUCAO.Controllers
 
                         await _distribuicao.DistribuicaoProcessoEspecifico(distribuicaoModel, connection, transaction);
                         transaction.Commit();
+                        _logger.LogInformation("Distribuido por: {DIS_ORIGEM_USUARIO}", distribuicaoModel.DIS_ORIGEM_USUARIO);
                         return Ok();
 
                     }
@@ -167,6 +171,7 @@ namespace SIPROSHAREDINSTRUCAO.Controllers
         public async Task<IActionResult> RetirarProcesso(ProtocoloDistribuicaoModel distribuicaoModel)
         {
             await _distribuicao.RetirarProcesso(distribuicaoModel);
+            _logger.LogInformation("Retirado por: {DIS_ORIGEM_USUARIO}", distribuicaoModel.DIS_ORIGEM_USUARIO);
             return Ok(); 
         }
 
@@ -176,6 +181,8 @@ namespace SIPROSHAREDINSTRUCAO.Controllers
         {
           
             await _distribuicao.RetirarProcessoEspecifico(distribuicaoModel);
+
+            _logger.LogInformation("Retirado por: {DIS_ORIGEM_USUARIO}", distribuicaoModel.DIS_ORIGEM_USUARIO);
             return Ok();
             
 

@@ -16,7 +16,12 @@
 	 </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\EXCEPTIONS\SIRPOEXCEPTIONS\SIRPOEXCEPTIONS.csproj" />
     <ProjectReference Include="..\SIPROSHARED\SIPROSHARED.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Logs\" />
   </ItemGroup>
 
 </Project>

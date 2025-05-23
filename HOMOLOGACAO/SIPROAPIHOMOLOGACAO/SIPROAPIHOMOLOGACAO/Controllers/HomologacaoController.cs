@@ -82,7 +82,6 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
         }
 
 
-
         [HttpGet]
         [Route("buscar-parecer/{processo}")]
         public async Task<IActionResult> BuscarParece(string processo)
@@ -103,7 +102,6 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
                 throw;
             } 
         }
-
 
 
         [HttpGet]
@@ -137,7 +135,6 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
         }
 
 
-
         [HttpPost]
         [Route("realizar-homologacao")]
         public async Task<IActionResult> RealizarHomologacao(JulgamentoModel julgamentoModel)
@@ -152,20 +149,17 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
                 using (var transaction = connection.BeginTransaction())
                 {
                     
-                        await _homologacaoService.RealizarHomologacao(julgamentoModel,  connection, transaction);
+                   await _homologacaoService.RealizarHomologacao(julgamentoModel,  connection, transaction);
 
+                    _logger.LogInformation("Homologado por: {Disjug_Homologador}", julgamentoModel.Disjug_Homologador);
+                    transaction.Commit();
 
-                        transaction.Commit();
-
-                        return Ok();
-
+                    return Ok();
                    
                 }
             }
-
-
-
         }
+
 
         [HttpPost]
         [Route("homologacao-todos")]
@@ -182,8 +176,10 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
                 {
                     await _homologacaoService.HomologarTodos(homologacaoModel, connection, transaction);
 
+
                     transaction.Commit();
 
+                    _logger.LogInformation("Homologado por: {Disjug_Homologador}", homologacaoModel.PRT_HOMOLOGADOR);
                     return Ok();
 
 
@@ -193,6 +189,7 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
 
 
         }
+
 
         [HttpPost]
         [Route("retornar-julgamento")]
@@ -207,10 +204,10 @@ namespace SIPROAPIHOMOLOGACAO.Controllers
                 using (var transaction = connection.BeginTransaction())
                 {
                     
-                        await _homologacaoService.RetornarJulgamento(retificacaoModel, connection, transaction);
+                    await _homologacaoService.RetornarJulgamento(retificacaoModel, connection, transaction);
+                    _logger.LogInformation("Homologado por: {Disjug_Homologador}", retificacaoModel.MOVPRO_USUARIO_ORIGEM);
 
-
-                        transaction.Commit();
+                    transaction.Commit();
 
                         return Ok();
 

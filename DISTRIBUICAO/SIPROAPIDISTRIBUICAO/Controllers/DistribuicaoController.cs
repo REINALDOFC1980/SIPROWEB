@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SIPROSHARED.DbContext;
-using SIPROSHARED.Models;
 using SIPROSHAREDDISTRIBUICAO.Models;
 using SIPROSHAREDDISTRIBUICAO.Service.IRepository;
-using System.Drawing;
 
 namespace SIPROAPIDISTRIBUICAO.Controllers
 {
@@ -14,20 +11,16 @@ namespace SIPROAPIDISTRIBUICAO.Controllers
     {
         private readonly ILogger<DistribuicaoController> _logger;
         private readonly IDistribuicaoService _distribuicao;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly DapperContext _context;
 
 
-          public DistribuicaoController(IDistribuicaoService distribuicao,                                   
-                                        IHttpClientFactory httpClientFactory,
+          public DistribuicaoController(IDistribuicaoService distribuicao,  
                                         DapperContext context,
                                         ILogger<DistribuicaoController> logger)
           {
              _distribuicao = distribuicao;
-             _httpClientFactory = httpClientFactory;
              _context = context;
              _logger = logger;
-
           }
 
 
@@ -119,8 +112,15 @@ namespace SIPROAPIDISTRIBUICAO.Controllers
                     try
                     {
                         await _distribuicao.DistribuicaoProcesso(distribuicaoModel, connection, transaction);
+                      
                         transaction.Commit();
+
+                        _logger.LogInformation("ID Movimentacao: {MovimentacaoId}", distribuicaoModel.DIS_MOV_ID);
+                        
+                        _logger.LogInformation("Usuário: {Usuario}", distribuicaoModel.DIS_ORIGEM_USUARIO);
+
                         return Ok(new { message = "Processo distribuído com sucesso." });
+
                     }
                     catch
                     {
@@ -148,6 +148,10 @@ namespace SIPROAPIDISTRIBUICAO.Controllers
 
                         await _distribuicao.DistribuicaoProcessoEspecifico(distribuicaoModel, connection, transaction);
                         transaction.Commit();
+
+                        _logger.LogInformation("ID Movimentacao: {MovimentacaoId}", distribuicaoModel.DIS_MOV_ID);
+                        _logger.LogInformation("Usuário: {Usuario}", distribuicaoModel.DIS_ORIGEM_USUARIO);
+
                         return Ok();
 
                     }
@@ -167,6 +171,10 @@ namespace SIPROAPIDISTRIBUICAO.Controllers
         public async Task<IActionResult> RetirarProcesso(ProtocoloDistribuicaoModel distribuicaoModel)
         {
             await _distribuicao.RetirarProcesso(distribuicaoModel);
+
+            _logger.LogInformation("ID Movimentacao: {MovimentacaoId}", distribuicaoModel.DIS_MOV_ID);
+            _logger.LogInformation("Usuário: {Usuario}", distribuicaoModel.DIS_ORIGEM_USUARIO);
+
             return Ok(); 
         }
 
@@ -176,6 +184,9 @@ namespace SIPROAPIDISTRIBUICAO.Controllers
         {
           
             await _distribuicao.RetirarProcessoEspecifico(distribuicaoModel);
+
+            _logger.LogInformation("ID Movimentacao: {MovimentacaoId}", distribuicaoModel.DIS_MOV_ID);
+            _logger.LogInformation("Usuário: {Usuario}", distribuicaoModel.DIS_ORIGEM_USUARIO);
             return Ok();
             
 
